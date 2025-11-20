@@ -14,7 +14,7 @@ class User extends UserService {
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
-        catch (error: any) {
+        catch (error: any){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
         }
     };
@@ -34,27 +34,19 @@ class User extends UserService {
     getUser = async (req: Request, res: Response): Promise<void> => {
         const user_id = req.validated_user_data?.id; 
 
-        if (!user_id) {
-            res.json({ status: false, error: "Unauthorized", result: null });
-            return;
+        if(!user_id){
+          throw new Error("user not found");
         }
 
-        try {
+        try{
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = await user_service.getUserById(user_id);
             res.json(response_data);
         } 
         catch(error: any){
-            res.json({
-                ...RESPONSE_DATA_DEFAULT_VALUE,
-                status: false,
-                error: error.message,
-                result: null,
-            });
+            res.json({...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, result: null,});
         }
     };
-
-
 
     userLogout = async (req: Request, res: Response): Promise<void> => {
         /* for user logout */

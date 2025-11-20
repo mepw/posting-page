@@ -58,11 +58,12 @@ export default function Dashboard() {
       const data = await res.json();
       const rows = data.result || [];
 
-      // Transform flat rows into posts with comments array
+      const postsArr = [];
       const postsMap = {};
+
       rows.forEach((row) => {
         if (!postsMap[row.post_id]) {
-          postsMap[row.post_id] = {
+          const newPost = {
             post_id: row.post_id,
             title: row.title,
             description: row.description,
@@ -70,7 +71,10 @@ export default function Dashboard() {
             post_user_last_name: row.post_user_last_name,
             comments: [],
           };
+          postsArr.push(newPost); // preserve backend order
+          postsMap[row.post_id] = newPost;
         }
+
         if (row.comment_id) {
           postsMap[row.post_id].comments.push({
             comment_id: row.comment_id,
@@ -80,7 +84,7 @@ export default function Dashboard() {
         }
       });
 
-      setPosts(Object.values(postsMap));
+      setPosts(postsArr);
     } catch (err) {
       setErrors(["Failed to fetch posts"]);
     }
@@ -145,7 +149,14 @@ export default function Dashboard() {
   return (
     <div style={{ maxWidth: "800px", margin: "20px auto" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
         <h1>Welcome, {user.first_name || "User"}!</h1>
         <button onClick={handleLogout}>Logout</button>
       </div>
@@ -153,7 +164,9 @@ export default function Dashboard() {
       {/* Errors */}
       {errors.length > 0 && (
         <ul style={{ color: "red" }}>
-          {errors.map((e, i) => <li key={i}>{e}</li>)}
+          {errors.map((e, i) => (
+            <li key={i}>{e}</li>
+          ))}
         </ul>
       )}
 
@@ -180,27 +193,41 @@ export default function Dashboard() {
 
       {/* Posts */}
       {posts.map((p) => (
-        <div key={p.post_id} style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}>
+        <div
+          key={p.post_id}
+          style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}
+        >
           <h3>{p.title}</h3>
           <p>{p.description}</p>
-          <small>By {p.post_user_first_name} {p.post_user_last_name}</small>
+          <small>
+            By {p.post_user_first_name} {p.post_user_last_name}
+          </small>
 
           {/* Comments */}
           <div style={{ marginTop: "10px" }}>
             {p.comments.map((c) => (
-              <p key={c.comment_id}><b>{c.comment_user_first_name}</b>: {c.comment_text}</p>
+              <p key={c.comment_id}>
+                <b>{c.comment_user_first_name}</b>: {c.comment_text}
+              </p>
             ))}
 
             {/* Comment Input */}
-            <form onSubmit={(e) => handleCommentSubmit(e, p.post_id)} style={{ marginTop: "10px" }}>
+            <form
+              onSubmit={(e) => handleCommentSubmit(e, p.post_id)}
+              style={{ marginTop: "10px" }}
+            >
               <input
                 value={commentText[p.post_id] || ""}
-                onChange={(e) => setCommentText({ ...commentText, [p.post_id]: e.target.value })}
+                onChange={(e) =>
+                  setCommentText({ ...commentText, [p.post_id]: e.target.value })
+                }
                 placeholder="Write a comment..."
                 required
                 style={{ width: "80%", padding: "6px" }}
               />
-              <button type="submit" style={{ marginLeft: "5px" }}>Comment</button>
+              <button type="submit" style={{ marginLeft: "5px" }}>
+                Comment
+              </button>
             </form>
           </div>
         </div>
