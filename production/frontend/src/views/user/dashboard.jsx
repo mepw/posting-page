@@ -159,16 +159,16 @@ export default function Dashboard() {
         posts.map((p) =>
           p.post_id === postId
             ? {
-                ...p,
-                comments: [
-                  ...p.comments,
-                  {
-                    comment_id: data.result.comment_id,
-                    comment_text: commentText[postId],
-                    comment_user_first_name: user.first_name,
-                  },
-                ],
-              }
+              ...p,
+              comments: [
+                ...p.comments,
+                {
+                  comment_id: data.result.comment_id,
+                  comment_text: commentText[postId],
+                  comment_user_first_name: user.first_name,
+                },
+              ],
+            }
             : p
         )
       );

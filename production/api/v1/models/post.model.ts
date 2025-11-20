@@ -7,7 +7,15 @@ import { NUMBERS } from "../../../configs/constants/number.constants"
 const USE_READ_REPLICA = false;
 
 class PostModel extends DatabaseModel {
-
+    /**
+     * DOCU: This function fetches posts from the database with optional filtering, joining, grouping, ordering, and pagination. <br>
+     *       It constructs a dynamic SQL query based on provided parameters and returns the result rows. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing select fields, join statements, where clauses, group/order clauses, limit, offset, and CTE
+     * @returns Object containing an array of posts matching the query
+     * @template FetchFieldType - Type of each post row returned from the query
+     * @author Keith
+     */
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
@@ -46,7 +54,15 @@ class PostModel extends DatabaseModel {
         return { posts: result.rows };
     };
 
-
+    /**
+     * DOCU: This function inserts a new post into the database. <br>
+     *       It formats the SQL insert statement with the provided post details,
+     *       executes the query, and returns the inserted post ID. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param post_details - Object containing user_id, title, and description
+     * @returns Object containing the newly inserted post ID as title_id
+     * @author Jaybee
+     */
     createNewPost = async (post_details: CreatePostType): Promise<{ title_id?: number }> => {
         const user_post = [
             [post_details.user_id, post_details.title, post_details.description,]
@@ -63,14 +79,32 @@ class PostModel extends DatabaseModel {
 
         return { title_id: result.rows[0]?.id };
     };
-
+    /**
+     * DOCU: This function updates an existing post. <br>
+     *       It executes an update query with the provided set and where clauses and values, and returns a boolean indicating success. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param set_fields - SQL SET clause string
+     * @param where_params - SQL WHERE clause string
+     * @param set_values - Array of values corresponding to the SET clause
+     * @param where_values - Array of values corresponding to the WHERE clause
+     * @returns boolean - True if the update affected rows, false otherwise
+     * @author Jaybee
+     */
     updateUserPost = async (set_fields: string, where_params: string, set_values: (string | number | boolean | Date)[], where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         let update_user_result = await this.executeQuery(`UPDATE user_stories.posts SET ${set_fields} WHERE ${where_params}`, [...set_values, ...where_values]);
 
         return !!update_user_result.rowCount;
     };
 
-
+    /**
+     * DOCU: This function deletes posts matching the provided WHERE clause. <br>
+     *       It executes a DELETE query and returns a boolean indicating whether any rows were deleted. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param where_params - SQL WHERE clause string
+     * @param where_values - Array of values corresponding to the WHERE clause
+     * @returns boolean - True if deletion affected rows, false otherwise
+     * @author Jaybee
+     */
     deletePost = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_result = await this.executeQuery(
             `DELETE FROM user_stories.posts WHERE ${where_params}`,

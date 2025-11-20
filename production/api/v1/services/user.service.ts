@@ -10,7 +10,15 @@ import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
 
 class UserService extends DatabaseModel {
-
+    /**
+     * DOCU: This function handles user sign-up. <br>
+     *       It validates the password, hashes it, checks for existing users,
+     *       creates a new user record via UserModel, and returns the created user along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing user sign-up data (first_name, last_name, email, password, etc.)
+     * @returns response_data - JSON containing status, created user result, and/or error message
+     * @author Keith
+     */
     signUpUser = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
@@ -52,7 +60,15 @@ class UserService extends DatabaseModel {
 
         return response_data;
     }
-
+    /**
+     * DOCU: This function handles user login. <br>
+     *       It fetches the user by email, validates the password, generates access and refresh JWT tokens,
+     *       and returns them along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing login credentials (email, password)
+     * @returns response_data - JSON containing status, login result (access_token, refresh_token), and/or error message
+     * @author Keith
+     */
     userLogin = async (params: VerifyLoginParamsTypes): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = {
             status: false,
@@ -106,7 +122,14 @@ class UserService extends DatabaseModel {
 
         return response_data;
     };
-
+    /**
+     * DOCU: This function retrieves user details by user ID. <br>
+     *       It calls the UserModel to fetch the user and returns the user data along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param user_id - ID of the user to retrieve
+     * @returns response_data - JSON containing status, user data (or null), and/or error message
+     * @author Keith
+     */
     getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes | null>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = {
             status: false,
@@ -135,7 +158,14 @@ class UserService extends DatabaseModel {
 
         return response_data;
     };
-
+    /**
+     * DOCU: This function refreshes JWT tokens for a user. <br>
+     *       It fetches the user by ID, generates new access and refresh tokens, and returns them along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing user ID
+     * @returns response_data - JSON containing status, refreshed login tokens, and/or error message
+     * @author Keith
+     */
     refreshToken = async (params: { id: number }): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: { access_token: "", refresh_token: "" } };
 

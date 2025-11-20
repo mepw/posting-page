@@ -3,7 +3,15 @@ import { CreatePostType, UpdatePostType, DeletePostType } from "../entities/type
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 
 class UserPost extends PostModel {
-
+    /**
+     * DOCU: This function creates a new post record. <br>
+     *       It validates the title, checks for duplicates, calls the PostModel to insert the post,
+     *       and returns the created post along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing post data including title, description, and user_id
+     * @returns response_data - JSON containing status, created post result, and/or error message
+     * @author Keith
+     */
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
@@ -41,7 +49,14 @@ class UserPost extends PostModel {
 
         return response_data;
     };
-
+    
+    /**
+     * DOCU: This function retrieves all posts along with user and comment details. <br>
+     *       It calls the PostModel to fetch the posts and returns them with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @returns response_data - JSON containing status, array of posts with user/comments, and/or error message
+     * @author Keith
+     */
     getAllPost = async (): Promise<ResponseDataInterface<CreatePostType[]>> => {
         const response_data: ResponseDataInterface<CreatePostType[]> = { status: false, result: undefined, error: null };
 
@@ -76,6 +91,15 @@ class UserPost extends PostModel {
         return response_data;
     };
 
+    /**
+     * DOCU: This function updates an existing post. <br>
+     *       It constructs the updated post object, calls the PostModel to update the record,
+     *       and returns the updated post along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing post ID, title, and description
+     * @returns response_data - JSON containing status, updated post result, and/or error message
+     * @author Keith
+     */
     updatePost = async (params: UpdatePostType): Promise<ResponseDataInterface<UpdatePostType>> => {
         const response_data: ResponseDataInterface<UpdatePostType> = { status: false, error: null, result: undefined };
 
@@ -113,7 +137,14 @@ class UserPost extends PostModel {
         return response_data;
     };
 
-
+    /**
+     * DOCU: This function deletes a post by ID. <br>
+     *       It calls the PostModel to delete the post and returns a boolean result along with status. <br>
+     * Last updated at: Nov 20, 2025 <br>
+     * @param params - Object containing post ID
+     * @returns response_data - JSON containing status, deletion result (true/false), and/or error message
+     * @author Keith
+     */
     deleteUserPost = async (params: DeletePostType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = {
             status: false,
