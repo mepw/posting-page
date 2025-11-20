@@ -91,7 +91,11 @@ class PostModel extends DatabaseModel {
      * @author Jaybee
      */
     updateUserPost = async (set_fields: string, where_params: string, set_values: (string | number | boolean | Date)[], where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-        let update_user_result = await this.executeQuery(`UPDATE user_stories.posts SET ${set_fields} WHERE ${where_params}`, [...set_values, ...where_values]);
+        let update_user_result = await this.executeQuery(`
+            UPDATE user_stories.posts 
+            SET ${set_fields} 
+            WHERE ${where_params}`, 
+            [...set_values, ...where_values]);
 
         return !!update_user_result.rowCount;
     };
@@ -106,12 +110,12 @@ class PostModel extends DatabaseModel {
      * @author Jaybee
      */
     deletePost = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-        const delete_user_result = await this.executeQuery(
+        const delete_user_post = await this.executeQuery(
             `DELETE FROM user_stories.posts WHERE ${where_params}`,
             where_values
         );
 
-        return !!delete_user_result.rowCount;
+        return !!delete_user_post.rowCount;
     };
 
 
