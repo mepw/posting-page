@@ -10,8 +10,13 @@ export default function Dashboard() {
   const [commentText, setCommentText] = useState({});
   const [errors, setErrors] = useState([]);
 
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+
   const API_BASE = "http://localhost:5000/api/v1";
 
+  // Generic fetch wrapper
   const fetchWithToken = async (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
@@ -38,6 +43,7 @@ export default function Dashboard() {
     return res;
   };
 
+  // Fetch logged-in user
   const fetchUser = async () => {
     try {
       const res = await fetchWithToken("/user/user");
@@ -47,11 +53,12 @@ export default function Dashboard() {
         return;
       }
       setUser(data.result);
-    } catch (err) {
+    } catch {
       navigate("/login");
     }
   };
 
+  // Fetch posts
   const fetchPosts = async () => {
     try {
       const res = await fetchWithToken("/post/post");
@@ -69,9 +76,10 @@ export default function Dashboard() {
             description: row.description,
             post_user_first_name: row.post_user_first_name,
             post_user_last_name: row.post_user_last_name,
+            post_user_id: row.post_user_id,
             comments: [],
           };
-          postsArr.push(newPost); // preserve backend order
+          postsArr.push(newPost);
           postsMap[row.post_id] = newPost;
         }
 
@@ -85,7 +93,7 @@ export default function Dashboard() {
       });
 
       setPosts(postsArr);
-    } catch (err) {
+    } catch {
       setErrors(["Failed to fetch posts"]);
     }
   };
@@ -95,6 +103,7 @@ export default function Dashboard() {
     fetchPosts();
   }, []);
 
+  // Create post
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!postTitle.trim() || !postDesc.trim()) return;
@@ -105,18 +114,31 @@ export default function Dashboard() {
         body: JSON.stringify({ title: postTitle, description: postDesc }),
       });
       const data = await res.json();
+
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to create post"]);
         return;
       }
+
+      const newPost = {
+        post_id: data.result.id, // map backend 'id' to 'post_id'
+        title: data.result.title,
+        description: data.result.description,
+        post_user_first_name: user.first_name,
+        post_user_last_name: user.last_name,
+        post_user_id: user.id,
+        comments: [],
+      };
+
+      setPosts([newPost, ...posts]);
       setPostTitle("");
       setPostDesc("");
-      fetchPosts();
-    } catch (err) {
+    } catch {
       setErrors(["Failed to create post"]);
     }
   };
 
+  // Add comment
   const handleCommentSubmit = async (e, postId) => {
     e.preventDefault();
     if (!commentText[postId]?.trim()) return;
@@ -127,17 +149,100 @@ export default function Dashboard() {
         body: JSON.stringify({ post_id: postId, comment: commentText[postId] }),
       });
       const data = await res.json();
+
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to add comment"]);
         return;
       }
+
+      setPosts(
+        posts.map((p) =>
+          p.post_id === postId
+            ? {
+                ...p,
+                comments: [
+                  ...p.comments,
+                  {
+                    comment_id: data.result.comment_id,
+                    comment_text: commentText[postId],
+                    comment_user_first_name: user.first_name,
+                  },
+                ],
+              }
+            : p
+        )
+      );
+
       setCommentText({ ...commentText, [postId]: "" });
-      fetchPosts();
-    } catch (err) {
+    } catch {
       setErrors(["Failed to add comment"]);
     }
   };
 
+  // Start editing post
+  const startEditing = (post) => {
+    setEditingPostId(post.post_id);
+    setEditTitle(post.title);
+    setEditDesc(post.description);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingPostId(null);
+    setEditTitle("");
+    setEditDesc("");
+  };
+
+  // Submit edit
+  const handleEditSubmit = async (e, postId) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetchWithToken(`/post/edit/${postId}`, {
+        method: "PUT",
+        body: JSON.stringify({ title: editTitle, description: editDesc }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to update post"]);
+        return;
+      }
+
+      setPosts(
+        posts.map((p) =>
+          p.post_id === postId ? { ...p, title: editTitle, description: editDesc } : p
+        )
+      );
+
+      cancelEditing();
+    } catch {
+      setErrors(["Failed to update post"]);
+    }
+  };
+
+  // Delete post
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      const res = await fetchWithToken(`/post/delete/${postId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to delete post"]);
+        return;
+      }
+
+      setPosts(posts.filter((p) => p.post_id !== postId));
+    } catch {
+      setErrors(["Failed to delete post"]);
+    }
+  };
+
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -148,20 +253,11 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: "800px", margin: "20px auto" }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h1>Welcome, {user.first_name || "User"}!</h1>
         <button onClick={handleLogout}>Logout</button>
       </div>
 
-      {/* Errors */}
       {errors.length > 0 && (
         <ul style={{ color: "red" }}>
           {errors.map((e, i) => (
@@ -170,7 +266,6 @@ export default function Dashboard() {
         </ul>
       )}
 
-      {/* New Post Form */}
       <form onSubmit={handlePostSubmit} style={{ marginBottom: "20px" }}>
         <input
           placeholder="Post Title"
@@ -191,19 +286,39 @@ export default function Dashboard() {
 
       <hr />
 
-      {/* Posts */}
       {posts.map((p) => (
-        <div
-          key={p.post_id}
-          style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}
-        >
-          <h3>{p.title}</h3>
-          <p>{p.description}</p>
-          <small>
-            By {p.post_user_first_name} {p.post_user_last_name}
-          </small>
+        <div key={p.post_id} style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}>
+          {editingPostId === p.post_id ? (
+            <form onSubmit={(e) => handleEditSubmit(e, p.post_id)}>
+              <input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                style={{ width: "100%", marginBottom: "5px" }}
+                required
+              />
+              <textarea
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+                style={{ width: "100%", marginBottom: "5px" }}
+                required
+              />
+              <button type="submit">Save</button>
+              <button type="button" onClick={cancelEditing} style={{ marginLeft: "5px" }}>Cancel</button>
+            </form>
+          ) : (
+            <>
+              <h3>{p.title}</h3>
+              <p>{p.description}</p>
+              <small>By {p.post_user_first_name} {p.post_user_last_name}</small>
+              {Number(p.post_user_id) === Number(user.id) && (
+                <>
+                  <button onClick={() => startEditing(p)} style={{ marginLeft: "10px" }}>Edit</button>
+                  <button onClick={() => handleDeletePost(p.post_id)} style={{ marginLeft: "5px", color: "red" }}>Delete</button>
+                </>
+              )}
+            </>
+          )}
 
-          {/* Comments */}
           <div style={{ marginTop: "10px" }}>
             {p.comments.map((c) => (
               <p key={c.comment_id}>
@@ -211,23 +326,15 @@ export default function Dashboard() {
               </p>
             ))}
 
-            {/* Comment Input */}
-            <form
-              onSubmit={(e) => handleCommentSubmit(e, p.post_id)}
-              style={{ marginTop: "10px" }}
-            >
+            <form onSubmit={(e) => handleCommentSubmit(e, p.post_id)} style={{ marginTop: "10px" }}>
               <input
                 value={commentText[p.post_id] || ""}
-                onChange={(e) =>
-                  setCommentText({ ...commentText, [p.post_id]: e.target.value })
-                }
+                onChange={(e) => setCommentText({ ...commentText, [p.post_id]: e.target.value })}
                 placeholder="Write a comment..."
                 required
                 style={{ width: "80%", padding: "6px" }}
               />
-              <button type="submit" style={{ marginLeft: "5px" }}>
-                Comment
-              </button>
+              <button type="submit" style={{ marginLeft: "5px" }}>Comment</button>
             </form>
           </div>
         </div>

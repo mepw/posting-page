@@ -6,7 +6,7 @@ import { CreatePostType } from "../entities/types/post.type";
 import { NUMBERS } from "../../../configs/constants/number.constants"
 const USE_READ_REPLICA = false;
 
-class PostModel extends DatabaseModel{
+class PostModel extends DatabaseModel {
 
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
@@ -33,11 +33,11 @@ class PostModel extends DatabaseModel{
 
         const values = where_values || [];
 
-        if(limit !== undefined){
+        if (limit !== undefined) {
             values.push(limit);
         }
 
-        if(offset !== undefined){
+        if (offset !== undefined) {
             values.push(offset);
         }
 
@@ -63,6 +63,23 @@ class PostModel extends DatabaseModel{
 
         return { title_id: result.rows[0]?.id };
     };
+
+    updateUserPost = async (set_fields: string, where_params: string, set_values: (string | number | boolean | Date)[], where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
+        let update_user_result = await this.executeQuery(`UPDATE user_stories.posts SET ${set_fields} WHERE ${where_params}`, [...set_values, ...where_values]);
+
+        return !!update_user_result.rowCount;
+    };
+
+
+    deletePost = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
+        const delete_user_result = await this.executeQuery(
+            `DELETE FROM user_stories.posts WHERE ${where_params}`,
+            where_values
+        );
+
+        return !!delete_user_result.rowCount;
+    };
+
 
 }
 
