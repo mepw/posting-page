@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+files:
+  - source: ./
+    destination: "/var/www/....."
+file_exists_behavior: OVERWRITE
+hooks:
+  #BeforeInstall:
+  #  - location: production/devops/scripts/test.sh
+  #    timeout: 3600
+  #AfterInstall:
+  #  - location: production/devops/scripts/nginx.sh
+  #    timeout: 180
+  #  - location: production/devops/scripts/test.sh
+  #    timeout: 180
+  ApplicationStart:
+    - location: production/devops/scripts/runApp.sh
+      timeout: 300
+  # ValidateService:
+  #   - location: production/devops/scripts/test.sh
+  #     timeout: 3600
+  #     runas: codedeployuser

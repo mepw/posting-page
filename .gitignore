@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**.env.yml
+!development.sample.env.yml
+docs
+**/package-lock.json
+!Dockerfile
+global-rules.md

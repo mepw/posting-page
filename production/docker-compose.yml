@@ -1,0 +1,14 @@
+services:
+  example_service:
+    image: node:22
+    working_dir: /usr/src/app
+    volumes:
+      - "./:/usr/src/app"
+    stdin_open: true
+    tty: true
+    privileged: true
+    environment:
+      NODE_ENV: production
+    command: npm start
+    ports:
+        - 8008:8008
