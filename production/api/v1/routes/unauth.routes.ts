@@ -6,6 +6,7 @@ import {authenticatorHandler} from "../middlewares/authenticator.middleware";
 import Dashboard from "../controllers/user.controller"
 import PostController from "../controllers/post.controller";
 import CommentController from "../controllers/comment.controller";
+
 const UnAuthRoute: Router = Router();
 
 UnAuthRoute.post("/signup", validateSignUpUser, exec(AuthController.userSignUp));

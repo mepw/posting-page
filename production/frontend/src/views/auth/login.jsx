@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -8,13 +8,18 @@ export default function Login() {
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Clear tokens on component mount
+  useEffect(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
     setLoading(true);
 
     try {
-      // Call backend login endpoint
       const res = await fetch("/api/v1/unauth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -23,7 +28,6 @@ export default function Login() {
 
       const data = await res.json();
 
-      // Handle login errors
       if (!res.ok || data.status === false) {
         if (data.errors && Array.isArray(data.errors)) setErrors(data.errors);
         else if (data.error) setErrors([data.error]);
@@ -31,11 +35,10 @@ export default function Login() {
         return;
       }
 
-      // Save backend-provided JWT tokens to localStorage
+      // Save tokens after successful login
       localStorage.setItem("access_token", data.result.access_token);
       localStorage.setItem("refresh_token", data.result.refresh_token);
 
-      // Redirect to dashboard
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -64,7 +67,6 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
         </div>
 
@@ -74,7 +76,6 @@ export default function Login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
         </div>
 

@@ -271,14 +271,12 @@ export default function Dashboard() {
           placeholder="Post Title"
           value={postTitle}
           onChange={(e) => setPostTitle(e.target.value)}
-          required
           style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
         />
         <textarea
           placeholder="Post Description"
           value={postDesc}
           onChange={(e) => setPostDesc(e.target.value)}
-          required
           style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
         />
         <button type="submit">Post</button>
@@ -294,13 +292,13 @@ export default function Dashboard() {
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 style={{ width: "100%", marginBottom: "5px" }}
-                required
+    
               />
               <textarea
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
                 style={{ width: "100%", marginBottom: "5px" }}
-                required
+    
               />
               <button type="submit">Save</button>
               <button type="button" onClick={cancelEditing} style={{ marginLeft: "5px" }}>Cancel</button>
@@ -331,7 +329,7 @@ export default function Dashboard() {
                 value={commentText[p.post_id] || ""}
                 onChange={(e) => setCommentText({ ...commentText, [p.post_id]: e.target.value })}
                 placeholder="Write a comment..."
-                required
+    
                 style={{ width: "80%", padding: "6px" }}
               />
               <button type="submit" style={{ marginLeft: "5px" }}>Comment</button>

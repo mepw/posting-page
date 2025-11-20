@@ -83,7 +83,7 @@ export default function Register() {
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            required
+          
           />
         </div>
 
@@ -93,7 +93,7 @@ export default function Register() {
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            required
+          
           />
         </div>
 
@@ -103,7 +103,7 @@ export default function Register() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
+          
           />
         </div>
 
@@ -113,7 +113,7 @@ export default function Register() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+          
           />
         </div>
 
