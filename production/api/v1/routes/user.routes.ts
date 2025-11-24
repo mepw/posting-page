@@ -2,7 +2,7 @@ import { Router } from "express";
 import { exec } from "../helpers/global.helper";
 import { paramsValidator } from "../middlewares/params_validator.middleware";
 import { authenticatorHandler } from "../middlewares/authenticator.middleware"
-import UserController from "../controllers/user.controller"
+import UserController from "../controllers/users.controller"
 
 // import { signinSchema } from "../validations/auth.validation.schema";
 

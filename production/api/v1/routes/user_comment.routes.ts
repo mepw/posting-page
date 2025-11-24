@@ -1,4 +1,4 @@
-import CommentController from "../controllers/comment.controller";
+import CommentController from "../controllers/comments.controller";
 import { exec } from "../helpers/global.helper";
 import { } from "../validation/user.validation";
 import { Router, Request, Response } from "express";

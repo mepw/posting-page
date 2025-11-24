@@ -1,4 +1,4 @@
-import PostController from "../controllers/post.controller";
+import PostController from "../controllers/posts.controller";
 import { exec } from "../helpers/global.helper";
 import { } from "../validation/user.validation";
 import { Router, Request, Response } from "express";

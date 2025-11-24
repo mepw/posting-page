@@ -79,6 +79,7 @@ class PostModel extends DatabaseModel {
 
         return { title_id: result.rows[0]?.id };
     };
+
     /**
      * DOCU: This function updates an existing post. <br>
      *       It executes an update query with the provided set and where clauses and values, and returns a boolean indicating success. <br>
@@ -94,7 +95,7 @@ class PostModel extends DatabaseModel {
         let update_user_result = await this.executeQuery(`
             UPDATE user_stories.posts 
             SET ${set_fields} 
-            WHERE ${where_params}`, 
+            WHERE ${where_params}`,
             [...set_values, ...where_values]);
 
         return !!update_user_result.rowCount;
