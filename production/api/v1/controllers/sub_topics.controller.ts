@@ -21,10 +21,7 @@ class PostSubTopicController {
         const subTopicService = new SubTopicModel();
 
         try {
-            const new_sub_topics: CreateSubTopic = {
-                ...req.body,
-                user_id
-            };
+            const new_sub_topics: CreateSubTopic = { ...req.body, user_id };
 
             if (!new_sub_topics.name) {
                 res.json({ status: false, error: "Sub-Topic Name is required." });
@@ -33,7 +30,7 @@ class PostSubTopicController {
 
             const response_data: ResponseDataInterface<CreateSubTopic> = await subTopicService.createSubTopic(new_sub_topics);
             res.json(response_data);
-        } 
+        }
         catch (error: any) {
             res.json({ status: false, error: error.message });
         }
