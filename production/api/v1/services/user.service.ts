@@ -70,11 +70,7 @@ class UserService extends DatabaseModel {
      * @author Keith
      */
     userLogin = async (params: VerifyLoginParamsTypes): Promise<ResponseDataInterface<LoginResponseType>> => {
-        const response_data: ResponseDataInterface<LoginResponseType> = {
-            status: false,
-            error: null,
-            result: { access_token: "", refresh_token: "" }
-        };
+        const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
         try {
             const userModel = new UserModel();
@@ -131,11 +127,7 @@ class UserService extends DatabaseModel {
      * @author Keith
      */
     getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes | null>> => {
-        const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = {
-            status: false,
-            result: null,
-            error: null,
-        };
+        const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = { status: false, error: null, result: undefined };
 
         try {
             const userModel = new UserModel();
@@ -167,7 +159,7 @@ class UserService extends DatabaseModel {
      * @author Keith
      */
     refreshToken = async (params: { id: number }): Promise<ResponseDataInterface<LoginResponseType>> => {
-        const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: { access_token: "", refresh_token: "" } };
+        const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
         try {
             const userModel = new UserModel();
