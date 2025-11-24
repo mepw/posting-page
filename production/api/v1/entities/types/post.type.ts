@@ -3,6 +3,7 @@ export type CreatePostType = {
     user_id: number;
     title?: string;
     description?: string;
+    post_topic_id: number;
 }
 
 export type DeletePostType = {

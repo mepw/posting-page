@@ -15,9 +15,10 @@ class UserPost extends PostModel {
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const new_user_post = { ...params };
-            if (!new_user_post.title) {
+
+            if(!new_user_post.title){
                 response_data.error = "Title is required.";
                 return response_data;
             }
@@ -43,7 +44,8 @@ class UserPost extends PostModel {
 
             response_data.status = true;
             response_data.result = { ...new_user_post, id: title_id };
-        } catch (error: any) {
+        } 
+        catch (error: any) {
             response_data.error = error.message;
         }
 
@@ -68,6 +70,10 @@ class UserPost extends PostModel {
                     posts.user_id AS post_user_id,
                     posts.title,
                     posts.description,
+                    post_topics.id AS topic_id,
+                    post_topics.name AS topic_name,
+                    subtopic_id.id
+                    sub_topics_id
                     users.first_name AS post_user_first_name,
                     users.last_name AS post_user_last_name,
                     post_comments.id AS comment_id,
@@ -77,14 +83,16 @@ class UserPost extends PostModel {
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
+                    LEFT JOIN user_stories.post_topics ON posts.id = post_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
                 `,
-                order_by: `posts.id DESC`
+                order_by: `post_topics.id ASC` 
             });
 
             response_data.status = true;
             response_data.result = post_result.posts;
-        } catch (error: any) {
+        } 
+        catch (error: any) {
             response_data.error = error.message;
         }
 

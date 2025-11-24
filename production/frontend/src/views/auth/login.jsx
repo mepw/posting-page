@@ -41,7 +41,6 @@ export default function Login() {
 
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
       setErrors(["Something went wrong. Try again."]);
     } finally {
       setLoading(false);

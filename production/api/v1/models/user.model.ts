@@ -37,26 +37,27 @@ class UserModel extends DatabaseModel {
      * @author Jaybee
      */
     createNewUserRecord = async (
-        user_details: CreateUserParamsTypes): Promise<{ user_id?: number }> => {
+        user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
         const user_values = [
             [
                 user_details.first_name,
                 user_details.last_name,
                 user_details.email,
-                user_details.password
+                user_details.password,
+                user_details.user_level_id
             ]
         ];
 
         const insert_user_details = format(`
-            INSERT INTO user_stories.users (first_name, last_name, email, password)
+            INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id)
             VALUES %L
             RETURNING *;
             `, user_values
         );
 
-        const result = await this.executeQuery<{ id: number }>(insert_user_details);
+        const result = await this.executeQuery<{ id: number}>(insert_user_details);
 
-        return { user_id: result.rows[0]?.id };
+        return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id};
     };
 
     

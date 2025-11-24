@@ -92,7 +92,6 @@ class DatabaseModel {
         catch(error){
             /* For easy debugging */
             if(process.env.NODE_ENV !== ENVIRONMENT.production){
-                console.log(error);
             }
 
             throw error instanceof Error ? error : new Error(String(error));
@@ -228,7 +227,6 @@ class DatabaseModel {
             await connection.query('ROLLBACK');
         }
         catch(rollback_error){
-            console.error("Rollback error:", rollback_error);
         }
 
         this.activeTransaction = null;
@@ -277,7 +275,6 @@ class DatabaseModel {
      */
     private readonly _onPostgreSQLError = (error: Error) => {
         if(this.retry_count !== null && this.retry_count < COMMON_VALUES.number.three){
-            console.error('Retrying PostgreSQL Connection:', error.message);
             setTimeout(async () => {
                 if (this.retry_count !== null) {
                     this.retry_count++;
@@ -286,7 +283,6 @@ class DatabaseModel {
             }, COMMON_VALUES.number.fifteen_thousand);
         }
         else{
-            console.error('PostgreSQL Connection Error:', error.message);
             throw error;
         }
     }

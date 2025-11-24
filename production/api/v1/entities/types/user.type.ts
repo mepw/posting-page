@@ -4,6 +4,7 @@ export type CreateUserParamsTypes = {
     last_name: string;
     email: string;
     password: string;
+    user_level_id: number;
 }
 
 export type VerifyLoginParamsTypes = {

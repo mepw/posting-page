@@ -23,7 +23,7 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try {
-            const new_user = { ...params };
+            const new_user = { ...params, user_level_id: 2 };
 
             if (!new_user.password) {
                 response_data.error = "Password is required.";
@@ -76,24 +76,24 @@ class UserService extends DatabaseModel {
             const userModel = new UserModel();
 
             const { users: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
-                fields_to_select: `id, first_name, last_name, email, password`,
+                fields_to_select: `*`,
                 where_params: `email = $1`,
                 where_values: [params.email]
             });
 
-            if (!user) {
+            if(!user){
                 response_data.error = "No user credentials Found";
                 return response_data;
             }
 
             const password_match = await bcrypt.compare(params.password, user.password!);
 
-            if (!password_match) {
+            if(!password_match){
                 response_data.error = "Password not match to user email";
                 return response_data;
             }
 
-            if (!JWT || !JWT.access || !JWT.refresh) {
+            if(!JWT || !JWT.access || !JWT.refresh){
                 throw new Error("JWT missing");
             }
 
@@ -112,7 +112,7 @@ class UserService extends DatabaseModel {
                 refresh_token: generateJWTAuthToken({ id: user.id } as JWTUserPayload, refresh)
             };
         }
-        catch (error: any) {
+        catch(error: any){
             response_data.error = error.message;
         }
 

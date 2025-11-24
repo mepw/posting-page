@@ -9,11 +9,12 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
-  const [message, setMessage] = useState(""); // success message
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setErrors([]);
     setMessage("");
     setLoading(true);
@@ -27,6 +28,7 @@ export default function Register() {
           last_name: lastName,
           email,
           password,
+          user_level_id: 2, // default: normal user, not admin
         }),
       });
 
@@ -44,16 +46,15 @@ export default function Register() {
         return;
       }
 
-      // On success: show backend message
+      // Success message from backend
       setMessage(data.message || "Registration successful! Redirecting to login...");
 
-      // Wait 2 seconds then redirect to login
+      // Redirect after 2 sec
       setTimeout(() => {
         navigate("/login");
       }, 2000);
 
     } catch (err) {
-      console.error(err);
       setErrors(["Something went wrong. Try again."]);
     } finally {
       setLoading(false);
@@ -83,7 +84,6 @@ export default function Register() {
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-          
           />
         </div>
 
@@ -93,7 +93,6 @@ export default function Register() {
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-          
           />
         </div>
 
@@ -103,7 +102,6 @@ export default function Register() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-          
           />
         </div>
 
@@ -113,7 +111,6 @@ export default function Register() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          
           />
         </div>
 
