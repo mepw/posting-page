@@ -1,4 +1,4 @@
-import { InsertedComment } from './../entities/types/comment.type';
+
 import DatabaseModel from "./database.model";
 import format from "pg-format"
 import { CreatePostComment } from "../entities/types/comment.type";
@@ -13,21 +13,19 @@ class PostComment extends DatabaseModel {
      * @returns Object containing user_id (optional) and comment_id of the newly inserted comment
      * @author Keith
      */
-    createNewComment = async (post_comments: CreatePostComment): Promise<{ id: number, post_id: number }> => {
-        const values = [[post_comments.user_id, post_comments.post_id, post_comments.comment]];
+    createNewComment = async (post_comments: CreatePostComment): Promise<{ id: number; post_id: number }> => {
+        const comment_values = [[post_comments.user_id, post_comments.post_id, post_comments.comment]];
 
         const insert_query = format(`
-        INSERT INTO user_stories.post_comments(user_id, post_id, comment)
-        VALUES %L
-        RETURNING id;
-    `, values);
+            INSERT INTO user_stories.post_comments(user_id, post_id, comment)
+            VALUES %L
+            RETURNING id, post_id;
+        `, comment_values);
 
-        const result = await this.executeQuery<{ id: number }>(insert_query);
-
-        return { id: result.rows[0].id, post_id: post_comments.post_id };
+        const result = await this.executeQuery<{ id: number; post_id: number }>(insert_query);
+        console.log("Inserted row result:", result.rows[0]);
+        return { id: result.rows[0].id, post_id: result.rows[0].post_id };
     };
-
-
 
 }
 

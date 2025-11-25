@@ -15,10 +15,9 @@ class UserPost extends PostModel {
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
-        try{
+        try {
             const new_user_post = { ...params };
-            console.log(new_user_post);
-            if(!new_user_post.title){
+            if (!new_user_post.title) {
                 response_data.error = "Title is required.";
                 return response_data;
             }
@@ -27,7 +26,7 @@ class UserPost extends PostModel {
             const { posts } = await post_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `title = $1`,
-                where_values: [new_user_post.title]
+                where_values: [new_user_post.title],
             });
 
             if (posts.length) {
@@ -35,23 +34,23 @@ class UserPost extends PostModel {
                 return response_data;
             }
 
-            const { title_id } = await post_model.createNewPost(new_user_post);
-            console.log(title_id);
-            if (!title_id) {
-                response_data.error = "Failed to create user record.";
+            const { post_id } = await post_model.createNewPost(new_user_post);
+
+            if (!post_id) {
+                response_data.error = "Failed to create post record.";
                 return response_data;
             }
 
             response_data.status = true;
-            response_data.result = { ...new_user_post, id: title_id };
-        } 
-        catch (error: any) {
+            response_data.result = { ...new_user_post, id: post_id };
+        } catch (error: any) {
             response_data.error = error.message;
         }
 
         return response_data;
     };
-    
+
+
     /**
      * DOCU: This function retrieves all posts along with user and comment details. <br>
      *       It calls the PostModel to fetch the posts and returns them with status. <br>
@@ -72,27 +71,28 @@ class UserPost extends PostModel {
                     posts.description,
                     post_topics.id AS topic_id,
                     post_topics.name AS topic_name,
-                    post_sub_topics.id,
-                    post_sub_topics.name,
+                    post_sub_topics.id AS subtopic_id,
+                    post_sub_topics.name AS subtopic_name,
                     users.first_name AS post_user_first_name,
                     users.last_name AS post_user_last_name,
                     post_comments.id AS comment_id,
                     post_comments.comment AS comment_text,
-                    comment_user.first_name AS comment_user_first_name
+                    comment_user.first_name AS comment_user_first_name,
+                    comment_user.last_name AS comment_user_last_name
                 `,
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
-                    LEFT JOIN user_stories.post_topics ON posts.id = post_topics.id
-                    LEFT JOIN user_stories.post_sub_topics ON posts.id = post_sub_topics.id
+                    LEFT JOIN user_stories.post_topics ON posts.post_topic_id = post_topics.id
+                    LEFT JOIN user_stories.post_sub_topics ON posts.post_sub_topic_id = post_sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
                 `,
-                order_by: `post_topics.id ASC` 
+                order_by: `post_topics.id DESC`
             });
 
             response_data.status = true;
             response_data.result = post_result.posts;
-        } 
+        }
         catch (error: any) {
             response_data.error = error.message;
         }

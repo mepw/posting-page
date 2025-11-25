@@ -72,6 +72,7 @@ App.use(
         }
     })
 );
+App.use(express.json()); 
 
 App.use(bodyParser.json());
 App.use(bodyParser.urlencoded({ extended: true }));

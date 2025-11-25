@@ -63,8 +63,7 @@ class PostModel extends DatabaseModel {
      * @returns Object containing the newly inserted post ID as title_id
      * @author Jaybee
      */
-    createNewPost = async (post_details: CreatePostType): Promise<{ title_id?: number }> => {
-        console.log(post_details);
+    createNewPost = async (post_details: CreatePostType): Promise<CreatePostType & { post_id: number }> => {
         const user_post = [
             [
                 post_details.user_id,
@@ -76,16 +75,33 @@ class PostModel extends DatabaseModel {
         ];
 
         const insert_post_details = format(`
-            INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
-            VALUES %L 
-            RETURNING *;
-            `, user_post
-        );
+        INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
+        VALUES %L
+        RETURNING id, user_id, title, description, post_topic_id, post_sub_topic_id;
+    `, user_post);
 
-        const result = await this.executeQuery<{ id: number }>(insert_post_details);
+        const result = await this.executeQuery<{
+            id: number;
+            user_id: number;
+            title: string;
+            description: string;
+            post_topic_id: number;
+            post_sub_topic_id: number | null;
+        }>(insert_post_details);
 
-        return { title_id: result.rows[0]?.id };
+        // Return full post object
+        const row = result.rows[0];
+        return {
+            post_id: row.id,
+            user_id: row.user_id,
+            title: row.title,
+            description: row.description,
+            post_topic_id: row.post_topic_id,
+            post_sub_topic_id: row.post_sub_topic_id
+        };
     };
+
+
 
     /**
      * DOCU: This function updates an existing post. <br>

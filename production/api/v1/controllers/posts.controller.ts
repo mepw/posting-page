@@ -20,15 +20,22 @@ class PostController {
         const post_service = new postService();
 
         try {
-            const post_data: CreatePostType = { ...req.body, user_id, };
-            console.log(post_data);
+            const post_data: CreatePostType = {
+                ...req.body,
+                user_id,
+                post_topic_id: req.body.post_topic_id,
+                post_sub_topic_id: req.body.post_sub_topic_id,
+            };
+
+            console.log("Payload to service:", post_data);
+
             const response_data: ResponseDataInterface<CreatePostType> = await post_service.createPost(post_data);
             res.json(response_data);
-        }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        } catch (error: any) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message });
         }
     };
+
 
     /**
      * DOCU: This function retrieves all posts by calling the post service. <br>

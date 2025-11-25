@@ -20,14 +20,22 @@ class PostCommentController {
         const comment_service = new CommentService();
 
         try {
-            const comment_data: CreatePostComment = { ...req.body, user_id };
+            const comment_data: CreatePostComment = {
+                ...req.body,
+                post_id: req.body.post_id,
+                user_id
+            };
+
+            console.log(" received body:", req.body, "user_id:", comment_data);
             const response_data: ResponseDataInterface<CreatePostComment> = await comment_service.createNewComment(comment_data);
+            console.log(" response data:", response_data);
             res.json(response_data);
-        } 
+        }
         catch (error: any) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message });
         }
     };
+
 
 
 }

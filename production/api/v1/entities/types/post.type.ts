@@ -1,11 +1,12 @@
 export type CreatePostType = {
-  id?: number;
-  user_id: number;
-  title: string;
-  description: string;
-  post_topic_id: number;
-  post_sub_topic_id?: number | null;
-};
+    id?: number;
+    user_id: number;
+    title: string;
+    description: string;
+    post_topic_id: number;
+    post_sub_topic_id?: number | null;
+}
+
 
 export type DeletePostType = {
     id: number;
