@@ -121,7 +121,6 @@ class DatabaseModel {
                 connection.release();
             }
 
-            /* Track slow queries (> 1 second) */
             if(total_duration > COMMON_VALUES.number.one){
                 const sentryErrorHelper = new SentryErrorHelper(process.env.NODE_ENV !== ENVIRONMENT.development);
                 sentryErrorHelper.trackError({

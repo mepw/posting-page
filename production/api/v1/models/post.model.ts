@@ -70,15 +70,15 @@ class PostModel extends DatabaseModel {
                 post_details.title,
                 post_details.description,
                 post_details.post_topic_id,
-                post_details.post_sub_topic_id || null
+                post_details.post_sub_topic_id
             ]
         ];
-
+        console.log(post_details);
         const insert_post_details = format(`
-        INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
-        VALUES %L
-        RETURNING *;
-    `, user_post);
+            INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
+            VALUES %L
+            RETURNING *;
+        `, user_post);
 
         const result = await this.executeQuery<{
             id: number;
@@ -90,7 +90,7 @@ class PostModel extends DatabaseModel {
         }>(insert_post_details);
 
         const row = result.rows[0];
-        
+
         return {
             post_id: row.id,
             user_id: row.user_id,

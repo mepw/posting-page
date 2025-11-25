@@ -3,7 +3,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreatePostType, DeletePostType, UpdatePostType } from "../entities/types/post.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
 class PostController {
     /**
      * DOCU: This is function helper to send a request to other server/service. <br>
@@ -19,21 +19,20 @@ class PostController {
         const user_id = req.validated_user_data?.id;
         const post_service = new postService();
 
-        try{
+        try {
             const post_data: CreatePostType = {
                 ...req.body,
-                user_id,
-                post_topic_id: req.body.post_topic_id,
-                post_sub_topic_id: req.body.post_sub_topic_id || null,
+                user_id
             };
 
-            console.log("Payload to controller:", post_data);
+            console.log("Received post_topic_id from frontend:", req.body);
+
 
             const response_data = await post_service.createPost(post_data);
             res.json(response_data);
 
-        } 
-        catch(error){
+        }
+        catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
@@ -52,11 +51,11 @@ class PostController {
     getAllPost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try{
+        try {
             const response_data: ResponseDataInterface<CreatePostType[]> = await post_service.getAllPost();
             res.json(response_data);
         }
-        catch(error){
+        catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error, });
         }
     }
@@ -74,13 +73,13 @@ class PostController {
     updatePost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try{
+        try {
             const post_id = Number(req.params.id);
             const post_data: UpdatePostType = { ...req.body, id: post_id };
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }
-        catch(error){
+        catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
@@ -110,8 +109,8 @@ class PostController {
             const response_data: ResponseDataInterface<boolean> = await post_service.deleteUserPost(post_data);
             res.json(response_data);
         }
-        catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:ERROR_CATCH_MESSAGE.error  });
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
 

@@ -57,9 +57,7 @@ class UserSubTopic {
                 fields_to_select: `
                    *
                 `,
-                join_statement: `
-                `,
-                order_by: `id DESC`
+            
             });
 
             response_data.status = true;

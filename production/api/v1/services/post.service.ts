@@ -15,12 +15,8 @@ class UserPost extends PostModel {
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
-        try {
-            if (!params.title) {
-                response_data.error = "Title is required.";
-                return response_data;
-            }
-
+        try{
+            console.log(params);
             const post_model = new PostModel();
 
             const { posts } = await post_model.fetchModel<{ id: number }>({
