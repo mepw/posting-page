@@ -75,7 +75,7 @@ class UserSubTopic {
             response_data.status = true;
             response_data.result = post_result.posts;
         }
-        catch (error: any) {
+        catch (error: any){
             response_data.error = error.message;
         }
 

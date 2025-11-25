@@ -16,7 +16,7 @@ class PostComment extends DatabaseModel {
      * @returns Object containing user_id (optional) and comment_id of the newly inserted comment
      * @author Keith
      */
-    createNewTopic = async (creat_post_topic: CreateTopic): Promise<{ topic_id?: number, user_id?: number}> => {
+    createNewTopic = async (creat_post_topic: CreateTopic): Promise<{ topic_id?: number, user_id?: number }> => {
         const user_post = [
             [creat_post_topic.user_id, creat_post_topic.name]
         ];
@@ -30,7 +30,7 @@ class PostComment extends DatabaseModel {
 
         const result = await this.executeQuery<{ id: number }>(insert_creat_post_topic);
 
-        return { topic_id: result.rows[0]?.id, user_id: result.rows[0]?.id};
+        return { topic_id: result.rows[0]?.id, user_id: result.rows[0]?.id };
     };
 
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {

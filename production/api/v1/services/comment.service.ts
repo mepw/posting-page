@@ -12,29 +12,22 @@ class UserComment {
      * @returns response_data - JSON containing status, created comment result, and/or error message
      * @author Keith
      */
-    createNewComment = async (params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
+    createNewComment = async ( params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
         const response_data: ResponseDataInterface<CreatePostComment> = { status: false, error: null, result: undefined };
 
-        try{
-            const new_user_comment = { ...params };
-
-            if(!new_user_comment.comment){
-                response_data.error = "Comment is required.";
-                return response_data;
-            }
-
+        try {
             const post_comment = new CommentModel();
-            const { comment_id } = await post_comment.createNewComment(new_user_comment);
-
-            if(!comment_id){
-                response_data.error = "Failed to create comment record.";
-                return response_data;
-            }
+            const { id, post_id } = await post_comment.createNewComment(params);
 
             response_data.status = true;
-            response_data.result = { ...new_user_comment, id: comment_id };
+            response_data.result = {
+                id,
+                user_id: params.user_id,
+                post_id,     
+                comment: params.comment
+            };
         } 
-        catch(error: any){
+        catch (error: any) {
             response_data.error = error.message;
         }
 

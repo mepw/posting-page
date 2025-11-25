@@ -26,7 +26,6 @@ class PostComment extends DatabaseModel {
             RETURNING id;
         `, post_sub_topics);
 
-
         const post_comment_result = await this.executeQuery<{ id: number }>(insert_post_comments);
 
         return { user_id: post_comment_result.rows[0]?.id, sub_topic_id: post_comment_result.rows[0]?.id };

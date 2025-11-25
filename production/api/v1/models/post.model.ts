@@ -64,13 +64,20 @@ class PostModel extends DatabaseModel {
      * @author Jaybee
      */
     createNewPost = async (post_details: CreatePostType): Promise<{ title_id?: number }> => {
+        console.log(post_details);
         const user_post = [
-            [post_details.user_id, post_details.title, post_details.description, post_details.post_topic_id ]
+            [
+                post_details.user_id,
+                post_details.title,
+                post_details.description,
+                post_details.post_topic_id,
+                post_details.post_sub_topic_id || null
+            ]
         ];
-        
+
         const insert_post_details = format(`
-            INSERT INTO user_stories.posts (user_id, title, description, post_topic_id)
-            VALUES %L
+            INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
+            VALUES %L 
             RETURNING *;
             `, user_post
         );

@@ -21,6 +21,7 @@ class PostController {
 
         try {
             const post_data: CreatePostType = { ...req.body, user_id, };
+            console.log(post_data);
             const response_data: ResponseDataInterface<CreatePostType> = await post_service.createPost(post_data);
             res.json(response_data);
         }

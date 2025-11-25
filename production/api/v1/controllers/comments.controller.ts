@@ -20,14 +20,15 @@ class PostCommentController {
         const comment_service = new CommentService();
 
         try {
-            const comment_data: CreatePostComment = { ...req.body, user_id, };
+            const comment_data: CreatePostComment = { ...req.body, user_id };
             const response_data: ResponseDataInterface<CreatePostComment> = await comment_service.createNewComment(comment_data);
             res.json(response_data);
-        }
+        } 
         catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message });
         }
     };
+
 
 }
 

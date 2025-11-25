@@ -17,7 +17,7 @@ class UserPost extends PostModel {
 
         try{
             const new_user_post = { ...params };
-
+            console.log(new_user_post);
             if(!new_user_post.title){
                 response_data.error = "Title is required.";
                 return response_data;
@@ -36,7 +36,7 @@ class UserPost extends PostModel {
             }
 
             const { title_id } = await post_model.createNewPost(new_user_post);
-
+            console.log(title_id);
             if (!title_id) {
                 response_data.error = "Failed to create user record.";
                 return response_data;
@@ -72,8 +72,8 @@ class UserPost extends PostModel {
                     posts.description,
                     post_topics.id AS topic_id,
                     post_topics.name AS topic_name,
-                    subtopic_id.id
-                    sub_topics_id
+                    post_sub_topics.id,
+                    post_sub_topics.name,
                     users.first_name AS post_user_first_name,
                     users.last_name AS post_user_last_name,
                     post_comments.id AS comment_id,
@@ -84,6 +84,7 @@ class UserPost extends PostModel {
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
                     LEFT JOIN user_stories.post_topics ON posts.id = post_topics.id
+                    LEFT JOIN user_stories.post_sub_topics ON posts.id = post_sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
                 `,
                 order_by: `post_topics.id ASC` 
