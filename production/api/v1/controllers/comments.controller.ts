@@ -3,8 +3,8 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreatePostComment } from "../entities/types/comment.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-
-class PostCommentController {
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+class PostCommentController{
     /**
      * DOCU: This function creates a new comment for a post. <br>
      *       It merges the validated user ID with the request body, sends it to the comment service,
@@ -19,20 +19,19 @@ class PostCommentController {
         const user_id = req.validated_user_data?.id;
         const comment_service = new CommentService();
 
-        try {
+        try{
             const comment_data: CreatePostComment = {
                 ...req.body,
                 post_id: req.body.post_id,
                 user_id
             };
-
             console.log(" received body:", req.body, "user_id:", comment_data);
             const response_data: ResponseDataInterface<CreatePostComment> = await comment_service.createNewComment(comment_data);
             console.log(" response data:", response_data);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:ERROR_CATCH_MESSAGE.error  });
         }
     };
 

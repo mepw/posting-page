@@ -1,8 +1,9 @@
 import { CreateSubTopic } from "../entities/types/sub_topic.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import SubTopic from "../models/sub_topic.model";
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
-class UserSubTopic {
+class UserSubTopic{
     /**
      * DOCU: This function handles creating a new comment record in the database. <br>
      *       It validates the input, calls the CommentModel to insert the comment, and
@@ -18,7 +19,7 @@ class UserSubTopic {
         try {
             const new_sub_topic = { ...params };
 
-            if (!new_sub_topic.name) {
+            if(!new_sub_topic.name){
                 response_data.error = "Sub-Topic Name is required.";
                 return response_data;
             }
@@ -30,7 +31,7 @@ class UserSubTopic {
                 where_values: [new_sub_topic.name]
             });
 
-            if (posts.length) {
+            if(posts.length){
                 response_data.error = "Title already exists.";
                 return response_data;
             }
@@ -38,7 +39,7 @@ class UserSubTopic {
             const post_sub_topic = new SubTopic();
             const { sub_topic_id } = await post_sub_topic.createNewSubTopic(new_sub_topic);
 
-            if (!sub_topic_id) {
+            if(!sub_topic_id){
                 response_data.error = "Failed to create Sub-Topic record.";
                 return response_data;
             }
@@ -46,8 +47,8 @@ class UserSubTopic {
             response_data.status = true;
             response_data.result = { ...new_sub_topic, id: sub_topic_id };
         }
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -70,8 +71,8 @@ class UserSubTopic {
             response_data.status = true;
             response_data.result = post_result.posts;
         }
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;

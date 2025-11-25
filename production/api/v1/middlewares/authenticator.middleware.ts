@@ -57,13 +57,13 @@ export const authenticatorHandler = async (req: Request, res: Response, next: Ne
     const [bearer, token] = authHeader.split(" ");
 
     try{
-        if (bearer !== "Bearer" || !token) {
+        if(bearer !== "Bearer" || !token){
             throw new JsonWebTokenError(AUTHENTICATION_ERROR_MESSAGES.empty_token);
         }
 
         const verify_result = await verifyJWTAuthToken<ValidatedUserDataType>(token, true);
 
-        if (!verify_result.status || !verify_result.result?.token) {
+        if(!verify_result.status || !verify_result.result?.token){
             throw new JsonWebTokenError(verify_result.error || AUTHENTICATION_ERROR_MESSAGES.incorrect_token);
         }
 
@@ -75,15 +75,3 @@ export const authenticatorHandler = async (req: Request, res: Response, next: Ne
         next(error);
     }
 };
-
-
-export function authenticatorWithExempt(req: Request, res: Response, next: NextFunction) {
-    const un_auth_url = req.originalUrl;
-
-    if (un_auth_url.startsWith("/api/v1/unauth")) {
-        return next();
-    }
-
-    return authenticatorHandler(req, res, next);
-}
-

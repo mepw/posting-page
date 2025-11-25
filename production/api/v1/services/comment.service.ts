@@ -1,6 +1,7 @@
 import { CreatePostComment } from "../entities/types/comment.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import CommentModel from "../models/post_comment.model";
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
 class UserComment {
     /**
@@ -27,8 +28,8 @@ class UserComment {
                 comment: params.comment
             };
         } 
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;

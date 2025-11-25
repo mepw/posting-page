@@ -3,7 +3,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreateTopic } from "../entities/types/topic.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 class PostTopicController {
     /**
      * DOCU: This function creates a new comment for a post. <br>
@@ -19,25 +19,25 @@ class PostTopicController {
      const user_id = req.validated_user_data?.id;
         const post_topic_service = new TopicService();
 
-        try {
+        try{
             const post_topics: CreateTopic = { ...req.body, user_id, };
             const response_data: ResponseDataInterface<CreateTopic> = await post_topic_service.createNewTopics(post_topics);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
         }
     };
 
     getAllTopic = async (req: Request, res: Response): Promise<void> => {
         const post_service = new TopicService();
 
-        try {
+        try{
             const response_data: ResponseDataInterface<CreateTopic[]> = await post_service.getAllTopic();
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
         }
     }
 }

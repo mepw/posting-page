@@ -8,6 +8,7 @@ import { LoginResponseType } from "../entities/types/session.type";
 import { BCRYPT, JWT } from "../../../configs/constants/env.constant";
 import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
 class UserService extends DatabaseModel {
     /**
@@ -46,7 +47,7 @@ class UserService extends DatabaseModel {
 
             const { user_id } = await user_model.createNewUserRecord(new_user);
 
-            if (!user_id) {
+            if(!user_id){
                 response_data.error = "Failed to create user record.";
                 return response_data;
             }
@@ -54,8 +55,8 @@ class UserService extends DatabaseModel {
             response_data.status = true;
             response_data.result = { ...new_user, id: user_id };
         }
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -112,8 +113,8 @@ class UserService extends DatabaseModel {
                 refresh_token: generateJWTAuthToken({ id: user.id } as JWTUserPayload, refresh)
             };
         }
-        catch(error: any){
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -129,23 +130,23 @@ class UserService extends DatabaseModel {
     getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes | null>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const userModel = new UserModel();
             const { users } = await userModel.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [user_id],
             });
 
-            if(users.length) {
+            if(users.length){
                 response_data.status = true;
                 response_data.result = users[0];
             } 
-            else {
+            else{
                 response_data.error = "User not found";
             }
         } 
-        catch(error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -169,7 +170,7 @@ class UserService extends DatabaseModel {
                 where_values: [params.id]
             });
 
-            if (user?.id) {
+            if(user?.id){
                 const { access, refresh } = JWT;
 
                 response_data.status = true;
@@ -179,12 +180,12 @@ class UserService extends DatabaseModel {
                     refresh_token: generateJWTAuthToken({ id: user.id }, refresh),
                 }
             }
-            else {
+            else{
                 response_data.error = "User not found.";
             }
         }
-        catch (error) {
-            response_data.error = error;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;

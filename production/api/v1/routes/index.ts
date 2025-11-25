@@ -2,7 +2,6 @@
 import { Application } from 'express';
 
 import { authenticatorHandler } from '../middlewares/authenticator.middleware';
-import { authenticatorWithExempt } from "../middlewares/authenticator.middleware";
 
 /* Constants */
 import { API } from '../../../configs/constants/env.constant'
@@ -19,8 +18,7 @@ export default (App: Application) => {
     App.use(`/api/v1/unauth`, UnauthRoute);
 
     /* Authentication handler */
-    // App.use(authenticatorHandler); 
-    App.use(authenticatorWithExempt);
+    App.use(authenticatorHandler); 
     /* Add your protected routes here */
     App.use(`/api/v1/user`, UserRoute);
     App.use(`/api/v1/post`, PostRoute);

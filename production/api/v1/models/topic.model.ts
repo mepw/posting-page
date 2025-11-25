@@ -58,11 +58,11 @@ class PostComment extends DatabaseModel {
 
         const values = where_values || [];
 
-        if (limit !== undefined) {
+        if(limit !== undefined){
             values.push(limit);
         }
 
-        if (offset !== undefined) {
+        if(offset !== undefined){
             values.push(offset);
         }
 

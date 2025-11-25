@@ -77,7 +77,7 @@ class PostModel extends DatabaseModel {
         const insert_post_details = format(`
         INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
         VALUES %L
-        RETURNING id, user_id, title, description, post_topic_id, post_sub_topic_id;
+        RETURNING *;
     `, user_post);
 
         const result = await this.executeQuery<{
@@ -89,8 +89,8 @@ class PostModel extends DatabaseModel {
             post_sub_topic_id: number | null;
         }>(insert_post_details);
 
-        // Return full post object
         const row = result.rows[0];
+        
         return {
             post_id: row.id,
             user_id: row.user_id,

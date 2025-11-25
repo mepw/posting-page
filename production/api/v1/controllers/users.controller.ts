@@ -4,6 +4,7 @@ import { CreateUserParamsTypes } from "../entities/types/user.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { LoginResponseType } from "../entities/types/session.type";
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
 class User extends UserService {
     /**
@@ -19,12 +20,12 @@ class User extends UserService {
     userSignUp = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
         
-        try {
+        try{
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
         }
     };
 
@@ -41,12 +42,12 @@ class User extends UserService {
     userLogIn = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
 
-        try {
+        try{
             const response_data: ResponseDataInterface<LoginResponseType> = await user_service.userLogin(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
         }
     };
     /**
@@ -71,8 +72,8 @@ class User extends UserService {
             const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = await user_service.getUserById(user_id);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, result: null, });
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE,error: ERROR_CATCH_MESSAGE.error,});
         }
     };
 

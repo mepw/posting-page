@@ -3,35 +3,29 @@ import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const API_BASE = "http://localhost:5000/api/v1";
 
-  const [posts, setPosts] = useState([]);
+  const [user, setUser] = useState(null);
   const [topics, setTopics] = useState([]);
   const [subTopics, setSubTopics] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [errors, setErrors] = useState([]);
 
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedSubTopic, setSelectedSubTopic] = useState(null);
 
   const [postTitle, setPostTitle] = useState("");
   const [postDesc, setPostDesc] = useState("");
-
   const [commentText, setCommentText] = useState({});
-  const [errors, setErrors] = useState([]);
-
-  const [editingPostId, setEditingPostId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDesc, setEditDesc] = useState("");
 
   const [newTopicName, setNewTopicName] = useState("");
   const [newSubTopicName, setNewSubTopicName] = useState("");
   const [subTopicParent, setSubTopicParent] = useState(null);
 
-  const API_BASE = "http://localhost:5000/api/v1";
-
-  // --- Fetch helper with token ---
+  // --- Helper for fetch with token ---
   const fetchWithToken = async (url, options = {}) => {
-    const accessToken = localStorage.getItem("access_token");
-    if (!accessToken) {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
       navigate("/login");
       throw new Error("No access token");
     }
@@ -40,7 +34,7 @@ export default function Dashboard() {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
         ...(options.headers || {}),
       },
     });
@@ -103,7 +97,6 @@ export default function Dashboard() {
 
       rows.forEach((row) => {
         const numericPostId = Number(row.post_id);
-
         if (!postsMap[numericPostId]) {
           postsArr.push({
             post_id: numericPostId,
@@ -143,24 +136,18 @@ export default function Dashboard() {
     fetchPosts();
   }, []);
 
-  // --- Handlers for topic/subtopic selection ---
+  // --- Handlers ---
   const handleTopicChange = (e) => {
     const value = e.target.value;
-    if (value === "") {
-      setSelectedTopic(null);
-      setSelectedSubTopic(null);
-    } else {
-      setSelectedTopic(Number(value));
-      setSelectedSubTopic(null);
-    }
+    setSelectedTopic(value ? parseInt(value, 10) : null);
+    setSelectedSubTopic(null);
   };
 
   const handleSubTopicChange = (e) => {
     const value = e.target.value;
-    setSelectedSubTopic(value ? Number(value) : null);
+    setSelectedSubTopic(value ? parseInt(value, 10) : null);
   };
 
-  // --- Add Topic ---
   const handleAddTopic = async (e) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
@@ -182,7 +169,6 @@ export default function Dashboard() {
     }
   };
 
-  // --- Add SubTopic ---
   const handleAddSubTopic = async (e) => {
     e.preventDefault();
     if (!newSubTopicName.trim() || !subTopicParent) {
@@ -195,7 +181,7 @@ export default function Dashboard() {
         method: "POST",
         body: JSON.stringify({
           name: newSubTopicName.trim(),
-          topic_id: Number(subTopicParent),
+          topic_id: subTopicParent,
         }),
       });
       const data = await res.json();
@@ -211,24 +197,33 @@ export default function Dashboard() {
     }
   };
 
-  // --- Create Post ---
   const handlePostSubmit = async (e) => {
     e.preventDefault();
 
+    // Make sure topic is selected
     if (!postTitle.trim() || !postDesc.trim() || !selectedTopic) {
       setErrors(["Please fill all required fields"]);
+      return;
+    }
+
+    // Convert strings to numbers safely
+    const topicId = parseInt(selectedTopic, 10);
+    const subTopicId = selectedSubTopic ? parseInt(selectedSubTopic, 10) : null;
+
+    if (isNaN(topicId)) {
+      setErrors(["Invalid topic selected"]);
       return;
     }
 
     const payload = {
       title: postTitle.trim(),
       description: postDesc.trim(),
-      post_topic_id: selectedTopic,
-      post_sub_topic_id: selectedSubTopic || null,
+      post_topic_id: topicId,
+      post_sub_topic_id: subTopicId,
       user_id: user.id,
     };
 
-    console.log("Creating post payload:", payload);
+    console.log("Payload to backend:", payload); // Must show numbers, never NaN
 
     try {
       const res = await fetchWithToken("/post/newpost", {
@@ -236,37 +231,21 @@ export default function Dashboard() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to create post"]);
         return;
       }
-
-      const newPost = {
-        post_id: Number(data.result.id),
-        title: payload.title,
-        description: payload.description,
-        topic_id: selectedTopic,
-        topic_name: topics.find((t) => t.id === selectedTopic)?.name || "",
-        subtopic_id: selectedSubTopic,
-        subtopic_name: subTopics.find((st) => st.id === selectedSubTopic)?.name || "",
-        post_user_first_name: user.first_name,
-        post_user_last_name: user.last_name,
-        post_user_id: user.id,
-        comments: [],
-      };
-
-      setPosts([newPost, ...posts]);
+      fetchPosts();
       setPostTitle("");
       setPostDesc("");
-      setSelectedTopic(null);
-      setSelectedSubTopic(null);
+      setSelectedTopic("");
+      setSelectedSubTopic("");
     } catch {
       setErrors(["Failed to create post"]);
     }
   };
 
-  // --- Comment ---
+
   const handleCommentSubmit = async (e, postId) => {
     e.preventDefault();
     const numericPostId = Number(postId);
@@ -289,66 +268,22 @@ export default function Dashboard() {
         prevPosts.map((p) =>
           p.post_id === numericPostId
             ? {
-                ...p,
-                comments: [
-                  ...p.comments,
-                  { comment_id: data.result.id, comment_text: comment, comment_user_first_name: user.first_name },
-                ],
-              }
+              ...p,
+              comments: [
+                ...p.comments,
+                {
+                  comment_id: data.result.id,
+                  comment_text: comment,
+                  comment_user_first_name: user.first_name,
+                },
+              ],
+            }
             : p
         )
       );
       setCommentText({ ...commentText, [numericPostId]: "" });
     } catch {
       setErrors(["Failed to add comment"]);
-    }
-  };
-
-  // --- Edit post ---
-  const startEditing = (post) => {
-    setEditingPostId(post.post_id);
-    setEditTitle(post.title);
-    setEditDesc(post.description);
-  };
-
-  const cancelEditing = () => {
-    setEditingPostId(null);
-    setEditTitle("");
-    setEditDesc("");
-  };
-
-  const handleEditSubmit = async (e, postId) => {
-    e.preventDefault();
-    try {
-      const res = await fetchWithToken(`/post/edit/${postId}`, {
-        method: "PUT",
-        body: JSON.stringify({ title: editTitle, description: editDesc }),
-      });
-      const data = await res.json();
-      if (!res.ok || data.status === false) {
-        setErrors([data.error || "Failed to update post"]);
-        return;
-      }
-      setPosts(posts.map((p) => (p.post_id === postId ? { ...p, title: editTitle, description: editDesc } : p)));
-      cancelEditing();
-    } catch {
-      setErrors(["Failed to update post"]);
-    }
-  };
-
-  // --- Delete post ---
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
-    try {
-      const res = await fetchWithToken(`/post/delete/${postId}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok || data.status === false) {
-        setErrors([data.error || "Failed to delete post"]);
-        return;
-      }
-      setPosts(posts.filter((p) => p.post_id !== postId));
-    } catch {
-      setErrors(["Failed to delete post"]);
     }
   };
 
@@ -367,89 +302,96 @@ export default function Dashboard() {
         <button onClick={handleLogout}>Logout</button>
       </div>
 
-      {errors.length > 0 && <ul style={{ color: "red" }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul>}
+      {errors.length > 0 && (
+        <ul style={{ color: "red" }}>
+          {errors.map((e, i) => <li key={i}>{e}</li>)}
+        </ul>
+      )}
 
       {/* Add Topic */}
       <form onSubmit={handleAddTopic} style={{ marginBottom: "10px" }}>
-        <input placeholder="New Topic Name" value={newTopicName} onChange={(e) => setNewTopicName(e.target.value)} style={{ width: "60%", padding: "6px" }} />
+        <input
+          placeholder="New Topic Name"
+          value={newTopicName}
+          onChange={(e) => setNewTopicName(e.target.value)}
+          style={{ width: "60%", padding: "6px" }}
+        />
         <button type="submit" style={{ marginLeft: "5px" }}>Add Topic</button>
       </form>
 
       {/* Add SubTopic */}
       <form onSubmit={handleAddSubTopic} style={{ marginBottom: "20px" }}>
-        <select value={subTopicParent || ""} onChange={(e) => setSubTopicParent(e.target.value ? Number(e.target.value) : null)} style={{ padding: "6px" }} required>
+        <select
+          value={subTopicParent ?? ""}
+          onChange={(e) => setSubTopicParent(e.target.value ? parseInt(e.target.value, 10) : null)}
+          style={{ padding: "6px" }}
+        >
           <option value="">Select Parent Topic</option>
-          {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          {topics.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
         </select>
-        <input placeholder="New SubTopic Name" value={newSubTopicName} onChange={(e) => setNewSubTopicName(e.target.value)} style={{ width: "50%", padding: "6px", marginLeft: "5px" }} />
+        <input
+          placeholder="New SubTopic Name"
+          value={newSubTopicName}
+          onChange={(e) => setNewSubTopicName(e.target.value)}
+          style={{ width: "50%", padding: "6px", marginLeft: "5px" }}
+        />
         <button type="submit" style={{ marginLeft: "5px" }}>Add SubTopic</button>
       </form>
 
       {/* Create Post */}
       <form onSubmit={handlePostSubmit} style={{ marginBottom: "20px" }}>
-        <select value={selectedTopic || ""} onChange={handleTopicChange} style={{ width: "100%", padding: "8px", marginBottom: "8px" }} required disabled={topics.length === 0}>
+        <select value={selectedTopic ?? ""} onChange={handleTopicChange} required>
           <option value="">Select Topic</option>
-          {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          {topics.map((t) => <option key={t.id} value={t.id.toString()}>{t.name}</option>
+          )}
         </select>
 
         {subTopics.filter(st => st.topic_id === selectedTopic).length > 0 && (
-          <select value={selectedSubTopic || ""} onChange={handleSubTopicChange} style={{ width: "100%", padding: "8px", marginBottom: "8px" }}>
+          <select value={selectedSubTopic ?? ""} onChange={handleSubTopicChange}>
             <option value="">Select SubTopic (optional)</option>
-            {subTopics.filter(st => st.topic_id === selectedTopic).map(st => <option key={st.id} value={st.id}>{st.name}</option>)}
+            {subTopics.filter(st => st.topic_id === selectedTopic).map(st => (
+              <option key={st.id} value={st.id}>{st.name}</option>
+            ))}
           </select>
         )}
 
-        <input placeholder="Post Title" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} style={{ width: "100%", padding: "8px", marginBottom: "8px" }} />
-        <textarea placeholder="Post Description" value={postDesc} onChange={(e) => setPostDesc(e.target.value)} style={{ width: "100%", padding: "8px", marginBottom: "8px" }} />
+        <input
+          placeholder="Post Title"
+          value={postTitle}
+          onChange={(e) => setPostTitle(e.target.value)}
+        />
+        <textarea
+          placeholder="Post Description"
+          value={postDesc}
+          onChange={(e) => setPostDesc(e.target.value)}
+        />
         <button type="submit">Post</button>
       </form>
 
-      <hr />
-
-      {/* Posts */}
+      {/* Posts List */}
       {posts.map((p) => (
         <div key={p.post_id} style={{ border: "1px solid #ccc", marginBottom: "10px", padding: "10px" }}>
-          <h4 style={{ color: "#555" }}>Topic: {p.topic_name} {p.subtopic_name ? `/ SubTopic: ${p.subtopic_name}` : ""}</h4>
+          <h4>Topic: {p.topic_name}{p.subtopic_name ? ` / SubTopic: ${p.subtopic_name}` : ""}</h4>
 
-          {editingPostId === p.post_id ? (
-            <form onSubmit={(e) => handleEditSubmit(e, p.post_id)}>
-              <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ width: "100%", marginBottom: "5px" }} />
-              <textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} style={{ width: "100%", marginBottom: "5px" }} />
-              <button type="submit">Save</button>
-              <button type="button" onClick={cancelEditing} style={{ marginLeft: "5px" }}>Cancel</button>
-            </form>
-          ) : (
-            <>
-              <h3>{p.title}</h3>
-              <p>{p.description}</p>
-              <small>By {p.post_user_first_name} {p.post_user_last_name}</small>
-              {Number(p.post_user_id) === Number(user.id) && (
-                <>
-                  <button onClick={() => startEditing(p)} style={{ marginLeft: "10px" }}>Edit</button>
-                  <button onClick={() => handleDeletePost(p.post_id)} style={{ marginLeft: "5px", color: "red" }}>Delete</button>
-                </>
-              )}
-            </>
-          )}
+          <h3>{p.title}</h3>
+          <p>{p.description}</p>
+          <small>By {p.post_user_first_name} {p.post_user_last_name}</small>
 
           {/* Comments */}
-          <div style={{ marginTop: "10px" }}>
-            {p.comments.map((c) => (
-              <p key={c.comment_id}><b>{c.comment_user_first_name}</b>: {c.comment_text}</p>
-            ))}
+          {p.comments.map(c => (
+            <p key={c.comment_id}><b>{c.comment_user_first_name}</b>: {c.comment_text}</p>
+          ))}
 
-            <form onSubmit={(e) => handleCommentSubmit(e, p.post_id)} style={{ marginTop: "10px" }}>
-              <input
-                value={commentText[p.post_id] || ""}
-                onChange={(e) =>
-                  setCommentText({ ...commentText, [p.post_id]: e.target.value })
-                }
-                placeholder="Write a comment..."
-                style={{ width: "80%", padding: "6px" }}
-              />
-              <button type="submit" style={{ marginLeft: "5px" }}>Comment</button>
-            </form>
-          </div>
+          <form onSubmit={(e) => handleCommentSubmit(e, p.post_id)}>
+            <input
+              value={commentText[p.post_id] || ""}
+              onChange={(e) => setCommentText({ ...commentText, [p.post_id]: e.target.value })}
+              placeholder="Write a comment..."
+            />
+            <button type="submit">Comment</button>
+          </form>
         </div>
       ))}
     </div>

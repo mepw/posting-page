@@ -4,7 +4,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
 import { CreateSubTopic } from "../entities/types/sub_topic.type";
-
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 class PostSubTopicController {
     /**
      * DOCU: This function creates a new comment for a post. <br>
@@ -39,12 +39,12 @@ class PostSubTopicController {
     getAllSubTopic = async (req: Request, res: Response): Promise<void> => {
         const post_service = new SubTopicModel();
 
-        try {
+        try{
             const response_data: ResponseDataInterface<CreateSubTopic[]> = await post_service.getAllSubTopic();
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: error.message, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error });
         }
     }
 

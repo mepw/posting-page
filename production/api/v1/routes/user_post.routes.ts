@@ -6,9 +6,9 @@ import { authenticatorHandler  } from "../middlewares/authenticator.middleware";
 import {postValidation} from "../validation/post.validation"
 const PostRoute: Router = Router();
 
-PostRoute.post("/newpost", exec(authenticatorHandler),exec(postValidation), exec(PostController.createPost));
+PostRoute.post("/newpost",exec(postValidation), exec(PostController.createPost));
 
-PostRoute.get("/post", exec(authenticatorHandler), exec(PostController.getAllPost));
-PostRoute.put("/edit/:id", exec(authenticatorHandler), exec(PostController.updatePost));
-PostRoute.delete("/delete/:id", exec(authenticatorHandler), exec(PostController.deletePost));
+PostRoute.get("/post", exec(PostController.getAllPost));
+PostRoute.put("/edit/:id", exec(PostController.updatePost));
+PostRoute.delete("/delete/:id", exec(PostController.deletePost));
 export default PostRoute;

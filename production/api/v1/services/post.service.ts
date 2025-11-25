@@ -1,7 +1,7 @@
 import PostModel from "../models/post.model";
 import { CreatePostType, UpdatePostType, DeletePostType } from "../entities/types/post.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
-
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 class UserPost extends PostModel {
     /**
      * DOCU: This function creates a new post record. <br>
@@ -16,35 +16,32 @@ class UserPost extends PostModel {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
         try {
-            const new_user_post = { ...params };
-            if (!new_user_post.title) {
+            if (!params.title) {
                 response_data.error = "Title is required.";
                 return response_data;
             }
 
             const post_model = new PostModel();
+
             const { posts } = await post_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `title = $1`,
-                where_values: [new_user_post.title],
+                where_values: [params.title],
             });
 
-            if (posts.length) {
+            if(posts.length){
                 response_data.error = "Title already exists.";
                 return response_data;
             }
 
-            const { post_id } = await post_model.createNewPost(new_user_post);
-
-            if (!post_id) {
-                response_data.error = "Failed to create post record.";
-                return response_data;
-            }
+            const create_new_post = await post_model.createNewPost(params);
 
             response_data.status = true;
-            response_data.result = { ...new_user_post, id: post_id };
-        } catch (error: any) {
-            response_data.error = error.message;
+            response_data.result = create_new_post;
+
+        } 
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -61,7 +58,7 @@ class UserPost extends PostModel {
     getAllPost = async (): Promise<ResponseDataInterface<CreatePostType[]>> => {
         const response_data: ResponseDataInterface<CreatePostType[]> = { status: false, result: undefined, error: null };
 
-        try {
+        try{
             const post_model = new PostModel();
             const post_result = await post_model.fetchModel<CreatePostType>({
                 fields_to_select: `
@@ -93,8 +90,9 @@ class UserPost extends PostModel {
             response_data.status = true;
             response_data.result = post_result.posts;
         }
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
+
         }
 
         return response_data;
@@ -123,7 +121,7 @@ class UserPost extends PostModel {
             description
         };
 
-        try {
+        try{
             const update_post_result = await post_model.updateUserPost(
                 `title = $1, description = $2`,
                 `id = $3`,
@@ -131,16 +129,15 @@ class UserPost extends PostModel {
                 [params.id]
             );
 
-
-            if (!update_post_result) {
+            if(!update_post_result){
                 throw new Error("update not succesfully");
             }
 
             response_data.status = true;
             response_data.result = updated_post;
         }
-        catch (error: any) {
-            response_data.error = error.message;
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
@@ -164,7 +161,7 @@ class UserPost extends PostModel {
         const post_model = new PostModel();
         const post_id = params.id;
 
-        try {
+        try{
             const delete_result = await post_model.deletePost(
                 `id = $1`,
                 [post_id]
@@ -172,8 +169,10 @@ class UserPost extends PostModel {
 
             response_data.status = true;
             response_data.result = delete_result;
-        } catch (error: any) {
-            response_data.error = error.message;
+        } 
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
+
         }
 
         return response_data;
