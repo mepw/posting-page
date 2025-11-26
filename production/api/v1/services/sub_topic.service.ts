@@ -1,4 +1,4 @@
-import { CreateSubTopic } from "../entities/types/sub_topic.type";
+import { CreateSubTopic, DeleteSubTopicType} from "../entities/types/sub_topic.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import SubTopic from "../models/sub_topic.model";
 import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
@@ -58,8 +58,8 @@ class UserSubTopic{
         const response_data: ResponseDataInterface<CreateSubTopic[]> = { status: false, result: undefined, error: null };
 
         try {
-            const post_model = new SubTopic();
-            const post_result = await post_model.fetchModel<CreateSubTopic>({
+            const sub_topic = new SubTopic();
+            const post_result = await sub_topic.fetchModel<CreateSubTopic>({
                 fields_to_select: `
                    *
                 `,
@@ -70,6 +70,33 @@ class UserSubTopic{
         }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
+        }
+
+        return response_data;
+    };
+    
+    deleteSubTopic = async (params: DeleteSubTopicType): Promise<ResponseDataInterface<boolean>> => {
+        const response_data: ResponseDataInterface<boolean> = {
+            status: false,
+            error: null,
+            result: undefined
+        };
+
+        const sub_topic_model = new SubTopic();
+        const id = params.id;
+
+        try{
+            const delete_result = await sub_topic_model.deleteSubTopic(
+                `id = $1`,
+                [id]
+            );
+
+            response_data.status = true;
+            response_data.result = delete_result;
+        }
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
+
         }
 
         return response_data;

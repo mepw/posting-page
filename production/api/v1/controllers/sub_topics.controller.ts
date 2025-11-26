@@ -3,7 +3,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import { CreateSubTopic } from "../entities/types/sub_topic.type";
+import { CreateSubTopic, DeleteSubTopicType } from "../entities/types/sub_topic.type";
 import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 class PostSubTopicController {
     /**
@@ -31,8 +31,8 @@ class PostSubTopicController {
             const response_data: ResponseDataInterface<CreateSubTopic> = await subTopicService.createSubTopic(new_sub_topics);
             res.json(response_data);
         }
-        catch (error: any) {
-            res.json({ status: false, error: error.message });
+        catch(error){
+            res.json({ status: false, error: ERROR_CATCH_MESSAGE.error });
         }
     };
 
@@ -47,6 +47,26 @@ class PostSubTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error });
         }
     }
+
+    deleteSubTopic = async (req: Request, res: Response): Promise<void> => {
+        const sub_topic_service = new SubTopicModel();
+        const user_id = req.validated_user_data?.id;
+
+        if(!user_id){
+            throw new Error("Unauthorized")
+        }
+
+        const id = Number(req.params.id);
+
+        try {
+            const sub_topic_data: DeleteSubTopicType = { id: id, user_id };
+            const response_data: ResponseDataInterface<boolean> = await sub_topic_service.deleteSubTopic(sub_topic_data);
+            res.json(response_data);
+        }
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+        }
+    };
 
 }
 

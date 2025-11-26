@@ -1,8 +1,8 @@
 import PostModel from "../models/post.model";
 import { CreatePostType, UpdatePostType, DeletePostType } from "../entities/types/post.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
-class UserPost extends PostModel {
+import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
+class UserPost extends PostModel{
     /**
      * DOCU: This function creates a new post record. <br>
      *       It validates the title, checks for duplicates, calls the PostModel to insert the post,
@@ -16,7 +16,6 @@ class UserPost extends PostModel {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
         try{
-            console.log(params);
             const post_model = new PostModel();
 
             const { posts } = await post_model.fetchModel<{ id: number }>({
@@ -35,7 +34,7 @@ class UserPost extends PostModel {
             response_data.status = true;
             response_data.result = create_new_post;
 
-        } 
+        }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
         }
@@ -105,33 +104,36 @@ class UserPost extends PostModel {
      */
     updatePost = async (params: UpdatePostType): Promise<ResponseDataInterface<UpdatePostType>> => {
         const response_data: ResponseDataInterface<UpdatePostType> = { status: false, error: null, result: undefined };
-
         const post_model = new PostModel();
 
         const title = params.title ?? "";
         const description = params.description ?? "";
+        const post_topic_id = params.post_topic_id ?? null;   
+        const post_sub_topic_id = params.post_sub_topic_id ?? null; 
 
         const updated_post: UpdatePostType = {
             id: params.id,
             title,
-            description
+            description,
+            post_topic_id: params.post_topic_id ?? undefined,
+            post_sub_topic_id: params.post_sub_topic_id ?? undefined,
         };
 
         try{
             const update_post_result = await post_model.updateUserPost(
-                `title = $1, description = $2`,
-                `id = $3`,
-                [title, description],
+                `title = $1, description = $2, post_topic_id = $3, post_sub_topic_id = $4`,
+                `id = $5`,
+                [title, description, post_topic_id, post_sub_topic_id],
                 [params.id]
             );
 
             if(!update_post_result){
-                throw new Error("update not succesfully");
+                throw new Error("update not successfully");
             }
 
             response_data.status = true;
             response_data.result = updated_post;
-        }
+        } 
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
         }
@@ -165,7 +167,7 @@ class UserPost extends PostModel {
 
             response_data.status = true;
             response_data.result = delete_result;
-        } 
+        }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
 

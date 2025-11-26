@@ -69,6 +69,14 @@ class PostComment extends DatabaseModel {
         return { posts: result.rows };
     };
 
+    deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
+        const delete_user_post = await this.executeQuery(
+            `DELETE FROM user_stories.post_sub_topics WHERE ${where_params}`,
+            where_values
+        );
+
+        return !!delete_user_post.rowCount;
+    };
 }
 
 export default PostComment;

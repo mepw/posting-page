@@ -6,7 +6,7 @@ import { JWT } from "../../../configs/constants/env.constant";
 
 /* Import for entities */
 import { ResponseDataInterface } from "../entities/interfaces/request_response.interfaces";
-
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
 import UsersService from "../services/user.service";
 import { CreateUserParamsTypes } from "../entities/types/user.type";
@@ -29,15 +29,16 @@ export const verifyJWTAuthToken = async <T>(
         error: null,
     };
 
-    try {
+    try{
         const secret_key = is_access_token ? JWT.access.secret_key : JWT.refresh.secret_key;
 
-        const decoded = jwt.verify(signed_jwt, secret_key) as T; // ✅ cast once
+        const decoded = jwt.verify(signed_jwt, secret_key) as T; 
 
         response.status = true;
         response.result = { token: decoded };
-    } catch (err: any) {
-        response.error = err.message;
+    } 
+    catch(error){
+        response.error = ERROR_CATCH_MESSAGE.error;
     }
 
     return response;

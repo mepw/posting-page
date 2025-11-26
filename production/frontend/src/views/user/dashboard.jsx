@@ -16,10 +16,14 @@ export default function Dashboard() {
 
   const [postTitle, setPostTitle] = useState("");
   const [postDesc, setPostDesc] = useState("");
+  const [editingPostId, setEditingPostId] = useState(null);
 
   const [newTopicName, setNewTopicName] = useState("");
+  const [editingTopicId, setEditingTopicId] = useState(null);
+
   const [newSubTopicName, setNewSubTopicName] = useState("");
   const [subTopicParent, setSubTopicParent] = useState(null);
+  const [editingSubTopicId, setEditingSubTopicId] = useState(null);
 
   const [modalOpenPost, setModalOpenPost] = useState(false);
   const [modalOpenTopic, setModalOpenTopic] = useState(false);
@@ -50,7 +54,7 @@ export default function Dashboard() {
     return res;
   };
 
-  // --- Load user, topics, subtopics, posts ---
+  // --- Load data ---
   useEffect(() => {
     const init = async () => {
       try {
@@ -74,7 +78,6 @@ export default function Dashboard() {
     init();
   }, []);
 
-  // --- Refresh posts ---
   const refreshPosts = async () => {
     try {
       const postRes = await fetchWithToken("/post/post");
@@ -108,6 +111,7 @@ export default function Dashboard() {
             comment_id: row.comment_id,
             comment_text: row.comment_text,
             comment_user_first_name: row.comment_user_first_name,
+            comment_user_id: row.comment_user_id,
           });
         }
       });
@@ -130,31 +134,62 @@ export default function Dashboard() {
     setSelectedSubTopic(val ? Number(val) : null);
   };
 
+  // --- Topics ---
   const handleAddTopic = async (e) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
 
     try {
-      const res = await fetchWithToken("/topic/newtopic", {
-        method: "POST",
+      const method = editingTopicId ? "PUT" : "POST";
+      const url = editingTopicId ? `/topic/edit/${editingTopicId}` : "/topic/newtopic";
+
+      const res = await fetchWithToken(url, {
+        method,
         body: JSON.stringify({ name: newTopicName.trim() }),
       });
+
       const data = await res.json();
       if (!res.ok || data.status === false) {
-        setErrors([data.error || "Failed to create topic"]);
+        setErrors([data.error || "Failed to save topic"]);
         return;
       }
+
       setNewTopicName("");
+      setEditingTopicId(null);
       closeModalTopicHandler();
 
       const topicsRes = await fetchWithToken("/topic/topic");
       const topicsData = await topicsRes.json();
       setTopics(topicsData.result || []);
     } catch {
-      setErrors(["Failed to create topic"]);
+      setErrors(["Failed to save topic"]);
     }
   };
 
+  const handleEditTopic = (topic) => {
+    setNewTopicName(topic.name);
+    setEditingTopicId(topic.id);
+    openModalTopicHandler();
+  };
+
+  const handleDeleteTopic = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this topic?")) return;
+    try {
+      const res = await fetchWithToken(`/topic/delete/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to delete topic"]);
+        return;
+      }
+      const topicsRes = await fetchWithToken("/topic/topic");
+      const topicsData = await topicsRes.json();
+      setTopics(topicsData.result || []);
+    } catch {
+      setErrors(["Failed to delete topic"]);
+    }
+  };
+
+  // --- SubTopics ---
   const handleAddSubTopic = async (e) => {
     e.preventDefault();
     if (!newSubTopicName.trim() || subTopicParent === null) {
@@ -163,27 +198,57 @@ export default function Dashboard() {
     }
 
     try {
-      const res = await fetchWithToken("/subtopic/newsubtopic", {
-        method: "POST",
+      const method = editingSubTopicId ? "PUT" : "POST";
+      const url = editingSubTopicId ? `/subtopic/edit/${editingSubTopicId}` : "/subtopic/newsubtopic";
+
+      const res = await fetchWithToken(url, {
+        method,
         body: JSON.stringify({ name: newSubTopicName.trim(), post_topic_id: subTopicParent }),
       });
       const data = await res.json();
       if (!res.ok || data.status === false) {
-        setErrors([data.error || "Failed to create subtopic"]);
+        setErrors([data.error || "Failed to save subtopic"]);
         return;
       }
+
       setNewSubTopicName("");
       setSubTopicParent(null);
+      setEditingSubTopicId(null);
       closeModalSubTopicHandler();
 
       const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
       const subTopicsData = await subTopicsRes.json();
       setSubTopics(subTopicsData.result || []);
     } catch {
-      setErrors(["Failed to create subtopic"]);
+      setErrors(["Failed to save subtopic"]);
     }
   };
 
+  const handleEditSubTopic = (st) => {
+    setNewSubTopicName(st.name);
+    setSubTopicParent(st.post_topic_id);
+    setEditingSubTopicId(st.id);
+    openModalSubTopicHandler();
+  };
+
+  const handleDeleteSubTopic = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this subtopic?")) return;
+    try {
+      const res = await fetchWithToken(`/subtopic/delete/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to delete subtopic"]);
+        return;
+      }
+      const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
+      const subTopicsData = await subTopicsRes.json();
+      setSubTopics(subTopicsData.result || []);
+    } catch {
+      setErrors(["Failed to delete subtopic"]);
+    }
+  };
+
+  // --- Posts ---
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
@@ -192,8 +257,11 @@ export default function Dashboard() {
     }
 
     try {
-      const res = await fetchWithToken("/post/newpost", {
-        method: "POST",
+      const url = editingPostId ? `/post/edit/${editingPostId}` : "/post/newpost";
+      const method = editingPostId ? "PUT" : "POST";
+
+      const res = await fetchWithToken(url, {
+        method,
         body: JSON.stringify({
           title: postTitle.trim(),
           description: postDesc.trim(),
@@ -202,22 +270,50 @@ export default function Dashboard() {
           user_id: user?.id,
         }),
       });
+
       const data = await res.json();
       if (!res.ok || data.status === false) {
-        setErrors([data.error || "Failed to create post"]);
+        setErrors([data.error || "Failed to save post"]);
         return;
       }
+
       await refreshPosts();
       setPostTitle("");
       setPostDesc("");
       setSelectedTopic(null);
       setSelectedSubTopic(null);
+      setEditingPostId(null);
       closeModalPostHandler();
     } catch {
-      setErrors(["Failed to create post"]);
+      setErrors(["Failed to save post"]);
     }
   };
 
+  const handleEditPost = (p) => {
+    setPostTitle(p.title);
+    setPostDesc(p.description);
+    setSelectedTopic(p.topic_id);
+    setSelectedSubTopic(p.subtopic_id);
+    setEditingPostId(p.post_id);
+    openModalPostHandler();
+  };
+
+  const handleDeletePost = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      const res = await fetchWithToken(`/post/delete/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to delete post"]);
+        return;
+      }
+      await refreshPosts();
+    } catch {
+      setErrors(["Failed to delete post"]);
+    }
+  };
+
+  // --- Comments ---
   const handleCommentChange = (postId, text) => {
     setNewComments((prev) => ({ ...prev, [postId]: text }));
   };
@@ -240,6 +336,21 @@ export default function Dashboard() {
       setNewComments((prev) => ({ ...prev, [postId]: "" }));
     } catch {
       setErrors(["Failed to add comment"]);
+    }
+  };
+
+  const handleDeleteComment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      const res = await fetchWithToken(`/comment/delete/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || data.status === false) {
+        setErrors([data.error || "Failed to delete comment"]);
+        return;
+      }
+      await refreshPosts();
+    } catch {
+      setErrors(["Failed to delete comment"]);
     }
   };
 
@@ -283,7 +394,7 @@ export default function Dashboard() {
       {/* Topic Modal */}
       {modalOpenTopic && (
         <Modal>
-          <h3>Create Topic</h3>
+          <h3>{editingTopicId ? "Edit Topic" : "Create Topic"}</h3>
           <form onSubmit={handleAddTopic}>
             <input
               placeholder="Topic Name"
@@ -291,18 +402,28 @@ export default function Dashboard() {
               onChange={(e) => setNewTopicName(e.target.value)}
               required
             />
-            <button type="submit">Create Topic</button>
+            <button type="submit">{editingTopicId ? "edit Topic" : "Create Topic"}</button>
             <button type="button" onClick={closeModalTopicHandler}>
               Cancel
             </button>
           </form>
+          <h4>Existing Topics</h4>
+          {topics.map((t) => (
+            <div key={t.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
+              <span>{t.name}</span>
+              <div>
+                <button onClick={() => handleEditTopic(t)}>Edit</button>
+                <button onClick={() => handleDeleteTopic(t.id)}>Delete</button>
+              </div>
+            </div>
+          ))}
         </Modal>
       )}
 
       {/* SubTopic Modal */}
       {modalOpenSubTopic && (
         <Modal>
-          <h3>Create SubTopic</h3>
+          <h3>{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</h3>
           <form onSubmit={handleAddSubTopic}>
             <select
               value={subTopicParent ?? ""}
@@ -322,18 +443,30 @@ export default function Dashboard() {
               onChange={(e) => setNewSubTopicName(e.target.value)}
               required
             />
-            <button type="submit">Create SubTopic</button>
+            <button type="submit">{editingSubTopicId ? "edit SubTopic" : "Create SubTopic"}</button>
             <button type="button" onClick={closeModalSubTopicHandler}>
               Cancel
             </button>
           </form>
+          <h4>Existing SubTopics</h4>
+          {subTopics.map((st) => (
+            <div key={st.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
+              <span>
+                {st.name} (Parent: {topics.find((t) => t.id === st.post_topic_id)?.name || "Unknown"})
+              </span>
+              <div>
+                <button onClick={() => handleEditSubTopic(st)}>Edit</button>
+                <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
+              </div>
+            </div>
+          ))}
         </Modal>
       )}
 
       {/* Post Modal */}
       {modalOpenPost && (
         <Modal>
-          <h3>Create Post</h3>
+          <h3>{editingPostId ? "Edit Post" : "Create Post"}</h3>
           <form onSubmit={handlePostSubmit}>
             <select value={selectedTopic ?? ""} onChange={handleTopicChange} required>
               <option value="">Select Topic</option>
@@ -375,7 +508,7 @@ export default function Dashboard() {
               onChange={(e) => setPostDesc(e.target.value)}
               required
             />
-            <button type="submit">Post</button>
+            <button type="submit">{editingPostId ? "edit Post" : "Post"}</button>
             <button type="button" onClick={closeModalPostHandler}>
               Cancel
             </button>
@@ -396,10 +529,22 @@ export default function Dashboard() {
             By {p.post_user_first_name} {p.post_user_last_name}
           </small>
 
+          {p.post_user_id === user.id && (
+            <div style={{ marginTop: "5px" }}>
+              <button onClick={() => handleEditPost(p)}>Edit</button>
+              <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>
+            </div>
+          )}
+
           {p.comments.map((c) => (
-            <p key={c.comment_id} style={{ marginLeft: "20px" }}>
-              <strong>{c.comment_user_first_name}:</strong> {c.comment_text}
-            </p>
+            <div key={c.comment_id} style={{ marginLeft: "20px", display: "flex", justifyContent: "space-between" }}>
+              <p>
+                <strong>{c.comment_user_first_name}:</strong> {c.comment_text}
+              </p>
+              {c.comment_user_id === user.id && (
+                <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
+              )}
+            </div>
           ))}
 
           <div style={{ marginTop: "10px" }}>
@@ -430,6 +575,7 @@ const Modal = ({ children }) => (
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      zIndex: 999,
     }}
   >
     <div style={{ background: "#fff", padding: "20px", width: "400px", borderRadius: "8px" }}>

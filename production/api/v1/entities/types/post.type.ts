@@ -18,6 +18,8 @@ export type UpdatePostType = {
     id: number;
     title?: string;
     description?: string;
+    post_topic_id: number ;    
+    post_sub_topic_id: number;
 };
 
 export interface UserPostResult {

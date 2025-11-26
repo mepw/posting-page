@@ -23,7 +23,6 @@ class PostComment extends DatabaseModel {
         `, comment_values);
 
         const result = await this.executeQuery<{ id: number; post_id: number }>(insert_query);
-        console.log("Inserted row result:", result.rows[0]);
         return { id: result.rows[0].id, post_id: result.rows[0].post_id };
     };
 

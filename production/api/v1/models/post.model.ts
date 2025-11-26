@@ -73,7 +73,7 @@ class PostModel extends DatabaseModel {
                 post_details.post_sub_topic_id
             ]
         ];
-        console.log(post_details);
+        
         const insert_post_details = format(`
             INSERT INTO user_stories.posts (user_id, title, description, post_topic_id, post_sub_topic_id)
             VALUES %L

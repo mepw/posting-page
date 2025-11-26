@@ -27,8 +27,6 @@ class PostController {
                 post_sub_topic_id: req.body.post_sub_topic_id,
             };
 
-            console.log("Received post_topic_id from frontend:", req.body.post_topic_id);
-
             const response_data = await post_service.createPost(post_data);
             res.json(response_data);
 
@@ -74,13 +72,14 @@ class PostController {
     updatePost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try {
+        try{
             const post_id = Number(req.params.id);
             const post_data: UpdatePostType = { ...req.body, id: post_id };
+
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };

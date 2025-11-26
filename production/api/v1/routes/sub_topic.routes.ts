@@ -7,5 +7,5 @@ const SubTopicRoute: Router = Router();
 
 SubTopicRoute.post("/newsubtopic",exec(subTopicValidation), exec(SubTopic.CreateSubTopic));
 SubTopicRoute.get("/subtopic", exec(SubTopic.getAllSubTopic));
-
+SubTopicRoute.delete("/delete/:id", exec(SubTopic.deleteSubTopic));
 export default SubTopicRoute;
