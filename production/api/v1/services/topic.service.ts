@@ -1,4 +1,4 @@
-import { CreateTopic } from "../entities/types/topic.type";
+import { CreateTopic, DeleteTopicType} from "../entities/types/topic.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import PostTopic from "../models/topic.model";
 import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
@@ -70,6 +70,32 @@ class UserSubTopic {
         return response_data;
     };
 
+        deleteTopic = async (params: DeleteTopicType): Promise<ResponseDataInterface<boolean>> => {
+        const response_data: ResponseDataInterface<boolean> = {
+            status: false,
+            error: null,
+            result: undefined
+        };
+
+        const topic_model = new PostTopic();
+        const id = params.id;
+
+        try{
+            const delete_result = await topic_model.deleteTopic(
+                `id = $1`,
+                [id]
+            );
+
+            response_data.status = true;
+            response_data.result = delete_result;
+        }
+        catch(error){
+            response_data.error = ERROR_CATCH_MESSAGE.error;
+
+        }
+
+        return response_data;
+    };
 }
 
 export default UserSubTopic;

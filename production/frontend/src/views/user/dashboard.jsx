@@ -412,7 +412,6 @@ export default function Dashboard() {
             <div key={t.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
               <span>{t.name}</span>
               <div>
-                <button onClick={() => handleEditTopic(t)}>Edit</button>
                 <button onClick={() => handleDeleteTopic(t.id)}>Delete</button>
               </div>
             </div>
@@ -455,7 +454,6 @@ export default function Dashboard() {
                 {st.name} (Parent: {topics.find((t) => t.id === st.post_topic_id)?.name || "Unknown"})
               </span>
               <div>
-                <button onClick={() => handleEditSubTopic(st)}>Edit</button>
                 <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
               </div>
             </div>

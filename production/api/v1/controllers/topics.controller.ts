@@ -1,6 +1,6 @@
 import TopicService from "../services/topic.service"
 import { ResponseDataInterface } from "../entities/interfaces/global.interface"
-import { CreateTopic } from "../entities/types/topic.type";
+import { CreateTopic, DeleteTopicType} from "../entities/types/topic.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
 import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
@@ -41,25 +41,27 @@ class PostTopicController {
         }
     }
 
-    // deleteSubTopic = async (req: Request, res: Response): Promise<void> => {
-    //     const sub_topic_service = new SubTopicModel();
-    //     const user_id = req.validated_user_data?.id;
+    deleteTopic = async (req: Request, res: Response): Promise<void> => {
+        const topic_service = new TopicService();
+        const user_id = req.validated_user_data?.id;
 
-    //     if (!user_id) {
-    //         throw new Error("Unauthorized")
-    //     }
+        if(!user_id){
+            throw new Error("Unauthorized")
+        }
 
-    //     const id = Number(req.params.id);
+        const id = Number(req.params.id);
 
-    //     try {
-    //         const sub_topic_data: DeleteSubTopicType = { id: id, user_id };
-    //         const response_data: ResponseDataInterface<boolean> = await sub_topic_service.deleteSubTopic(sub_topic_data);
-    //         res.json(response_data);
-    //     }
-    //     catch (error) {
-    //         res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
-    //     }
-    // };
+        try{
+            const topic_data: DeleteTopicType = { id: id, user_id };
+            const response_data: ResponseDataInterface<boolean> = await topic_service.deleteTopic(topic_data);
+            res.json(response_data);
+        }
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+        }
+    };
+
+    
 }
 
 export default new PostTopicController();
