@@ -6,7 +6,7 @@ import { checkFieldHandler } from "../helpers/user_helper";
 export const subTopicValidation = (req: Request, res: Response, next: NextFunction) => {
     const sub_topic_validation = z.object({
         name: z.string().regex(REGEX.name_format, { message: "Topic Name must be Text" }),
-        post_topic_id: z.number(),
+        post_topic_id: z.number().nullable(),
     });
     
     const validation_result = sub_topic_validation.safeParse(req.body);

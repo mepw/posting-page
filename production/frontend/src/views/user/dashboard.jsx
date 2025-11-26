@@ -21,11 +21,13 @@ export default function Dashboard() {
   const [newSubTopicName, setNewSubTopicName] = useState("");
   const [subTopicParent, setSubTopicParent] = useState(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [subTopicModalOpen, setSubTopicModalOpen] = useState(false);
-  const [newComments, setNewComments] = useState({}); // Track comment input per post
+  const [modalOpenPost, setModalOpenPost] = useState(false);
+  const [modalOpenTopic, setModalOpenTopic] = useState(false);
+  const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
 
-  // --- Fetch helper with token ---
+  const [newComments, setNewComments] = useState({});
+
+  // --- Fetch helper ---
   const fetchWithToken = async (url, options = {}) => {
     const token = localStorage.getItem("access_token");
     if (!token) navigate("/login");
@@ -48,22 +50,25 @@ export default function Dashboard() {
     return res;
   };
 
-  // --- Load initial data ---
+  // --- Load user, topics, subtopics, posts ---
   useEffect(() => {
     const init = async () => {
       try {
-        const userData = await fetchWithToken("/user/user").then((r) => r.json());
+        const userRes = await fetchWithToken("/user/user");
+        const userData = await userRes.json();
         setUser(userData.result);
 
-        const topicData = await fetchWithToken("/topic/topic").then((r) => r.json());
-        setTopics(topicData.result || []);
+        const topicsRes = await fetchWithToken("/topic/topic");
+        const topicsData = await topicsRes.json();
+        setTopics(topicsData.result || []);
 
-        const subTopicData = await fetchWithToken("/subtopic/subtopic").then((r) => r.json());
-        setSubTopics(subTopicData.result || []);
+        const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
+        const subTopicsData = await subTopicsRes.json();
+        setSubTopics(subTopicsData.result || []);
 
         await refreshPosts();
       } catch {
-        setErrors(["Failed to fetch data"]);
+        setErrors(["Failed to fetch data from database"]);
       }
     };
     init();
@@ -72,16 +77,18 @@ export default function Dashboard() {
   // --- Refresh posts ---
   const refreshPosts = async () => {
     try {
-      const postData = await fetchWithToken("/post/post").then((r) => r.json());
+      const postRes = await fetchWithToken("/post/post");
+      const postData = await postRes.json();
       const rows = postData.result || [];
+
       const postsArr = [];
       const postsMap = {};
 
       rows.forEach((row) => {
-        const numericPostId = Number(row.post_id);
-        if (!postsMap[numericPostId]) {
+        const postId = Number(row.post_id);
+        if (!postsMap[postId]) {
           postsArr.push({
-            post_id: numericPostId,
+            post_id: postId,
             title: row.title,
             description: row.description,
             topic_id: row.post_topic_id,
@@ -93,11 +100,11 @@ export default function Dashboard() {
             post_user_id: row.post_user_id,
             comments: [],
           });
-          postsMap[numericPostId] = postsArr[postsArr.length - 1];
+          postsMap[postId] = postsArr[postsArr.length - 1];
         }
 
         if (row.comment_id) {
-          postsMap[numericPostId].comments.push({
+          postsMap[postId].comments.push({
             comment_id: row.comment_id,
             comment_text: row.comment_text,
             comment_user_first_name: row.comment_user_first_name,
@@ -107,29 +114,22 @@ export default function Dashboard() {
 
       setPosts(postsArr);
     } catch {
-      setErrors(["Failed to fetch posts"]);
+      setErrors(["Failed to fetch posts from database"]);
     }
   };
 
-  // --- Modal handlers ---
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-  const openSubTopicModal = () => setSubTopicModalOpen(true);
-  const closeSubTopicModal = () => setSubTopicModalOpen(false);
-
-  // --- Topic/Subtopic selection ---
+  // --- Handlers ---
   const handleTopicChange = (e) => {
     const val = e.target.value;
-    setSelectedTopic(val !== "" ? Number(val) : null);
+    setSelectedTopic(val ? Number(val) : null);
     setSelectedSubTopic(null);
   };
 
   const handleSubTopicChange = (e) => {
     const val = e.target.value;
-    setSelectedSubTopic(val !== "" ? Number(val) : null);
+    setSelectedSubTopic(val ? Number(val) : null);
   };
 
-  // --- Add Topic ---
   const handleAddTopic = async (e) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
@@ -137,7 +137,6 @@ export default function Dashboard() {
     try {
       const res = await fetchWithToken("/topic/newtopic", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newTopicName.trim() }),
       });
       const data = await res.json();
@@ -146,14 +145,16 @@ export default function Dashboard() {
         return;
       }
       setNewTopicName("");
-      const updatedTopics = await fetchWithToken("/topic/topic").then((r) => r.json());
-      setTopics(updatedTopics.result || []);
+      closeModalTopicHandler();
+
+      const topicsRes = await fetchWithToken("/topic/topic");
+      const topicsData = await topicsRes.json();
+      setTopics(topicsData.result || []);
     } catch {
       setErrors(["Failed to create topic"]);
     }
   };
 
-  // --- Add SubTopic ---
   const handleAddSubTopic = async (e) => {
     e.preventDefault();
     if (!newSubTopicName.trim() || subTopicParent === null) {
@@ -164,11 +165,7 @@ export default function Dashboard() {
     try {
       const res = await fetchWithToken("/subtopic/newsubtopic", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newSubTopicName.trim(),
-          topic_id: subTopicParent,
-        }),
+        body: JSON.stringify({ name: newSubTopicName.trim(), post_topic_id: subTopicParent }),
       });
       const data = await res.json();
       if (!res.ok || data.status === false) {
@@ -177,62 +174,54 @@ export default function Dashboard() {
       }
       setNewSubTopicName("");
       setSubTopicParent(null);
-      closeSubTopicModal();
+      closeModalSubTopicHandler();
 
-      const updatedSubTopics = await fetchWithToken("/subtopic/subtopic").then((r) => r.json());
-      setSubTopics(updatedSubTopics.result || []);
+      const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
+      const subTopicsData = await subTopicsRes.json();
+      setSubTopics(subTopicsData.result || []);
     } catch {
       setErrors(["Failed to create subtopic"]);
     }
   };
 
-  // --- Create Post ---
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-
     if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
       setErrors(["Please fill all required fields"]);
       return;
     }
 
-    const bodyData = {
-      title: postTitle.trim(),
-      description: postDesc.trim(),
-      post_topic_id: selectedTopic,
-      post_sub_topic_id: selectedSubTopic || null,
-      user_id: user?.id,
-    };
-
     try {
       const res = await fetchWithToken("/post/newpost", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify({
+          title: postTitle.trim(),
+          description: postDesc.trim(),
+          post_topic_id: selectedTopic,
+          post_sub_topic_id: selectedSubTopic || null,
+          user_id: user?.id,
+        }),
       });
-
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to create post"]);
         return;
       }
-
       await refreshPosts();
       setPostTitle("");
       setPostDesc("");
       setSelectedTopic(null);
       setSelectedSubTopic(null);
-      closeModal();
+      closeModalPostHandler();
     } catch {
       setErrors(["Failed to create post"]);
     }
   };
 
-  // --- Handle comment input ---
   const handleCommentChange = (postId, text) => {
     setNewComments((prev) => ({ ...prev, [postId]: text }));
   };
 
-  // --- Submit comment ---
   const handleCommentSubmit = async (postId) => {
     const commentText = newComments[postId]?.trim();
     if (!commentText) return;
@@ -240,20 +229,13 @@ export default function Dashboard() {
     try {
       const res = await fetchWithToken("/comment/newcomment", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          comment: commentText,
-          post_id: postId,
-          user_id: user?.id,
-        }),
+        body: JSON.stringify({ comment: commentText, post_id: postId, user_id: user?.id }),
       });
-
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to add comment"]);
         return;
       }
-
       await refreshPosts();
       setNewComments((prev) => ({ ...prev, [postId]: "" }));
     } catch {
@@ -268,6 +250,14 @@ export default function Dashboard() {
   };
 
   if (!user) return <p>Loading user...</p>;
+
+  // Modal handlers
+  const openModalPostHandler = () => setModalOpenPost(true);
+  const closeModalPostHandler = () => setModalOpenPost(false);
+  const openModalTopicHandler = () => setModalOpenTopic(true);
+  const closeModalTopicHandler = () => setModalOpenTopic(false);
+  const openModalSubTopicHandler = () => setModalOpenSubTopic(true);
+  const closeModalSubTopicHandler = () => setModalOpenSubTopic(false);
 
   return (
     <div style={{ maxWidth: "900px", margin: "20px auto" }}>
@@ -284,136 +274,118 @@ export default function Dashboard() {
         </ul>
       )}
 
-      {/* Buttons to open Topic/SubTopic modals */}
       <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-        <button onClick={openModal}>Add Topic / Create Post</button>
-        <button onClick={openSubTopicModal}>Add SubTopic</button>
+        <button onClick={openModalTopicHandler}>Add Topic</button>
+        <button onClick={openModalSubTopicHandler}>Add SubTopic</button>
+        <button onClick={openModalPostHandler}>Create Post</button>
       </div>
 
+      {/* Topic Modal */}
+      {modalOpenTopic && (
+        <Modal>
+          <h3>Create Topic</h3>
+          <form onSubmit={handleAddTopic}>
+            <input
+              placeholder="Topic Name"
+              value={newTopicName}
+              onChange={(e) => setNewTopicName(e.target.value)}
+              required
+            />
+            <button type="submit">Create Topic</button>
+            <button type="button" onClick={closeModalTopicHandler}>
+              Cancel
+            </button>
+          </form>
+        </Modal>
+      )}
+
       {/* SubTopic Modal */}
-      {subTopicModalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              padding: "20px",
-              width: "400px",
-              borderRadius: "8px",
-            }}
-          >
-            <h3>Create SubTopic</h3>
-            <form onSubmit={handleAddSubTopic}>
-              <select
-                value={subTopicParent ?? ""}
-                onChange={(e) =>
-                  setSubTopicParent(e.target.value !== "" ? Number(e.target.value) : null)
-                }
-              >
-                <option value="">Select Parent Topic</option>
-                {topics.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                placeholder="SubTopic Name"
-                value={newSubTopicName}
-                onChange={(e) => setNewSubTopicName(e.target.value)}
-              />
-              <button type="submit">Create SubTopic</button>
-              <button type="button" onClick={closeSubTopicModal}>
-                Cancel
-              </button>
-            </form>
-          </div>
-        </div>
+      {modalOpenSubTopic && (
+        <Modal>
+          <h3>Create SubTopic</h3>
+          <form onSubmit={handleAddSubTopic}>
+            <select
+              value={subTopicParent ?? ""}
+              onChange={(e) => setSubTopicParent(e.target.value ? Number(e.target.value) : null)}
+              required
+            >
+              <option value="">Select Parent Topic</option>
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <input
+              placeholder="SubTopic Name"
+              value={newSubTopicName}
+              onChange={(e) => setNewSubTopicName(e.target.value)}
+              required
+            />
+            <button type="submit">Create SubTopic</button>
+            <button type="button" onClick={closeModalSubTopicHandler}>
+              Cancel
+            </button>
+          </form>
+        </Modal>
       )}
 
-      {/* Existing Create Post Modal */}
-      {modalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              padding: "20px",
-              width: "400px",
-              borderRadius: "8px",
-            }}
-          >
-            <h3>Create Post</h3>
-            <form onSubmit={handlePostSubmit}>
-              <select value={selectedTopic ?? ""} onChange={handleTopicChange}>
-                <option value="">Select Topic</option>
-                {topics.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
+      {/* Post Modal */}
+      {modalOpenPost && (
+        <Modal>
+          <h3>Create Post</h3>
+          <form onSubmit={handlePostSubmit}>
+            <select value={selectedTopic ?? ""} onChange={handleTopicChange} required>
+              <option value="">Select Topic</option>
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedSubTopic ?? ""}
+              onChange={handleSubTopicChange}
+              disabled={!selectedTopic || subTopics.filter((st) => st.post_topic_id === selectedTopic).length === 0}
+            >
+              <option value="">
+                {subTopics.filter((st) => st.post_topic_id === selectedTopic).length > 0
+                  ? "Select Subtopic (optional)"
+                  : "No subtopics yet"}
+              </option>
+              {subTopics
+                .filter((st) => st.post_topic_id === selectedTopic)
+                .map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.name}
                   </option>
                 ))}
-              </select>
+            </select>
 
-              {subTopics.filter((st) => st.topic_id === selectedTopic).length > 0 && (
-                <select value={selectedSubTopic ?? ""} onChange={handleSubTopicChange}>
-                  <option value="">Select Subtopic (optional)</option>
-                  {subTopics
-                    .filter((st) => st.topic_id === selectedTopic)
-                    .map((st) => (
-                      <option key={st.id} value={st.id}>
-                        {st.name}
-                      </option>
-                    ))}
-                </select>
-              )}
-
-              <input
-                placeholder="Post Title"
-                value={postTitle}
-                onChange={(e) => setPostTitle(e.target.value)}
-              />
-              <textarea
-                placeholder="Post Description"
-                value={postDesc}
-                onChange={(e) => setPostDesc(e.target.value)}
-              />
-              <button type="submit">Post</button>
-              <button type="button" onClick={closeModal}>
-                Cancel
-              </button>
-            </form>
-          </div>
-        </div>
+            <input
+              placeholder="Post Title"
+              value={postTitle}
+              onChange={(e) => setPostTitle(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Post Description"
+              value={postDesc}
+              onChange={(e) => setPostDesc(e.target.value)}
+              required
+            />
+            <button type="submit">Post</button>
+            <button type="button" onClick={closeModalPostHandler}>
+              Cancel
+            </button>
+          </form>
+        </Modal>
       )}
 
-      {/* Display Posts + Comments */}
+      {/* Posts */}
       {posts.map((p) => (
-        <div
-          key={p.post_id}
-          style={{ border: "1px solid #ccc", padding: "10px", marginTop: "10px" }}
-        >
+        <div key={p.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginTop: "10px" }}>
           <h4>
             Topic: {p.topic_name}
             {p.subtopic_name ? ` / ${p.subtopic_name}` : ""}
@@ -424,14 +396,12 @@ export default function Dashboard() {
             By {p.post_user_first_name} {p.post_user_last_name}
           </small>
 
-          {/* Comments */}
           {p.comments.map((c) => (
             <p key={c.comment_id} style={{ marginLeft: "20px" }}>
               <strong>{c.comment_user_first_name}:</strong> {c.comment_text}
             </p>
           ))}
 
-          {/* Add Comment */}
           <div style={{ marginTop: "10px" }}>
             <input
               type="text"
@@ -446,3 +416,24 @@ export default function Dashboard() {
     </div>
   );
 }
+
+// Reusable Modal
+const Modal = ({ children }) => (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <div style={{ background: "#fff", padding: "20px", width: "400px", borderRadius: "8px" }}>
+      {children}
+    </div>
+  </div>
+);

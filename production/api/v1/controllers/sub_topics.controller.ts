@@ -23,7 +23,7 @@ class PostSubTopicController {
         try {
             const new_sub_topics: CreateSubTopic = { ...req.body, user_id };
 
-            if (!new_sub_topics.name) {
+            if(!new_sub_topics.name){
                 res.json({ status: false, error: "Sub-Topic Name is required." });
                 return;
             }
