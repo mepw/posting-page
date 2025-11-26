@@ -5,7 +5,8 @@ import { checkFieldHandler } from "../helpers/user_helper";
 
 export const commentValidation = (req: Request, res: Response, next: NextFunction) => {
     const comment_validation = z.object({
-        comment: z.string().regex(REGEX.name_format, { message: "Comment must be Text" })
+        comment: z.string().regex(REGEX.name_format, { message: "Comment must be Text" }),
+        post_id: z.number()
     });
     
     const validation_result = comment_validation.safeParse(req.body);

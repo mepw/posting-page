@@ -21,12 +21,13 @@ class PostController {
 
         try {
             const post_data: CreatePostType = {
-                ...req.body,
-                user_id
+                ...req.body,                   
+                user_id,                      
+                post_topic_id: req.body.post_topic_id,   
+                post_sub_topic_id: req.body.post_sub_topic_id,
             };
 
-            console.log("Received post_topic_id from frontend:", req.body);
-
+            console.log("Received post_topic_id from frontend:", req.body.post_topic_id);
 
             const response_data = await post_service.createPost(post_data);
             res.json(response_data);

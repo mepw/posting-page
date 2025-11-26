@@ -124,6 +124,7 @@ export default function Dashboard() {
     try {
       const res = await fetchWithToken("/topic/newtopic", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newTopicName.trim() }),
       });
       const data = await res.json();
@@ -150,6 +151,7 @@ export default function Dashboard() {
     try {
       const res = await fetchWithToken("/subtopic/newsubtopic", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newSubTopicName.trim(),
           topic_id: subTopicParent,
@@ -175,26 +177,29 @@ export default function Dashboard() {
   // --- Create Post ---
   const handlePostSubmit = async (e) => {
     e.preventDefault();
+
     if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
       setErrors(["Please fill all required fields"]);
       return;
     }
 
-    const payload = {
+    const bodyData = {
       title: postTitle.trim(),
       description: postDesc.trim(),
       post_topic_id: selectedTopic,
-      post_sub_topic_id: selectedSubTopic ?? null,
-      user_id: user.id,
+      post_sub_topic_id: selectedSubTopic || null,
+      user_id: user?.id
     };
 
-    console.log("Submitting post payload:", payload);
+    console.log("Sending post payload:", bodyData);
 
     try {
       const res = await fetchWithToken("/post/newpost", {
         method: "POST",
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
       });
+
       const data = await res.json();
       console.log("Create Post Response:", data);
 
@@ -257,9 +262,7 @@ export default function Dashboard() {
         >
           <option value="">Select Parent Topic</option>
           {topics.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
+            <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
         <input
@@ -300,21 +303,17 @@ export default function Dashboard() {
               <select value={selectedTopic ?? ""} onChange={handleTopicChange}>
                 <option value="">Select Topic</option>
                 {topics.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
+                  <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
 
-              {subTopics.filter((st) => st.topic_id === selectedTopic).length > 0 && (
+              {subTopics.filter(st => st.topic_id === selectedTopic).length > 0 && (
                 <select value={selectedSubTopic ?? ""} onChange={handleSubTopicChange}>
                   <option value="">Select Subtopic (optional)</option>
                   {subTopics
-                    .filter((st) => st.topic_id === selectedTopic)
-                    .map((st) => (
-                      <option key={st.id} value={st.id}>
-                        {st.name}
-                      </option>
+                    .filter(st => st.topic_id === selectedTopic)
+                    .map(st => (
+                      <option key={st.id} value={st.id}>{st.name}</option>
                     ))}
                 </select>
               )}
