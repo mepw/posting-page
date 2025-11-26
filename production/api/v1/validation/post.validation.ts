@@ -7,8 +7,8 @@ export const postValidation = (req: Request, res: Response, next: NextFunction) 
     const post_validation = z.object({
         title: z.string().regex(REGEX.name_format, { message: "Title must be Text" }),
         description: z.string().regex(REGEX.name_format, { message: "Description must be text" }),
-        post_topic_id: z.number(),
-        post_sub_topic_id: z.number(),
+        post_topic_id: z.number().nullable(),    
+        post_sub_topic_id: z.number().nullable(),
     });
 
     const validation_result = post_validation.safeParse(req.body);

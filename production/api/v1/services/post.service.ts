@@ -80,7 +80,7 @@ class UserPost extends PostModel {
                     LEFT JOIN user_stories.post_sub_topics ON posts.post_sub_topic_id = post_sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
                 `,
-                order_by: `post_topics.id DESC`
+                order_by: `post_topics.id ASC`
             });
 
             response_data.status = true;
