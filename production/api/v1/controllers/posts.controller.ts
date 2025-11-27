@@ -50,32 +50,15 @@ class PostController {
         const post_service = new postService();
 
         try {
-            const { sort } = req.query;
-            let sorting_query_data: string | undefined;
-
-            if(sort === "title_asc"){
-                sorting_query_data = "posts.title ASC";
-            } 
-            else if(sort === "title_desc"){
-                sorting_query_data = "posts.title DESC";
-            } 
-            else if(sort === "date_asc"){
-                sorting_query_data = "posts.id ASC";
-            } 
-            else if(sort === "date_desc"){
-                sorting_query_data = "posts.id DESC";
-            } 
-            else{
-                sorting_query_data = undefined;
-            }
-
-            const response_data: ResponseDataInterface<CreatePostType[] | null> = await post_service.getAllPost(sorting_query_data);
+            const { sorting_data } = req.query;
+            const response_data = await post_service.getAllPost(sorting_data as string);
             res.json(response_data);
         }
-        catch(error){
+        catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
+
 
     /**
      * DOCU: This function updates an existing post by merging the request body with the post ID

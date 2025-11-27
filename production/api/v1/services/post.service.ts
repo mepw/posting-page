@@ -15,7 +15,7 @@ class UserPost extends PostModel {
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
-        try{
+        try {
             const post_model = new PostModel();
 
             const { new_user_post } = await post_model.fetchModel<{ id: number }>({
@@ -24,7 +24,7 @@ class UserPost extends PostModel {
                 where_values: [params.title],
             });
 
-            if(new_user_post.length){
+            if (new_user_post.length) {
                 response_data.error = "Title already exists.";
                 return response_data;
             }
@@ -33,7 +33,7 @@ class UserPost extends PostModel {
             response_data.status = true;
             response_data.result = create_new_post;
         }
-        catch(error){
+        catch (error) {
             response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
@@ -48,12 +48,26 @@ class UserPost extends PostModel {
      * @author Keith
      */
     getAllPost = async (sort_option?: string): Promise<ResponseDataInterface<CreatePostType[]>> => {
-        const response_data: ResponseDataInterface<CreatePostType[]> = { status: false, error: null, result: undefined };
+        const response_data: ResponseDataInterface<CreatePostType[]> = {status: false,error: null,result: undefined };
 
         try{
-            const post_model = new PostModel();
-            const post_result = await post_model.fetchModel<CreatePostType>({
+            const post_model = new PostModel(); 
+            let order_by = "posts.id DESC";
 
+            if(sort_option === "title_asc"){
+                order_by = "posts.title ASC";
+            }
+            else if(sort_option === "title_desc"){
+                order_by = "posts.title DESC";
+            }
+            else if(sort_option === "date_asc"){
+                order_by = "posts.id ASC";
+            }
+            else if(sort_option === "date_desc"){
+                order_by = "posts.id DESC";
+            }
+
+            const post_result = await post_model.fetchModel<CreatePostType>({
                 fields_to_select: `
                     posts.id AS post_id,
                     posts.user_id AS post_user_id,
@@ -69,28 +83,29 @@ class UserPost extends PostModel {
                     post_comments.comment AS comment_text,
                     comment_user.first_name AS comment_user_first_name,
                     comment_user.last_name AS comment_user_last_name
-                `,
-
+            `,
+            
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
                     LEFT JOIN user_stories.post_topics ON posts.post_topic_id = post_topics.id
                     LEFT JOIN user_stories.post_sub_topics ON posts.post_sub_topic_id = post_sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
-                `,
-                
-                order_by: sort_option || "post_id DESC",
+            `,
+
+                order_by: order_by,
             });
 
             response_data.status = true;
             response_data.result = post_result.new_user_post;
-        } 
+        }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
         }
 
         return response_data;
     };
+
 
     /**
      * DOCU: This function updates an existing post. <br>
@@ -118,11 +133,11 @@ class UserPost extends PostModel {
             post_sub_topic_id: params.post_sub_topic_id ?? undefined,
         };
 
-        try{
+        try {
             const update_post_result = await post_model.updateUserPost(
                 `title = $1, description = $2, post_topic_id = $3, post_sub_topic_id = $4`,
-                `id = $5`,
-                [title, description, post_topic_id, post_sub_topic_id],
+                `id = $5`, 
+                [title, description, post_topic_id, post_sub_topic_id], 
                 [params.id]
             );
 
@@ -164,7 +179,6 @@ class UserPost extends PostModel {
         }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
-
         }
 
         return response_data;

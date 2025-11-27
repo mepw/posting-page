@@ -16,7 +16,7 @@ class UserSubTopic{
     createSubTopic = async (params: CreateSubTopic): Promise<ResponseDataInterface<CreateSubTopic>> => {
         const response_data: ResponseDataInterface<CreateSubTopic> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const new_sub_topic = { ...params };
 
             if(!new_sub_topic.name){
@@ -57,7 +57,7 @@ class UserSubTopic{
     getAllSubTopic = async (): Promise<ResponseDataInterface<CreateSubTopic[]>> => {
         const response_data: ResponseDataInterface<CreateSubTopic[]> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const sub_topic = new SubTopic();
             const post_result = await sub_topic.fetchModel<CreateSubTopic>({
                 fields_to_select: `
