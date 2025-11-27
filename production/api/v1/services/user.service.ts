@@ -60,6 +60,7 @@ class UserService extends DatabaseModel{
 
         return response_data;
     }
+    
     /**
      * DOCU: This function handles user login. <br>
      *       It fetches the user by email, validates the password, generates access and refresh JWT tokens,
