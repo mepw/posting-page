@@ -16,7 +16,7 @@ class PostModel extends DatabaseModel {
      * @template FetchFieldType - Type of each post row returned from the query
      * @author Keith
      */
-    fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
+    fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ new_user_post: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
 
@@ -41,17 +41,17 @@ class PostModel extends DatabaseModel {
 
         const values = where_values || [];
 
-        if (limit !== undefined) {
+        if(limit !== undefined){
             values.push(limit);
         }
 
-        if (offset !== undefined) {
+        if(offset !== undefined){
             values.push(offset);
         }
 
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
 
-        return { posts: result.rows };
+        return { new_user_post: result.rows };
     };
 
     /**
@@ -101,8 +101,6 @@ class PostModel extends DatabaseModel {
         };
     };
 
-
-
     /**
      * DOCU: This function updates an existing post. <br>
      *       It executes an update query with the provided set and where clauses and values, and returns a boolean indicating success. <br>
@@ -141,7 +139,6 @@ class PostModel extends DatabaseModel {
 
         return !!delete_user_post.rowCount;
     };
-
 
 }
 

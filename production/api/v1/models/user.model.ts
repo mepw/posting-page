@@ -15,7 +15,7 @@ class UserModel extends DatabaseModel {
      * @author Keith
      */
     fetchUser = async <FetchFieldType extends QueryResultRow>(
-        params?: SelectQueryInterface): Promise<{ users: FetchFieldType[] }> => {
+        params?: SelectQueryInterface): Promise<{ user_data: FetchFieldType[] }> => {
         const fields = params?.fields_to_select || '*';
         const whereClause = params?.where_params ? `WHERE ${params.where_params}` : '';
 
@@ -24,7 +24,7 @@ class UserModel extends DatabaseModel {
 
         const result = await this.executeQuery<FetchFieldType>(query, values);
 
-        return { users: result.rows };
+        return { user_data: result.rows };
     };
 
     /**

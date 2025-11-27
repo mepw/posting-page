@@ -55,7 +55,7 @@ class UserSubTopic{
     };
 
     getAllSubTopic = async (): Promise<ResponseDataInterface<CreateSubTopic[]>> => {
-        const response_data: ResponseDataInterface<CreateSubTopic[]> = { status: false, result: undefined, error: null };
+        const response_data: ResponseDataInterface<CreateSubTopic[]> = { status: false, error: null, result: undefined };
 
         try {
             const sub_topic = new SubTopic();
@@ -76,12 +76,7 @@ class UserSubTopic{
     };
     
     deleteSubTopic = async (params: DeleteSubTopicType): Promise<ResponseDataInterface<boolean>> => {
-        const response_data: ResponseDataInterface<boolean> = {
-            status: false,
-            error: null,
-            result: undefined
-        };
-
+        const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
         const sub_topic_model = new SubTopic();
         const id = params.id;
 

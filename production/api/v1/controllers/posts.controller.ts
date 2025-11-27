@@ -21,15 +21,14 @@ class PostController {
 
         try {
             const post_data: CreatePostType = {
-                ...req.body,                   
-                user_id,                      
-                post_topic_id: req.body.post_topic_id,   
+                ...req.body,
+                user_id,
+                post_topic_id: req.body.post_topic_id,
                 post_sub_topic_id: req.body.post_sub_topic_id,
             };
 
             const response_data = await post_service.createPost(post_data);
             res.json(response_data);
-
         }
         catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
@@ -51,13 +50,32 @@ class PostController {
         const post_service = new postService();
 
         try {
-            const response_data: ResponseDataInterface<CreatePostType[]> = await post_service.getAllPost();
+            const { sort } = req.query;
+            let sorting_query_data: string | undefined;
+
+            if(sort === "title_asc"){
+                sorting_query_data = "posts.title ASC";
+            } 
+            else if(sort === "title_desc"){
+                sorting_query_data = "posts.title DESC";
+            } 
+            else if(sort === "date_asc"){
+                sorting_query_data = "posts.id ASC";
+            } 
+            else if(sort === "date_desc"){
+                sorting_query_data = "posts.id DESC";
+            } 
+            else{
+                sorting_query_data = undefined;
+            }
+
+            const response_data: ResponseDataInterface<CreatePostType[] | null> = await post_service.getAllPost(sorting_query_data);
             res.json(response_data);
         }
-        catch (error) {
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error, });
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
-    }
+    };
 
     /**
      * DOCU: This function updates an existing post by merging the request body with the post ID
@@ -72,14 +90,14 @@ class PostController {
     updatePost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try{
+        try {
             const post_id = Number(req.params.id);
             const post_data: UpdatePostType = { ...req.body, id: post_id };
 
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }
-        catch(error){
+        catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
@@ -106,16 +124,13 @@ class PostController {
 
         try {
             const post_data: DeletePostType = { id: post_id, user_id };
-            const response_data: ResponseDataInterface<boolean> = await post_service.deleteUserPost(post_data);
+            const response_data: ResponseDataInterface<boolean | null> = await post_service.deleteUserPost(post_data);
             res.json(response_data);
         }
         catch (error) {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
-
-
-
 
 }
 

@@ -2,7 +2,7 @@ import PostModel from "../models/post.model";
 import { CreatePostType, UpdatePostType, DeletePostType } from "../entities/types/post.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
-class UserPost extends PostModel{
+class UserPost extends PostModel {
     /**
      * DOCU: This function creates a new post record. <br>
      *       It validates the title, checks for duplicates, calls the PostModel to insert the post,
@@ -18,22 +18,20 @@ class UserPost extends PostModel{
         try{
             const post_model = new PostModel();
 
-            const { posts } = await post_model.fetchModel<{ id: number }>({
+            const { new_user_post } = await post_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `title = $1`,
                 where_values: [params.title],
             });
 
-            if(posts.length){
+            if(new_user_post.length){
                 response_data.error = "Title already exists.";
                 return response_data;
             }
 
             const create_new_post = await post_model.createNewPost(params);
-
             response_data.status = true;
             response_data.result = create_new_post;
-
         }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
@@ -42,7 +40,6 @@ class UserPost extends PostModel{
         return response_data;
     };
 
-
     /**
      * DOCU: This function retrieves all posts along with user and comment details. <br>
      *       It calls the PostModel to fetch the posts and returns them with status. <br>
@@ -50,12 +47,13 @@ class UserPost extends PostModel{
      * @returns response_data - JSON containing status, array of posts with user/comments, and/or error message
      * @author Keith
      */
-    getAllPost = async (): Promise<ResponseDataInterface<CreatePostType[]>> => {
-        const response_data: ResponseDataInterface<CreatePostType[]> = { status: false, result: undefined, error: null };
+    getAllPost = async (sort_option?: string): Promise<ResponseDataInterface<CreatePostType[]>> => {
+        const response_data: ResponseDataInterface<CreatePostType[]> = { status: false, error: null, result: undefined };
 
         try{
             const post_model = new PostModel();
             const post_result = await post_model.fetchModel<CreatePostType>({
+
                 fields_to_select: `
                     posts.id AS post_id,
                     posts.user_id AS post_user_id,
@@ -72,6 +70,7 @@ class UserPost extends PostModel{
                     comment_user.first_name AS comment_user_first_name,
                     comment_user.last_name AS comment_user_last_name
                 `,
+
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
@@ -79,15 +78,15 @@ class UserPost extends PostModel{
                     LEFT JOIN user_stories.post_sub_topics ON posts.post_sub_topic_id = post_sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
                 `,
-                order_by: `post_topics.id ASC`
+                
+                order_by: sort_option || "post_id DESC",
             });
 
             response_data.status = true;
-            response_data.result = post_result.posts;
-        }
+            response_data.result = post_result.new_user_post;
+        } 
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
-
         }
 
         return response_data;
@@ -108,8 +107,8 @@ class UserPost extends PostModel{
 
         const title = params.title ?? "";
         const description = params.description ?? "";
-        const post_topic_id = params.post_topic_id ?? null;   
-        const post_sub_topic_id = params.post_sub_topic_id ?? null; 
+        const post_topic_id = params.post_topic_id ?? null;
+        const post_sub_topic_id = params.post_sub_topic_id ?? null;
 
         const updated_post: UpdatePostType = {
             id: params.id,
@@ -133,7 +132,7 @@ class UserPost extends PostModel{
 
             response_data.status = true;
             response_data.result = updated_post;
-        } 
+        }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
         }
@@ -150,12 +149,7 @@ class UserPost extends PostModel{
      * @author Keith
      */
     deleteUserPost = async (params: DeletePostType): Promise<ResponseDataInterface<boolean>> => {
-        const response_data: ResponseDataInterface<boolean> = {
-            status: false,
-            error: null,
-            result: undefined
-        };
-
+        const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
         const post_model = new PostModel();
         const post_id = params.id;
 

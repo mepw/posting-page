@@ -60,7 +60,7 @@ class PostSubTopicController {
 
         try {
             const sub_topic_data: DeleteSubTopicType = { id: id, user_id };
-            const response_data: ResponseDataInterface<boolean> = await sub_topic_service.deleteSubTopic(sub_topic_data);
+            const response_data: ResponseDataInterface<boolean | null> = await sub_topic_service.deleteSubTopic(sub_topic_data);
             res.json(response_data);
         }
         catch (error) {

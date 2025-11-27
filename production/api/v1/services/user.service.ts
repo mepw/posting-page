@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { CreateUserParamsTypes, VerifyLoginParamsTypes } from "../entities/types/user.type";
 import UserModel from "../models/user.model";
@@ -10,7 +9,7 @@ import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
 import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
-class UserService extends DatabaseModel {
+class UserService extends DatabaseModel{
     /**
      * DOCU: This function handles user sign-up. <br>
      *       It validates the password, hashes it, checks for existing users,
@@ -23,29 +22,29 @@ class UserService extends DatabaseModel {
     signUpUser = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
-        try {
-            const new_user = { ...params, user_level_id: 2 };
+        try{
+            const create_new_user = { ...params, user_level_id: 2 };
 
-            if (!new_user.password) {
+            if(!create_new_user.password){
                 response_data.error = "Password is required.";
                 return response_data;
             }
 
-            new_user.password = await bcrypt.hash(new_user.password, 10);
+            create_new_user.password = await bcrypt.hash(create_new_user.password, 10);
             const user_model = new UserModel();
 
-            const { users } = await user_model.fetchUser<{ id: number }>({
+            const { user_data } = await user_model.fetchUser<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `email = $1`,
-                where_values: [new_user.email]
+                where_values: [create_new_user.email]
             });
 
-            if (users.length) {
+            if(user_data.length){
                 response_data.error = "User already exists.";
                 return response_data;
             }
 
-            const { user_id } = await user_model.createNewUserRecord(new_user);
+            const { user_id } = await user_model.createNewUserRecord(create_new_user);
 
             if(!user_id){
                 response_data.error = "Failed to create user record.";
@@ -53,7 +52,7 @@ class UserService extends DatabaseModel {
             }
 
             response_data.status = true;
-            response_data.result = { ...new_user, id: user_id };
+            response_data.result = { ...create_new_user, id: user_id };
         }
         catch(error){
             response_data.error = ERROR_CATCH_MESSAGE.error;
@@ -73,10 +72,10 @@ class UserService extends DatabaseModel {
     userLogin = async (params: VerifyLoginParamsTypes): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const userModel = new UserModel();
 
-            const { users: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
+            const { user_data: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
                 fields_to_select: `*`,
                 where_params: `email = $1`,
                 where_values: [params.email]
@@ -119,6 +118,7 @@ class UserService extends DatabaseModel {
 
         return response_data;
     };
+
     /**
      * DOCU: This function retrieves user details by user ID. <br>
      *       It calls the UserModel to fetch the user and returns the user data along with status. <br>
@@ -127,19 +127,19 @@ class UserService extends DatabaseModel {
      * @returns response_data - JSON containing status, user data (or null), and/or error message
      * @author Keith
      */
-    getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes | null>> => {
-        const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = { status: false, error: null, result: undefined };
+    getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try{
-            const userModel = new UserModel();
-            const { users } = await userModel.fetchUser<CreateUserParamsTypes>({
+            const user_model = new UserModel();
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [user_id],
             });
 
-            if(users.length){
+            if(user_data.length){
                 response_data.status = true;
-                response_data.result = users[0];
+                response_data.result = user_data[0];
             } 
             else{
                 response_data.error = "User not found";
@@ -151,6 +151,7 @@ class UserService extends DatabaseModel {
 
         return response_data;
     };
+
     /**
      * DOCU: This function refreshes JWT tokens for a user. <br>
      *       It fetches the user by ID, generates new access and refresh tokens, and returns them along with status. <br>
@@ -162,9 +163,9 @@ class UserService extends DatabaseModel {
     refreshToken = async (params: { id: number }): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
-        try {
-            const userModel = new UserModel();
-            const { users: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
+        try{
+            const user_model = new UserModel();
+            const { user_data: [user] } = await user_model.fetchUser<CreateUserParamsTypes>({
                 fields_to_select: "id, first_name, last_name, email",
                 where_params: "id = $1",
                 where_values: [params.id]
@@ -176,7 +177,7 @@ class UserService extends DatabaseModel {
                 response_data.status = true;
                 response_data.result = {
                     /* Generate access and refresh tokens. */
-                    access_token: generateJWTAuthToken({ ...user, password: undefined }, access),
+                    access_token: generateJWTAuthToken({ ...user, password: null }, access),
                     refresh_token: generateJWTAuthToken({ id: user.id }, refresh),
                 }
             }
@@ -190,8 +191,6 @@ class UserService extends DatabaseModel {
 
         return response_data;
     }
-
-
 }
 
 export default UserService;

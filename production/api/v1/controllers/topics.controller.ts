@@ -21,7 +21,7 @@ class PostTopicController {
 
         try {
             const post_topics: CreateTopic = { ...req.body, user_id, };
-            const response_data: ResponseDataInterface<CreateTopic> = await post_topic_service.createNewTopics(post_topics);
+            const response_data: ResponseDataInterface<CreateTopic | null> = await post_topic_service.createNewTopics(post_topics);
             res.json(response_data);
         }
         catch (error) {
@@ -33,7 +33,7 @@ class PostTopicController {
         const post_service = new TopicService();
 
         try {
-            const response_data: ResponseDataInterface<CreateTopic[]> = await post_service.getAllTopic();
+            const response_data: ResponseDataInterface<CreateTopic[] | null> = await post_service.getAllTopic();
             res.json(response_data);
         }
         catch (error) {
@@ -53,7 +53,7 @@ class PostTopicController {
 
         try{
             const topic_data: DeleteTopicType = { id: id, user_id };
-            const response_data: ResponseDataInterface<boolean> = await topic_service.deleteTopic(topic_data);
+            const response_data: ResponseDataInterface<boolean | null> = await topic_service.deleteTopic(topic_data);
             res.json(response_data);
         }
         catch(error){

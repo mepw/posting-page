@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
 
   const [newComments, setNewComments] = useState({});
+  const [postSort, setPostSort] = useState(""); // Added sorting state
 
   // --- Fetch helper ---
   const fetchWithToken = async (url, options = {}) => {
@@ -78,9 +79,15 @@ export default function Dashboard() {
     init();
   }, []);
 
+  // Refresh posts whenever sort changes
+  useEffect(() => {
+    refreshPosts();
+  }, [postSort]);
+
   const refreshPosts = async () => {
     try {
-      const postRes = await fetchWithToken("/post/post");
+      const query = postSort ? `?sort=${postSort}` : "";
+      const postRes = await fetchWithToken(`/post/post${query}`);
       const postData = await postRes.json();
       const rows = postData.result || [];
 
@@ -391,7 +398,19 @@ export default function Dashboard() {
         <button onClick={openModalPostHandler}>Create Post</button>
       </div>
 
-      {/* Topic Modal */}
+      {/* --- Sorting Dropdown --- */}
+      <div style={{ marginTop: "20px" }}>
+        <label>Sort posts: </label>
+        <select value={postSort} onChange={(e) => setPostSort(e.target.value)}>
+          <option value="">Default</option>
+          <option value="title_asc">Title ASCENDING</option>
+          <option value="title_desc">title DESCENDING</option>
+          <option value="date_asc">Old post</option>
+          <option value="date_desc">New post</option>
+        </select>
+      </div>
+
+      {/* --- Topic Modal --- */}
       {modalOpenTopic && (
         <Modal>
           <h3>{editingTopicId ? "Edit Topic" : "Create Topic"}</h3>
@@ -419,7 +438,7 @@ export default function Dashboard() {
         </Modal>
       )}
 
-      {/* SubTopic Modal */}
+      {/* --- SubTopic Modal --- */}
       {modalOpenSubTopic && (
         <Modal>
           <h3>{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</h3>
@@ -461,7 +480,7 @@ export default function Dashboard() {
         </Modal>
       )}
 
-      {/* Post Modal */}
+      {/* --- Post Modal --- */}
       {modalOpenPost && (
         <Modal>
           <h3>{editingPostId ? "Edit Post" : "Create Post"}</h3>
@@ -506,7 +525,7 @@ export default function Dashboard() {
               onChange={(e) => setPostDesc(e.target.value)}
               required
             />
-            <button type="submit">{editingPostId ? "edit Post" : "Post"}</button>
+            <button type="submit">{editingPostId ? "Update Post" : "Create Post"}</button>
             <button type="button" onClick={closeModalPostHandler}>
               Cancel
             </button>
@@ -514,70 +533,81 @@ export default function Dashboard() {
         </Modal>
       )}
 
-      {/* Posts */}
-      {posts.map((p) => (
-        <div key={p.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginTop: "10px" }}>
-          <h4>
-            Topic: {p.topic_name}
-            {p.subtopic_name ? ` / ${p.subtopic_name}` : ""}
-          </h4>
-          <h3>{p.title}</h3>
-          <p>{p.description}</p>
-          <small>
-            By {p.post_user_first_name} {p.post_user_last_name}
-          </small>
-
-          {p.post_user_id === user.id && (
-            <div style={{ marginTop: "5px" }}>
-              <button onClick={() => handleEditPost(p)}>Edit</button>
-              <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>
-            </div>
-          )}
-
-          {p.comments.map((c) => (
-            <div key={c.comment_id} style={{ marginLeft: "20px", display: "flex", justifyContent: "space-between" }}>
+      {/* --- Posts List --- */}
+      <div style={{ marginTop: "30px" }}>
+        {posts.length === 0 ? (
+          <p>No posts yet.</p>
+        ) : (
+          posts.map((p) => (
+            <div key={p.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "15px" }}>
+              <h3>
+                {p.title} <small>({p.topic_name}{p.subtopic_name ? " / " + p.subtopic_name : ""})</small>
+              </h3>
+              <p>{p.description}</p>
               <p>
-                <strong>{c.comment_user_first_name}:</strong> {c.comment_text}
+                By {p.post_user_first_name} {p.post_user_last_name}
               </p>
-              {c.comment_user_id === user.id && (
-                <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
+              {user.id === p.post_user_id && (
+                <div>
+                  <button onClick={() => handleEditPost(p)}>Edit</button>
+                  <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>
+                </div>
               )}
-            </div>
-          ))}
 
-          <div style={{ marginTop: "10px" }}>
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={newComments[p.post_id] || ""}
-              onChange={(e) => handleCommentChange(p.post_id, e.target.value)}
-            />
-            <button onClick={() => handleCommentSubmit(p.post_id)}>Comment</button>
-          </div>
-        </div>
-      ))}
+              <div style={{ marginTop: "10px" }}>
+                <h4>Comments:</h4>
+                {p.comments.length === 0 ? (
+                  <p>No comments yet.</p>
+                ) : (
+                  p.comments.map((c) => (
+                    <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span>
+                        {c.comment_user_first_name}: {c.comment_text}
+                      </span>
+                      {user.id === c.comment_user_id && (
+                        <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
+                      )}
+                    </div>
+                  ))
+                )}
+
+                <div style={{ marginTop: "5px" }}>
+                  <input
+                    placeholder="Add a comment..."
+                    value={newComments[p.post_id] || ""}
+                    onChange={(e) => handleCommentChange(p.post_id, e.target.value)}
+                  />
+                  <button onClick={() => handleCommentSubmit(p.post_id)}>Post</button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-// Reusable Modal
-const Modal = ({ children }) => (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 999,
-    }}
-  >
-    <div style={{ background: "#fff", padding: "20px", width: "400px", borderRadius: "8px" }}>
-      {children}
+// --- Simple Modal Component ---
+function Modal({ children }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0,0,0,0.3)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div style={{ background: "#fff", padding: "20px", borderRadius: "5px", maxWidth: "500px", width: "100%" }}>
+        {children}
+      </div>
     </div>
-  </div>
-);
+  );
+}

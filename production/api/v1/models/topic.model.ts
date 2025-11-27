@@ -33,7 +33,7 @@ class PostComment extends DatabaseModel {
         return { topic_id: result.rows[0]?.id, user_id: result.rows[0]?.id };
     };
 
-    fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
+    fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ new_topics: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
 
@@ -68,7 +68,7 @@ class PostComment extends DatabaseModel {
 
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
 
-        return { posts: result.rows };
+        return { new_topics: result.rows };
     };
 
     deleteTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
