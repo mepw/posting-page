@@ -49,12 +49,12 @@ class PostController {
     getAllPost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try {
+        try{
             const { sorting_data } = req.query;
             const response_data = await post_service.getAllPost(sorting_data as string);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
@@ -73,14 +73,14 @@ class PostController {
     updatePost = async (req: Request, res: Response): Promise<void> => {
         const post_service = new postService();
 
-        try {
+        try{
             const post_id = Number(req.params.id);
             const post_data: UpdatePostType = { ...req.body, id: post_id };
 
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };
@@ -99,18 +99,18 @@ class PostController {
         const post_service = new postService();
         const user_id = req.validated_user_data?.id;
 
-        if (!user_id) {
+        if(!user_id){
             throw new Error("Unauthorized")
         }
 
         const post_id = Number(req.params.id);
 
-        try {
+        try{
             const post_data: DeletePostType = { id: post_id, user_id };
             const response_data: ResponseDataInterface<boolean | null> = await post_service.deleteUserPost(post_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };

@@ -7,6 +7,7 @@ import { LoginResponseType } from "../entities/types/session.type";
 import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
 class User extends UserService {
+    
     /**
      * DOCU: This function handles user sign-up. <br>
      *       It sends the request body to the user service to create a new user
@@ -50,6 +51,7 @@ class User extends UserService {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
         }
     };
+
     /**
      * DOCU: This function retrieves user details by their ID. <br>
      *       It verifies the validated user ID, calls the user service to fetch the user,
@@ -63,16 +65,16 @@ class User extends UserService {
     getUser = async (req: Request, res: Response): Promise<void> => {
         const user_id = req.validated_user_data?.id;
 
-        if (!user_id) {
+        if(!user_id){
             throw new Error("user not found");
         }
 
-        try {
+        try{
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = await user_service.getUserById(user_id);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE,error: ERROR_CATCH_MESSAGE.error,});
         }
     };
