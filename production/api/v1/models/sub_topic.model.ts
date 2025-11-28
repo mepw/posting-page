@@ -16,9 +16,7 @@ class PostComment extends DatabaseModel {
      * @author Keith
      */
     createNewSubTopic = async (post_sub_topic: CreateSubTopic): Promise<{ user_id?: number, sub_topic_id: number }> => {
-        const post_sub_topics = [
-            [post_sub_topic.user_id, post_sub_topic.post_topic_id, post_sub_topic.name] 
-        ];
+        const post_sub_topics = [ [post_sub_topic.user_id, post_sub_topic.post_topic_id, post_sub_topic.name]];
 
         const insert_post_comments = format(`
             INSERT INTO user_stories.post_sub_topics(user_id, post_topic_id, name)
@@ -34,14 +32,12 @@ class PostComment extends DatabaseModel {
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
-
         const join_clause = join_statement || "";
         const where_clause = where_params ? `WHERE ${where_params}` : "";
         const group_by_clause = group_by ? `GROUP BY ${group_by}` : "";
         const order_by_clause = order_by ? `ORDER BY ${order_by}` : "";
         const limit_clause = limit !== undefined ? `LIMIT $${last_index++}` : "";
         const offset_clause = offset !== undefined ? `OFFSET $${last_index}` : "";
-
         const query = `
         ${cte ? `WITH ${cte}` : ""}
         SELECT ${fields_to_select || "*"}
@@ -65,14 +61,13 @@ class PostComment extends DatabaseModel {
         }
 
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
-
         return { posts: result.rows };
     };
 
     deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-        const delete_user_post = await this.executeQuery(
-            `DELETE FROM user_stories.post_sub_topics WHERE ${where_params}`,
-            where_values
+        const delete_user_post = await this.executeQuery(`
+            DELETE FROM user_stories.post_sub_topics WHERE ${where_params}
+            `, where_values
         );
 
         return !!delete_user_post.rowCount;
