@@ -5,7 +5,8 @@ export type CreatePostType = {
     description: string;
     post_topic_id: number | null;    
     post_sub_topic_id?: number | null;
-    post_id: number
+    post_id: number;
+    post_details: string | null;
 }
 
 

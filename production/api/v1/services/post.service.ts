@@ -85,7 +85,6 @@ class UserPost extends PostModel {
                     comment_user.first_name AS comment_user_first_name,
                     comment_user.last_name AS comment_user_last_name
             `,
-            
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
@@ -93,7 +92,6 @@ class UserPost extends PostModel {
                     LEFT JOIN user_stories.sub_topics ON posts.sub_topic_id = sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
             `,
-
                 order_by: order_by,
             });
 

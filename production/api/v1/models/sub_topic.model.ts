@@ -65,15 +65,9 @@ class PostComment extends DatabaseModel {
     };
 
     deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-<<<<<<< HEAD
         const delete_user_post = await this.executeQuery(
             `DELETE FROM user_stories.sub_topics WHERE ${where_params}`,
             where_values
-=======
-        const delete_user_post = await this.executeQuery(`
-            DELETE FROM user_stories.post_sub_topics WHERE ${where_params}
-            `, where_values
->>>>>>> 58109654c2a460d2b7ee0fa08d3c023fbb3c6e76
         );
 
         return !!delete_user_post.rowCount;

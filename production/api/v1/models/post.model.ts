@@ -61,17 +61,17 @@ class PostModel extends DatabaseModel {
      * @author Keith
      */
     createNewPost = async (post_details: CreatePostType): Promise<CreatePostType & { post_id: number }> => {
-        const user_post = [[ post_details.user_id, post_details.title, post_details.description, post_details.post_topic_id, post_details.post_sub_topic_id ] ];
+        const user_post = [[ post_details.user_id, post_details.title, post_details.description, post_details.post_topic_id, post_details.post_sub_topic_id, post_details.post_details ] ];
         
         const insert_post_details = format(`
-            INSERT INTO user_stories.posts (user_id, title, description, topic_id, sub_topic_id)
+            INSERT INTO user_stories.posts (user_id, title, description, topic_id, sub_topic_id, post_details)
             VALUES %L
             RETURNING *;
         `, user_post);
 
-        const result = await this.executeQuery<{ id: number; user_id: number; title: string; description: string; post_topic_id: number; post_sub_topic_id: number | null; }>(insert_post_details);
+        const result = await this.executeQuery<{ id: number; user_id: number; title: string; description: string; post_topic_id: number; post_sub_topic_id: number | null; post_details: string | null }>(insert_post_details);
         const row = result.rows[0];
-        return{ post_id: row.id, user_id: row.user_id, title: row.title, description: row.description, post_topic_id: row.post_topic_id, post_sub_topic_id: row.post_sub_topic_id };
+        return{ post_id: row.id, user_id: row.user_id, title: row.title, description: row.description, post_topic_id: row.post_topic_id, post_sub_topic_id: row.post_sub_topic_id, post_details: row.post_details, };
     };
 
     /**

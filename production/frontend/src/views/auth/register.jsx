@@ -19,14 +19,7 @@ export default function Register() {
         setMessage("");
         setLoading(true);
 
-<<<<<<< HEAD
-    try {
-      const res = await fetch("http://localhost:5000/api/v1/unauth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password, user_level_id: 2 }),
-      });
-=======
+
         try {
             const res = await fetch("/api/v1/unauth/signup", {
                 method: "POST",
@@ -39,7 +32,6 @@ export default function Register() {
                     user_level_id: 2, // default: normal user, not admin
                 }),
             });
->>>>>>> 58109654c2a460d2b7ee0fa08d3c023fbb3c6e76
 
             const data = await res.json();
 
