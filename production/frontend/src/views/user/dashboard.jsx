@@ -31,7 +31,7 @@ export default function Dashboard() {
   const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
 
   const [newComments, setNewComments] = useState({});
-  const [postSort, setPostSort] = useState("date_desc");
+  const [postSort, setPostSort] = useState("date_desc"); // Default: newest first
 
   // --- Fetch helper ---
   const fetchWithToken = async (url, options = {}) => {
@@ -124,26 +124,11 @@ export default function Dashboard() {
         }
       });
 
-      // --- FRONTEND SORTING FIX ---
-      let sorted = [...postsArr];
-
-      if (postSort === "date_desc") {
-        sorted.sort((a, b) => b.post_id - a.post_id); 
-      } else if (postSort === "date_asc") {
-        sorted.sort((a, b) => a.post_id - b.post_id); 
-      } else if (postSort === "title_asc") {
-        sorted.sort((a, b) => a.title.localeCompare(b.title)); 
-      } else if (postSort === "title_desc") {
-        sorted.sort((a, b) => b.title.localeCompare(a.title));
-      }
-
-      setPosts(sorted);
-
+      setPosts(postsArr);
     } catch {
       setErrors(["Failed to fetch posts from database"]);
     }
   };
-
 
   // --- Handlers ---
   const handleTopicChange = (e) => {

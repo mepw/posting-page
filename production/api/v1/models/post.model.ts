@@ -19,14 +19,12 @@ class PostModel extends DatabaseModel {
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ new_user_post: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
-
         const join_clause = join_statement || "";
         const where_clause = where_params ? `WHERE ${where_params}` : "";
         const group_by_clause = group_by ? `GROUP BY ${group_by}` : "";
         const order_by_clause = order_by ? `ORDER BY ${order_by}` : "";
         const limit_clause = limit !== undefined ? `LIMIT $${last_index++}` : "";
         const offset_clause = offset !== undefined ? `OFFSET $${last_index}` : "";
-
         const query = `
         ${cte ? `WITH ${cte}` : ""}
         SELECT ${fields_to_select || "*"}
@@ -50,7 +48,6 @@ class PostModel extends DatabaseModel {
         }
 
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
-
         return { new_user_post: result.rows };
     };
 
@@ -61,18 +58,10 @@ class PostModel extends DatabaseModel {
      * Last updated at: Nov 20, 2025 <br>
      * @param post_details - Object containing user_id, title, and description
      * @returns Object containing the newly inserted post ID as title_id
-     * @author Jaybee
+     * @author Keith
      */
     createNewPost = async (post_details: CreatePostType): Promise<CreatePostType & { post_id: number }> => {
-        const user_post = [
-            [
-                post_details.user_id,
-                post_details.title,
-                post_details.description,
-                post_details.post_topic_id,
-                post_details.post_sub_topic_id
-            ]
-        ];
+        const user_post = [[ post_details.user_id, post_details.title, post_details.description, post_details.post_topic_id, post_details.post_sub_topic_id ] ];
         
         const insert_post_details = format(`
             INSERT INTO user_stories.posts (user_id, title, description, topic_id, sub_topic_id)
@@ -80,25 +69,9 @@ class PostModel extends DatabaseModel {
             RETURNING *;
         `, user_post);
 
-        const result = await this.executeQuery<{
-            id: number;
-            user_id: number;
-            title: string;
-            description: string;
-            post_topic_id: number;
-            post_sub_topic_id: number | null;
-        }>(insert_post_details);
-
+        const result = await this.executeQuery<{ id: number; user_id: number; title: string; description: string; post_topic_id: number; post_sub_topic_id: number | null; }>(insert_post_details);
         const row = result.rows[0];
-
-        return {
-            post_id: row.id,
-            user_id: row.user_id,
-            title: row.title,
-            description: row.description,
-            post_topic_id: row.post_topic_id,
-            post_sub_topic_id: row.post_sub_topic_id
-        };
+        return{ post_id: row.id, user_id: row.user_id, title: row.title, description: row.description, post_topic_id: row.post_topic_id, post_sub_topic_id: row.post_sub_topic_id };
     };
 
     /**
@@ -110,14 +83,14 @@ class PostModel extends DatabaseModel {
      * @param set_values - Array of values corresponding to the SET clause
      * @param where_values - Array of values corresponding to the WHERE clause
      * @returns boolean - True if the update affected rows, false otherwise
-     * @author Jaybee
+     * @author Keith
      */
     updateUserPost = async (set_fields: string, where_params: string, set_values: (string | number | boolean | Date)[], where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         let update_user_result = await this.executeQuery(`
             UPDATE user_stories.posts 
             SET ${set_fields} 
-            WHERE ${where_params}`,
-            [...set_values, ...where_values]);
+            WHERE ${where_params}
+        `, [...set_values, ...where_values]);
 
         return !!update_user_result.rowCount;
     };
@@ -129,12 +102,12 @@ class PostModel extends DatabaseModel {
      * @param where_params - SQL WHERE clause string
      * @param where_values - Array of values corresponding to the WHERE clause
      * @returns boolean - True if deletion affected rows, false otherwise
-     * @author Jaybee
+     * @author Keith
      */
     deletePost = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-        const delete_user_post = await this.executeQuery(
-            `DELETE FROM user_stories.posts WHERE ${where_params}`,
-            where_values
+        const delete_user_post = await this.executeQuery(`
+                DELETE FROM user_stories.posts WHERE ${where_params}
+            `, where_values
         );
 
         return !!delete_user_post.rowCount;

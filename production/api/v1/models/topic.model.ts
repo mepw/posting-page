@@ -17,9 +17,7 @@ class PostComment extends DatabaseModel {
      * @author Keith
      */
     createNewTopic = async (creat_post_topic: CreateTopic): Promise<{ topic_id?: number, user_id?: number }> => {
-        const user_post = [
-            [creat_post_topic.user_id, creat_post_topic.name]
-        ];
+        const user_post = [ [creat_post_topic.user_id, creat_post_topic.name]];
 
         const insert_creat_post_topic = format(`
             INSERT INTO user_stories.topics (user_id, name)
@@ -29,21 +27,18 @@ class PostComment extends DatabaseModel {
         );
 
         const result = await this.executeQuery<{ id: number }>(insert_creat_post_topic);
-
         return { topic_id: result.rows[0]?.id, user_id: result.rows[0]?.id };
     };
 
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ new_topics: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
-
         const join_clause = join_statement || "";
         const where_clause = where_params ? `WHERE ${where_params}` : "";
         const group_by_clause = group_by ? `GROUP BY ${group_by}` : "";
         const order_by_clause = order_by ? `ORDER BY ${order_by}` : "";
         const limit_clause = limit !== undefined ? `LIMIT $${last_index++}` : "";
         const offset_clause = offset !== undefined ? `OFFSET $${last_index}` : "";
-
         const query = `
         ${cte ? `WITH ${cte}` : ""}
         SELECT ${fields_to_select || "*"}
@@ -67,7 +62,6 @@ class PostComment extends DatabaseModel {
         }
 
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
-
         return { new_topics: result.rows };
     };
 

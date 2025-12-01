@@ -18,12 +18,9 @@ class UserModel extends DatabaseModel {
         params?: SelectQueryInterface): Promise<{ user_data: FetchFieldType[] }> => {
         const fields = params?.fields_to_select || '*';
         const whereClause = params?.where_params ? `WHERE ${params.where_params}` : '';
-
         const values = params?.where_values || [];
         const query = `SELECT ${fields} FROM user_stories.users ${whereClause}`;
-
         const result = await this.executeQuery<FetchFieldType>(query, values);
-
         return { user_data: result.rows };
     };
 
@@ -34,19 +31,11 @@ class UserModel extends DatabaseModel {
      * Last updated at: Nov 20, 2025 <br>
      * @param user_details - Object containing first_name, last_name, email, and hashed password
      * @returns Object containing the newly created user ID as user_id
-     * @author Jaybee
+     * @author Keith
      */
-    createNewUserRecord = async (
+    createNewUserRecord = async(
         user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
-        const user_values = [
-            [
-                user_details.first_name,
-                user_details.last_name,
-                user_details.email,
-                user_details.password,
-                user_details.user_level_id
-            ]
-        ];
+        const user_values = [[ user_details.first_name, user_details.last_name, user_details.email, user_details.password, user_details.user_level_id ] ];
 
         const insert_user_details = format(`
             INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id)

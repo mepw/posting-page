@@ -1,6 +1,5 @@
 import SubTopicModel from "../services/sub_topic.service"
 import { ResponseDataInterface } from "../entities/interfaces/global.interface"
-
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
 import { CreateSubTopic, DeleteSubTopicType } from "../entities/types/sub_topic.type";
@@ -58,12 +57,12 @@ class PostSubTopicController {
 
         const id = Number(req.params.id);
 
-        try {
+        try{
             const sub_topic_data: DeleteSubTopicType = { id: id, user_id };
             const response_data: ResponseDataInterface<boolean | null> = await sub_topic_service.deleteSubTopic(sub_topic_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };

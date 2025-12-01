@@ -652,7 +652,7 @@ class UserService {
         const userModel = new UserModel();
         const user = await userModel.findById(user_id);
         
-        if (!user) {
+        if(!user){
             throw new BusinessLogicError("User not found");
         }
         

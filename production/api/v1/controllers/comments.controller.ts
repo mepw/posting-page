@@ -3,7 +3,8 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreatePostComment } from "../entities/types/comment.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant";
+
 class PostCommentController{
     /**
      * DOCU: This function creates a new comment for a post. <br>
