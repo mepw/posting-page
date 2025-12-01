@@ -21,7 +21,6 @@ class UserService extends DatabaseModel{
      */
     signUpUser = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
-
         try{
             const create_new_user = { ...params, user_level_id: 2 };
 
@@ -32,7 +31,6 @@ class UserService extends DatabaseModel{
 
             create_new_user.password = await bcrypt.hash(create_new_user.password, 10);
             const user_model = new UserModel();
-
             const { user_data } = await user_model.fetchUser<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `email = $1`,
@@ -45,7 +43,7 @@ class UserService extends DatabaseModel{
             }
 
             const { user_id } = await user_model.createNewUserRecord(create_new_user);
-
+    
             if(!user_id){
                 response_data.error = "Failed to create user record.";
                 return response_data;
@@ -55,7 +53,7 @@ class UserService extends DatabaseModel{
             response_data.result = { ...create_new_user, id: user_id };
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = 'error in service users';
         }
 
         return response_data;

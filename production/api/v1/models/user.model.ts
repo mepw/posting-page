@@ -56,7 +56,6 @@ class UserModel extends DatabaseModel {
         );
 
         const result = await this.executeQuery<{ id: number}>(insert_user_details);
-
         return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id};
     };
 

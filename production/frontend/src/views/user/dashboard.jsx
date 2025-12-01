@@ -5,6 +5,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const API_BASE = "http://localhost:5000/api/v1";
 
+  // --- State ---
   const [user, setUser] = useState(null);
   const [topics, setTopics] = useState([]);
   const [subTopics, setSubTopics] = useState([]);
@@ -30,7 +31,7 @@ export default function Dashboard() {
   const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
 
   const [newComments, setNewComments] = useState({});
-  const [postSort, setPostSort] = useState(""); // Added sorting state
+  const [postSort, setPostSort] = useState("date_desc");
 
   // --- Fetch helper ---
   const fetchWithToken = async (url, options = {}) => {
@@ -123,11 +124,26 @@ export default function Dashboard() {
         }
       });
 
-      setPosts(postsArr);
+      // --- FRONTEND SORTING FIX ---
+      let sorted = [...postsArr];
+
+      if (postSort === "date_desc") {
+        sorted.sort((a, b) => b.post_id - a.post_id); // newest first
+      } else if (postSort === "date_asc") {
+        sorted.sort((a, b) => a.post_id - b.post_id); // oldest first
+      } else if (postSort === "title_asc") {
+        sorted.sort((a, b) => a.title.localeCompare(b.title)); // A → Z
+      } else if (postSort === "title_desc") {
+        sorted.sort((a, b) => b.title.localeCompare(a.title)); // Z → A
+      }
+
+      setPosts(sorted);
+
     } catch {
       setErrors(["Failed to fetch posts from database"]);
     }
   };
+
 
   // --- Handlers ---
   const handleTopicChange = (e) => {
@@ -173,12 +189,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleEditTopic = (topic) => {
-    setNewTopicName(topic.name);
-    setEditingTopicId(topic.id);
-    openModalTopicHandler();
-  };
-
   const handleDeleteTopic = async (id) => {
     if (!window.confirm("Are you sure you want to delete this topic?")) return;
     try {
@@ -210,8 +220,9 @@ export default function Dashboard() {
 
       const res = await fetchWithToken(url, {
         method,
-        body: JSON.stringify({ name: newSubTopicName.trim(), post_topic_id: subTopicParent }),
+        body: JSON.stringify({ name: newSubTopicName.trim(), topic_id: subTopicParent }),
       });
+
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to save subtopic"]);
@@ -229,13 +240,6 @@ export default function Dashboard() {
     } catch {
       setErrors(["Failed to save subtopic"]);
     }
-  };
-
-  const handleEditSubTopic = (st) => {
-    setNewSubTopicName(st.name);
-    setSubTopicParent(st.post_topic_id);
-    setEditingSubTopicId(st.id);
-    openModalSubTopicHandler();
   };
 
   const handleDeleteSubTopic = async (id) => {
@@ -294,15 +298,6 @@ export default function Dashboard() {
     } catch {
       setErrors(["Failed to save post"]);
     }
-  };
-
-  const handleEditPost = (p) => {
-    setPostTitle(p.title);
-    setPostDesc(p.description);
-    setSelectedTopic(p.topic_id);
-    setSelectedSubTopic(p.subtopic_id);
-    setEditingPostId(p.post_id);
-    openModalPostHandler();
   };
 
   const handleDeletePost = async (id) => {
@@ -369,7 +364,7 @@ export default function Dashboard() {
 
   if (!user) return <p>Loading user...</p>;
 
-  // Modal handlers
+  // --- Modal handlers ---
   const openModalPostHandler = () => setModalOpenPost(true);
   const closeModalPostHandler = () => setModalOpenPost(false);
   const openModalTopicHandler = () => setModalOpenTopic(true);
@@ -400,17 +395,16 @@ export default function Dashboard() {
 
       {/* --- Sorting Dropdown --- */}
       <div style={{ marginTop: "20px" }}>
-        <label>Sort posts: </label>
+        <label style={{ marginRight: "10px" }}>Sort posts: </label>
         <select value={postSort} onChange={(e) => setPostSort(e.target.value)}>
-          <option value="">Default</option>
+          <option value="date_desc">Newest first</option>
+          <option value="date_asc">Oldest first</option>
           <option value="title_asc">Title ASCENDING</option>
-          <option value="title_desc">title DESCENDING</option>
-          <option value="date_asc">Old post</option>
-          <option value="date_desc">New post</option>
+          <option value="title_desc">Title DESCENDING</option>
         </select>
       </div>
 
-      {/* --- Topic Modal --- */}
+      {/* --- Modals --- */}
       {modalOpenTopic && (
         <Modal>
           <h3>{editingTopicId ? "Edit Topic" : "Create Topic"}</h3>
@@ -421,38 +415,31 @@ export default function Dashboard() {
               onChange={(e) => setNewTopicName(e.target.value)}
               required
             />
-            <button type="submit">{editingTopicId ? "edit Topic" : "Create Topic"}</button>
-            <button type="button" onClick={closeModalTopicHandler}>
-              Cancel
-            </button>
+            <button type="submit">{editingTopicId ? "Edit Topic" : "Create Topic"}</button>
+            <button type="button" onClick={closeModalTopicHandler}>Cancel</button>
           </form>
           <h4>Existing Topics</h4>
           {topics.map((t) => (
             <div key={t.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
               <span>{t.name}</span>
-              <div>
-                <button onClick={() => handleDeleteTopic(t.id)}>Delete</button>
-              </div>
+              <button onClick={() => handleDeleteTopic(t.id)}>Delete</button>
             </div>
           ))}
         </Modal>
       )}
 
-      {/* --- SubTopic Modal --- */}
       {modalOpenSubTopic && (
         <Modal>
           <h3>{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</h3>
           <form onSubmit={handleAddSubTopic}>
             <select
               value={subTopicParent ?? ""}
-              onChange={(e) => setSubTopicParent(e.target.value ? Number(e.target.value) : null)}
+              onChange={(e) => setSubTopicParent(Number(e.target.value))}
               required
             >
               <option value="">Select Parent Topic</option>
               {topics.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
+                <option key={t.id} value={t.id}>{t.name}</option>
               ))}
             </select>
             <input
@@ -461,128 +448,77 @@ export default function Dashboard() {
               onChange={(e) => setNewSubTopicName(e.target.value)}
               required
             />
-            <button type="submit">{editingSubTopicId ? "edit SubTopic" : "Create SubTopic"}</button>
-            <button type="button" onClick={closeModalSubTopicHandler}>
-              Cancel
-            </button>
+            <button type="submit">{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</button>
+            <button type="button" onClick={closeModalSubTopicHandler}>Cancel</button>
           </form>
           <h4>Existing SubTopics</h4>
           {subTopics.map((st) => (
             <div key={st.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
-              <span>
-                {st.name} (Parent: {topics.find((t) => t.id === st.post_topic_id)?.name || "Unknown"})
-              </span>
-              <div>
-                <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
-              </div>
+              <span>{st.name} (Parent: {topics.find((t) => t.id === st.topic_id)?.name || "Unknown"})</span>
+              <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
             </div>
           ))}
         </Modal>
       )}
 
-      {/* --- Post Modal --- */}
       {modalOpenPost && (
         <Modal>
           <h3>{editingPostId ? "Edit Post" : "Create Post"}</h3>
           <form onSubmit={handlePostSubmit}>
             <select value={selectedTopic ?? ""} onChange={handleTopicChange} required>
               <option value="">Select Topic</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
+              {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
-
             <select
               value={selectedSubTopic ?? ""}
               onChange={handleSubTopicChange}
-              disabled={!selectedTopic || subTopics.filter((st) => st.post_topic_id === selectedTopic).length === 0}
+              disabled={!selectedTopic || subTopics.filter((st) => st.topic_id === selectedTopic).length === 0}
             >
               <option value="">
-                {subTopics.filter((st) => st.post_topic_id === selectedTopic).length > 0
+                {selectedTopic && subTopics.filter((st) => st.topic_id === selectedTopic).length > 0
                   ? "Select Subtopic (optional)"
                   : "No subtopics yet"}
               </option>
-              {subTopics
-                .filter((st) => st.post_topic_id === selectedTopic)
-                .map((st) => (
-                  <option key={st.id} value={st.id}>
-                    {st.name}
-                  </option>
-                ))}
+              {subTopics.filter((st) => st.topic_id === selectedTopic).map((st) => (
+                <option key={st.id} value={st.id}>{st.name}</option>
+              ))}
             </select>
-
-            <input
-              placeholder="Post Title"
-              value={postTitle}
-              onChange={(e) => setPostTitle(e.target.value)}
-              required
-            />
-            <textarea
-              placeholder="Post Description"
-              value={postDesc}
-              onChange={(e) => setPostDesc(e.target.value)}
-              required
-            />
+            <input placeholder="Post Title" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} required />
+            <textarea placeholder="Post Description" value={postDesc} onChange={(e) => setPostDesc(e.target.value)} required />
             <button type="submit">{editingPostId ? "Update Post" : "Create Post"}</button>
-            <button type="button" onClick={closeModalPostHandler}>
-              Cancel
-            </button>
+            <button type="button" onClick={closeModalPostHandler}>Cancel</button>
           </form>
         </Modal>
       )}
 
       {/* --- Posts List --- */}
       <div style={{ marginTop: "30px" }}>
-        {posts.length === 0 ? (
-          <p>No posts yet.</p>
-        ) : (
+        {posts.length === 0 ? <p>No posts yet.</p> :
           posts.map((p) => (
             <div key={p.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "15px" }}>
-              <h3>
-                {p.title} <small>({p.topic_name}{p.subtopic_name ? " / " + p.subtopic_name : ""})</small>
-              </h3>
+              <h3>{p.title} <small>({p.topic_name}{p.subtopic_name ? " / " + p.subtopic_name : ""})</small></h3>
               <p>{p.description}</p>
-              <p>
-                By {p.post_user_first_name} {p.post_user_last_name}
-              </p>
-              {user.id === p.post_user_id && (
-                <div>
-                  <button onClick={() => handleEditPost(p)}>Edit</button>
-                  <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>
-                </div>
-              )}
-
+              <p><i>By: {p.post_user_first_name} {p.post_user_last_name}</i></p>
+              {p.post_user_id === user.id && <button onClick={() => { setEditingPostId(p.post_id); setPostTitle(p.title); setPostDesc(p.description); setSelectedTopic(p.topic_id); setSelectedSubTopic(p.subtopic_id); openModalPostHandler(); }}>Edit</button>}
+              {p.post_user_id === user.id && <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>}
               <div style={{ marginTop: "10px" }}>
                 <h4>Comments:</h4>
-                {p.comments.length === 0 ? (
-                  <p>No comments yet.</p>
-                ) : (
-                  p.comments.map((c) => (
-                    <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span>
-                        {c.comment_user_first_name}: {c.comment_text}
-                      </span>
-                      {user.id === c.comment_user_id && (
-                        <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
-                      )}
-                    </div>
-                  ))
-                )}
-
-                <div style={{ marginTop: "5px" }}>
-                  <input
-                    placeholder="Add a comment..."
-                    value={newComments[p.post_id] || ""}
-                    onChange={(e) => handleCommentChange(p.post_id, e.target.value)}
-                  />
-                  <button onClick={() => handleCommentSubmit(p.post_id)}>Post</button>
-                </div>
+                {p.comments.map((c) => (
+                  <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span><b>{c.comment_user_first_name}:</b> {c.comment_text}</span>
+                    {c.comment_user_id === user.id && <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>}
+                  </div>
+                ))}
+                <input
+                  placeholder="Add comment..."
+                  value={newComments[p.post_id] || ""}
+                  onChange={(e) => handleCommentChange(p.post_id, e.target.value)}
+                />
+                <button onClick={() => handleCommentSubmit(p.post_id)}>Add Comment</button>
               </div>
             </div>
           ))
-        )}
+        }
       </div>
     </div>
   );
@@ -591,21 +527,11 @@ export default function Dashboard() {
 // --- Simple Modal Component ---
 function Modal({ children }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0,0,0,0.3)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div style={{ background: "#fff", padding: "20px", borderRadius: "5px", maxWidth: "500px", width: "100%" }}>
+    <div style={{
+      position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+      backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
+    }}>
+      <div style={{ background: "#fff", padding: "20px", borderRadius: "5px", width: "400px", maxHeight: "90%", overflowY: "auto" }}>
         {children}
       </div>
     </div>

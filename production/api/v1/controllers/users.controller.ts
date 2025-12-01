@@ -19,9 +19,10 @@ class User extends UserService {
      */
     userSignUp = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
-        
+
         try{
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
+       
             res.json(response_data);
         }
         catch(error){

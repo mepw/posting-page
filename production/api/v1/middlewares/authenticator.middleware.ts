@@ -54,10 +54,11 @@ export async function verifyUserToken(token: string): Promise<jwt.JwtPayload> {
  */
 export const authenticatorHandler = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization || "";
-    const [bearer, token] = authHeader.split(" ");
 
+    const [bearer, token] = authHeader.split(" ");
+    
     try{
-        if(bearer !== "Bearer" || !token){
+        if(bearer?.toLowerCase() !== "bearer" || !token){
             throw new JsonWebTokenError(AUTHENTICATION_ERROR_MESSAGES.empty_token);
         }
 
@@ -68,10 +69,10 @@ export const authenticatorHandler = async (req: Request, res: Response, next: Ne
         }
 
         req.validated_user_data = verify_result.result.token;
-
         next();
     } 
     catch(error){
         next(error);
     }
 };
+

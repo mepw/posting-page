@@ -18,7 +18,7 @@ class UserSubTopic{
 
         try{
             const new_sub_topic = { ...params };
-
+            console.log(params);
             if(!new_sub_topic.name){
                 response_data.error = "Sub-Topic Name is required.";
                 return response_data;
@@ -38,7 +38,7 @@ class UserSubTopic{
 
             const post_sub_topic = new SubTopic();
             const { sub_topic_id } = await post_sub_topic.createNewSubTopic(new_sub_topic);
-
+            console.log(sub_topic_id);
             if(!sub_topic_id){
                 response_data.error = "Failed to create Sub-Topic record.";
                 return response_data;
@@ -48,7 +48,8 @@ class UserSubTopic{
             response_data.result = { ...new_sub_topic, id: sub_topic_id };
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            console.log('check the error ', error);
+            response_data.error = 'error in service sub topic';
         }
 
         return response_data;

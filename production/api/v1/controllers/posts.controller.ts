@@ -19,7 +19,7 @@ class PostController {
         const user_id = req.validated_user_data?.id;
         const post_service = new postService();
 
-        try {
+        try{
             const post_data: CreatePostType = {
                 ...req.body,
                 user_id,
@@ -30,7 +30,7 @@ class PostController {
             const response_data = await post_service.createPost(post_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
         }
     };

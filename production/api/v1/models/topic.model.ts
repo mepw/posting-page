@@ -22,7 +22,7 @@ class PostComment extends DatabaseModel {
         ];
 
         const insert_creat_post_topic = format(`
-            INSERT INTO user_stories.post_topics (user_id, name)
+            INSERT INTO user_stories.topics (user_id, name)
             VALUES %L
             RETURNING *;
             `, user_post
@@ -47,7 +47,7 @@ class PostComment extends DatabaseModel {
         const query = `
         ${cte ? `WITH ${cte}` : ""}
         SELECT ${fields_to_select || "*"}
-        FROM user_stories.post_topics
+        FROM user_stories.topics
         ${join_clause}
         ${where_clause}
         ${group_by_clause}
@@ -73,7 +73,7 @@ class PostComment extends DatabaseModel {
 
     deleteTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_post = await this.executeQuery(`
-            DELETE FROM user_stories.post_topics WHERE ${where_params}
+            DELETE FROM user_stories.topics WHERE ${where_params}
         `, where_values);
 
         return !!delete_user_post.rowCount;

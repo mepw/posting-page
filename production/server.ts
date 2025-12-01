@@ -20,8 +20,8 @@ import { ENV } from "./configs/constants/env.constant";
 const App = express();
 
 App.use(cors({
-    origin: ["http://localhost:5173", "*"],
-    credentials: true
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
 
 // Body parser

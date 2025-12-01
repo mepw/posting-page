@@ -15,7 +15,7 @@ class UserPost extends PostModel {
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const post_model = new PostModel();
 
             const { new_user_post } = await post_model.fetchModel<{ id: number }>({
@@ -24,17 +24,18 @@ class UserPost extends PostModel {
                 where_values: [params.title],
             });
 
-            if (new_user_post.length) {
+            if(new_user_post.length){
                 response_data.error = "Title already exists.";
                 return response_data;
             }
 
             const create_new_post = await post_model.createNewPost(params);
+            console.log(params);
             response_data.status = true;
             response_data.result = create_new_post;
         }
-        catch (error) {
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+        catch(error){
+            response_data.error = 'error in service posts';
         }
 
         return response_data;
@@ -73,10 +74,10 @@ class UserPost extends PostModel {
                     posts.user_id AS post_user_id,
                     posts.title,
                     posts.description,
-                    post_topics.id AS topic_id,
-                    post_topics.name AS topic_name,
-                    post_sub_topics.id AS subtopic_id,
-                    post_sub_topics.name AS subtopic_name,
+                    topics.id AS topic_id,
+                    topics.name AS topic_name,
+                    sub_topics.id AS subtopic_id,   
+                    sub_topics.name AS subtopic_name,
                     users.first_name AS post_user_first_name,
                     users.last_name AS post_user_last_name,
                     post_comments.id AS comment_id,
@@ -88,8 +89,8 @@ class UserPost extends PostModel {
                 join_statement: `
                     INNER JOIN user_stories.users ON posts.user_id = users.id
                     LEFT JOIN user_stories.post_comments ON posts.id = post_comments.post_id
-                    LEFT JOIN user_stories.post_topics ON posts.post_topic_id = post_topics.id
-                    LEFT JOIN user_stories.post_sub_topics ON posts.post_sub_topic_id = post_sub_topics.id
+                    LEFT JOIN user_stories.topics ON posts.topic_id = topics.id
+                    LEFT JOIN user_stories.sub_topics ON posts.sub_topic_id = sub_topics.id
                     LEFT JOIN user_stories.users AS comment_user ON post_comments.user_id = comment_user.id
             `,
 
@@ -135,7 +136,7 @@ class UserPost extends PostModel {
 
         try {
             const update_post_result = await post_model.updateUserPost(
-                `title = $1, description = $2, post_topic_id = $3, post_sub_topic_id = $4`,
+                `title = $1, description = $2, topic_id = $3, sub_topic_id = $4`,
                 `id = $5`, 
                 [title, description, post_topic_id, post_sub_topic_id], 
                 [params.id]
