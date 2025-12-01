@@ -128,13 +128,13 @@ export default function Dashboard() {
       let sorted = [...postsArr];
 
       if (postSort === "date_desc") {
-        sorted.sort((a, b) => b.post_id - a.post_id); // newest first
+        sorted.sort((a, b) => b.post_id - a.post_id); 
       } else if (postSort === "date_asc") {
-        sorted.sort((a, b) => a.post_id - b.post_id); // oldest first
+        sorted.sort((a, b) => a.post_id - b.post_id); 
       } else if (postSort === "title_asc") {
-        sorted.sort((a, b) => a.title.localeCompare(b.title)); // A → Z
+        sorted.sort((a, b) => a.title.localeCompare(b.title)); 
       } else if (postSort === "title_desc") {
-        sorted.sort((a, b) => b.title.localeCompare(a.title)); // Z → A
+        sorted.sort((a, b) => b.title.localeCompare(a.title));
       }
 
       setPosts(sorted);
