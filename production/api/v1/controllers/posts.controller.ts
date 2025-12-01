@@ -59,7 +59,6 @@ class PostController {
         }
     };
 
-
     /**
      * DOCU: This function updates an existing post by merging the request body with the post ID
      *       from the request parameters and sending it to the post service. <br>

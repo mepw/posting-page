@@ -80,15 +80,10 @@ export default function Dashboard() {
     init();
   }, []);
 
-  // Refresh posts whenever sort changes
-  useEffect(() => {
-    refreshPosts();
-  }, [postSort]);
-
+  // Refresh posts
   const refreshPosts = async () => {
     try {
-      const query = postSort ? `?sort=${postSort}` : "";
-      const postRes = await fetchWithToken(`/post/post${query}`);
+      const postRes = await fetchWithToken("/post/post");
       const postData = await postRes.json();
       const rows = postData.result || [];
 
@@ -109,6 +104,7 @@ export default function Dashboard() {
             post_user_first_name: row.post_user_first_name,
             post_user_last_name: row.post_user_last_name,
             post_user_id: row.post_user_id,
+            created_at: row.created_at || new Date().toISOString(), // fallback
             comments: [],
           });
           postsMap[postId] = postsArr[postsArr.length - 1];
@@ -142,30 +138,23 @@ export default function Dashboard() {
     setSelectedSubTopic(val ? Number(val) : null);
   };
 
-  // --- Topics ---
+  // --- Topic & Subtopic Handlers ---
   const handleAddTopic = async (e) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
-
     try {
       const method = editingTopicId ? "PUT" : "POST";
       const url = editingTopicId ? `/topic/edit/${editingTopicId}` : "/topic/newtopic";
-
       const res = await fetchWithToken(url, {
         method,
         body: JSON.stringify({ name: newTopicName.trim() }),
       });
-
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to save topic"]);
         return;
       }
-
-      setNewTopicName("");
-      setEditingTopicId(null);
-      closeModalTopicHandler();
-
+      setNewTopicName(""); setEditingTopicId(null); closeModalTopicHandler();
       const topicsRes = await fetchWithToken("/topic/topic");
       const topicsData = await topicsRes.json();
       setTopics(topicsData.result || []);
@@ -191,34 +180,25 @@ export default function Dashboard() {
     }
   };
 
-  // --- SubTopics ---
   const handleAddSubTopic = async (e) => {
     e.preventDefault();
     if (!newSubTopicName.trim() || subTopicParent === null) {
       setErrors(["Please select parent topic and enter subtopic name"]);
       return;
     }
-
     try {
       const method = editingSubTopicId ? "PUT" : "POST";
       const url = editingSubTopicId ? `/subtopic/edit/${editingSubTopicId}` : "/subtopic/newsubtopic";
-
       const res = await fetchWithToken(url, {
         method,
         body: JSON.stringify({ name: newSubTopicName.trim(), topic_id: subTopicParent }),
       });
-
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to save subtopic"]);
         return;
       }
-
-      setNewSubTopicName("");
-      setSubTopicParent(null);
-      setEditingSubTopicId(null);
-      closeModalSubTopicHandler();
-
+      setNewSubTopicName(""); setSubTopicParent(null); setEditingSubTopicId(null); closeModalSubTopicHandler();
       const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
       const subTopicsData = await subTopicsRes.json();
       setSubTopics(subTopicsData.result || []);
@@ -251,11 +231,9 @@ export default function Dashboard() {
       setErrors(["Please fill all required fields"]);
       return;
     }
-
     try {
       const url = editingPostId ? `/post/edit/${editingPostId}` : "/post/newpost";
       const method = editingPostId ? "PUT" : "POST";
-
       const res = await fetchWithToken(url, {
         method,
         body: JSON.stringify({
@@ -266,20 +244,13 @@ export default function Dashboard() {
           user_id: user?.id,
         }),
       });
-
       const data = await res.json();
       if (!res.ok || data.status === false) {
         setErrors([data.error || "Failed to save post"]);
         return;
       }
-
       await refreshPosts();
-      setPostTitle("");
-      setPostDesc("");
-      setSelectedTopic(null);
-      setSelectedSubTopic(null);
-      setEditingPostId(null);
-      closeModalPostHandler();
+      setPostTitle(""); setPostDesc(""); setSelectedTopic(null); setSelectedSubTopic(null); setEditingPostId(null); closeModalPostHandler();
     } catch {
       setErrors(["Failed to save post"]);
     }
@@ -308,7 +279,6 @@ export default function Dashboard() {
   const handleCommentSubmit = async (postId) => {
     const commentText = newComments[postId]?.trim();
     if (!commentText) return;
-
     try {
       const res = await fetchWithToken("/comment/newcomment", {
         method: "POST",
@@ -357,6 +327,22 @@ export default function Dashboard() {
   const openModalSubTopicHandler = () => setModalOpenSubTopic(true);
   const closeModalSubTopicHandler = () => setModalOpenSubTopic(false);
 
+  // --- Client-side Sorting ---
+  const sortedPosts = [...posts].sort((a, b) => {
+    switch (postSort) {
+      case "date_asc":
+        return new Date(a.created_at) - new Date(b.created_at);
+      case "date_desc":
+        return new Date(b.created_at) - new Date(a.created_at);
+      case "title_asc":
+        return a.title.localeCompare(b.title);
+      case "title_desc":
+        return b.title.localeCompare(a.title);
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div style={{ maxWidth: "900px", margin: "20px auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -366,9 +352,7 @@ export default function Dashboard() {
 
       {errors.length > 0 && (
         <ul style={{ color: "red" }}>
-          {errors.map((e, i) => (
-            <li key={i}>{e}</li>
-          ))}
+          {errors.map((e, i) => <li key={i}>{e}</li>)}
         </ul>
       )}
 
@@ -389,7 +373,8 @@ export default function Dashboard() {
         </select>
       </div>
 
-      {/* --- Modals --- */}
+      {/* --- Modals & Posts --- */}
+      {/* You can reuse your existing modal JSX here */}
       {modalOpenTopic && (
         <Modal>
           <h3>{editingTopicId ? "Edit Topic" : "Create Topic"}</h3>
@@ -423,9 +408,7 @@ export default function Dashboard() {
               required
             >
               <option value="">Select Parent Topic</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
+              {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
             <input
               placeholder="SubTopic Name"
@@ -436,13 +419,6 @@ export default function Dashboard() {
             <button type="submit">{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</button>
             <button type="button" onClick={closeModalSubTopicHandler}>Cancel</button>
           </form>
-          <h4>Existing SubTopics</h4>
-          {subTopics.map((st) => (
-            <div key={st.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
-              <span>{st.name} (Parent: {topics.find((t) => t.id === st.topic_id)?.name || "Unknown"})</span>
-              <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
-            </div>
-          ))}
         </Modal>
       )}
 
@@ -478,18 +454,24 @@ export default function Dashboard() {
 
       {/* --- Posts List --- */}
       <div style={{ marginTop: "30px" }}>
-        {posts.length === 0 ? <p>No posts yet.</p> :
-          posts.map((p) => (
+        {sortedPosts.length === 0 ? <p>No posts yet.</p> :
+          sortedPosts.map((p) => (
             <div key={p.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "15px" }}>
               <h3>{p.title} <small>({p.topic_name}{p.subtopic_name ? " / " + p.subtopic_name : ""})</small></h3>
               <p>{p.description}</p>
               <p><i>By: {p.post_user_first_name} {p.post_user_last_name}</i></p>
-              {p.post_user_id === user.id && <button onClick={() => { setEditingPostId(p.post_id); setPostTitle(p.title); setPostDesc(p.description); setSelectedTopic(p.topic_id); setSelectedSubTopic(p.subtopic_id); openModalPostHandler(); }}>Edit</button>}
-              {p.post_user_id === user.id && <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>}
+              {p.post_user_id === user.id && (
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button onClick={() => { setEditingPostId(p.post_id); setPostTitle(p.title); setPostDesc(p.description); setSelectedTopic(p.topic_id); setSelectedSubTopic(p.subtopic_id); openModalPostHandler(); }}>Edit</button>
+                  <button onClick={() => handleDeletePost(p.post_id)}>Delete</button>
+                </div>
+              )}
+
+              {/* Comments */}
               <div style={{ marginTop: "10px" }}>
                 <h4>Comments:</h4>
                 {p.comments.map((c) => (
-                  <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
                     <span><b>{c.comment_user_first_name}:</b> {c.comment_text}</span>
                     {c.comment_user_id === user.id && <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>}
                   </div>
@@ -499,7 +481,7 @@ export default function Dashboard() {
                   value={newComments[p.post_id] || ""}
                   onChange={(e) => handleCommentChange(p.post_id, e.target.value)}
                 />
-                <button onClick={() => handleCommentSubmit(p.post_id)}>Add Comment</button>
+                <button onClick={() => handleCommentSubmit(p.post_id)}>Comment</button>
               </div>
             </div>
           ))
@@ -510,15 +492,13 @@ export default function Dashboard() {
 }
 
 // --- Simple Modal Component ---
-function Modal({ children }) {
-  return (
-    <div style={{
-      position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-      backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
-    }}>
-      <div style={{ background: "#fff", padding: "20px", borderRadius: "5px", width: "400px", maxHeight: "90%", overflowY: "auto" }}>
-        {children}
-      </div>
+const Modal = ({ children }) => (
+  <div style={{
+    position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+    backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
+  }}>
+    <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "5px", maxHeight: "80vh", overflowY: "auto" }}>
+      {children}
     </div>
-  );
-}
+  </div>
+);

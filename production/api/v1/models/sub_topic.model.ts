@@ -16,7 +16,7 @@ class PostComment extends DatabaseModel {
      * @author Keith
      */
     createNewSubTopic = async (post_sub_topic: CreateSubTopic): Promise<{ user_id?: number, sub_topic_id: number }> => {
-        const post_sub_topics = [ [post_sub_topic.user_id, post_sub_topic.post_topic_id, post_sub_topic.name]];
+        const post_sub_topics = [ [post_sub_topic.user_id, post_sub_topic.topic_id, post_sub_topic.name]];
 
         const insert_post_comments = format(`
             INSERT INTO user_stories.sub_topics(user_id, topic_id, name)
