@@ -4,10 +4,10 @@ import { CreateUserParamsTypes } from "../entities/types/user.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { LoginResponseType } from "../entities/types/session.type";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+
 
 class User extends UserService {
-    
+
     /**
      * DOCU: This function handles user sign-up. <br>
      *       It sends the request body to the user service to create a new user
@@ -21,13 +21,13 @@ class User extends UserService {
     userSignUp = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
 
-        try{
+        try {
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
-       
+            console.log(response_data);
             res.json(response_data);
         }
-        catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in sign up', });
         }
     };
 
@@ -44,12 +44,12 @@ class User extends UserService {
     userLogIn = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
 
-        try{
+        try {
             const response_data: ResponseDataInterface<LoginResponseType> = await user_service.userLogin(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
-        catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in login', });
         }
     };
 
@@ -66,22 +66,45 @@ class User extends UserService {
     getUser = async (req: Request, res: Response): Promise<void> => {
         const user_id = req.validated_user_data?.id;
 
-        if(!user_id){
+        if (!user_id) {
             throw new Error("user not found");
         }
 
-        try{
+        try {
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = await user_service.getUserById(user_id);
             res.json(response_data);
         }
-        catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE,error: ERROR_CATCH_MESSAGE.error,});
+        catch (error) {
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in get user', });
         }
     };
 
-    userLogout = async (req: Request, res: Response): Promise<void> => {
-        /* for user logout */
+    /**
+     * DOCU: Logout controller to process user logout requests. <br>
+     *       This function extracts the authenticated user's ID from
+     *       validated request data, triggers the logout service to
+     *       invalidate the user's session or refresh token, and returns
+     *       the result as a JSON response. <br>
+     * Method: Controller Function <br>
+     * Used in: POST /logout <br>
+     * Last updated: Nov 20, 2025 <br>
+     * @param req - Express request object containing validated user data
+     * @param res - Express response object used to send JSON response
+     * @returns void - Sends a JSON response containing logout status and/or error message
+     * @author Keith
+     */
+    userLogout = async (params: { id: number; }): Promise<ResponseDataInterface> => {
+        const user_service = new UserService();
+
+        try{
+            const user_id = params.id;
+            const response_data = await user_service.userLogout({ id: user_id });
+            return response_data;
+        }
+        catch(error){
+            throw new Error('Error in the logout controller');
+        }
     }
 }
 

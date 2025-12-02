@@ -9,6 +9,7 @@ import SubTopicRoute from "../routes/sub_topic.routes";
 
 export default (App: Application) => {
     App.use(`/api/v1/unauth`, UnauthRoute);
+    App.use(authenticatorHandler);
     App.use(`/api/v1/user`, authenticatorHandler, UserRoute);
     App.use(`/api/v1/post`, authenticatorHandler, PostRoute);
     App.use(`/api/v1/comment`, authenticatorHandler, CommentRoute);
