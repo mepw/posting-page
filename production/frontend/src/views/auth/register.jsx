@@ -29,7 +29,7 @@ export default function Register() {
                     last_name: lastName,
                     email,
                     password,
-                    user_level_id: 2, // default: normal user, not admin
+                    user_level_id: 2, 
                 }),
             });
 

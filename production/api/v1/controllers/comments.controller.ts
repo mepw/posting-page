@@ -35,8 +35,6 @@ class PostCommentController{
         }
     };
 
-
-
 }
 
 export default new PostCommentController();

@@ -31,9 +31,8 @@ export default function Dashboard() {
   const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
 
   const [newComments, setNewComments] = useState({});
-  const [postSort, setPostSort] = useState("date_desc"); // Default: newest first
+  const [postSort, setPostSort] = useState("date_desc"); 
 
-  // --- Fetch helper ---
   const fetchWithToken = async (url, options = {}) => {
     const token = localStorage.getItem("access_token");
     if (!token) navigate("/login");
@@ -56,7 +55,6 @@ export default function Dashboard() {
     return res;
   };
 
-  // --- Load data ---
   useEffect(() => {
     const init = async () => {
       try {

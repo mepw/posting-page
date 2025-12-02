@@ -14,7 +14,7 @@ class UserPost extends PostModel {
      */
     createPost = async (params: CreatePostType): Promise<ResponseDataInterface<CreatePostType>> => {
         const response_data: ResponseDataInterface<CreatePostType> = { status: false, error: null, result: undefined };
-        console.log(params);
+
         try{
             const post_model = new PostModel();
 
@@ -30,7 +30,6 @@ class UserPost extends PostModel {
             }
 
             const create_new_post = await post_model.createNewPost(params);
-            console.log(params);
             response_data.status = true;
             response_data.result = create_new_post;
         }
