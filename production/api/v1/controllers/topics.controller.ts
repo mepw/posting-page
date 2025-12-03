@@ -29,6 +29,15 @@ class PostTopicController {
         }
     };
     
+    /**
+     * DOCU: This function retrieves all topics from the TopicService. <br>
+     *       It calls the service method `getAllTopic` and returns the response as JSON. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param req - Express Request object
+     * @param res - Express Response object used to send the JSON response
+     * @returns response_data - JSON containing status, topics list, and/or error message
+     * @author Keith
+     */
     getAllTopic = async (req: Request, res: Response): Promise<void> => {
         const post_service = new TopicService();
 
@@ -40,7 +49,18 @@ class PostTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting topics', });
         }
     }
-
+    
+    /**
+     * DOCU: This function deletes a specific topic. <br>
+     *       It retrieves the user ID from validated user data and topic ID from request parameters, 
+     *       calls the TopicService's `deleteTopic` method, and returns the response as JSON. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param req - Express Request object containing validated user data and topic ID in params
+     * @param res - Express Response object used to send the JSON response
+     * @returns response_data - JSON containing status of deletion and/or error message
+     * @throws Error - Throws "Unauthorized" if the user ID is missing
+     * @author Keith
+     */
     deleteTopic = async (req: Request, res: Response): Promise<void> => {
         const topic_service = new TopicService();
         const user_id = req.validated_user_data?.id;

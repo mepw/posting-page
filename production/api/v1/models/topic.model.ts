@@ -29,7 +29,28 @@ class PostComment extends DatabaseModel {
         const result = await this.executeQuery<{ id: number }>(insert_creat_post_topic);
         return { topic_id: result.rows[0]?.id, user_id: result.rows[0]?.id };
     };
-
+    
+    /**
+     * DOCU: This function fetches topics from the `user_stories.topics` table. <br>
+     *       It dynamically constructs a SQL SELECT query based on the provided parameters,
+     *       including optional joins, filtering, grouping, ordering, limiting, offsetting, 
+     *       and Common Table Expressions (CTEs). <br>
+     *       The query is executed using a read replica by default. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @template FetchFieldType - Type of the returned query row, extending QueryResultRow
+     * @param params - Object containing optional query parameters:
+     *                 fields_to_select: string of columns to select (default "*")
+     *                 join_statement: SQL JOIN clause
+     *                 where_params: SQL WHERE clause
+     *                 where_values: Array of values for WHERE placeholders
+     *                 group_by: SQL GROUP BY clause
+     *                 order_by: SQL ORDER BY clause
+     *                 limit: Maximum number of rows to return
+     *                 offset: Number of rows to skip
+     *                 cte: Common Table Expression (WITH clause)
+     * @returns Object containing `new_topics`, an array of rows matching the query
+     * @author Keith
+     */
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ new_topics: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
@@ -64,7 +85,17 @@ class PostComment extends DatabaseModel {
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
         return { new_topics: result.rows };
     };
-
+    
+    /**
+     * DOCU: This function deletes topics from the `user_stories.topics` table. <br>
+     *       It constructs a SQL DELETE statement using the provided WHERE clause and values,
+     *       executes the query, and returns a boolean indicating whether any rows were deleted. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param where_params - SQL WHERE clause string to identify which topics to delete
+     * @param where_values - Array of values for the WHERE clause placeholders
+     * @returns Boolean indicating whether at least one row was deleted (true) or not (false)
+     * @author Keith
+     */
     deleteTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_post = await this.executeQuery(`
             DELETE FROM user_stories.topics WHERE ${where_params}

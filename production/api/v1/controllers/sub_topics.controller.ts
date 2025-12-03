@@ -34,6 +34,16 @@ class PostSubTopicController {
         }
     };
 
+    /**
+     * DOCU: This function retrieves all sub-topics. <br>
+     *       It calls the SubTopicModel service to fetch all sub-topic records
+     *       and returns the result as JSON. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param req - Express Request object
+     * @param res - Express Response object used to send the JSON response
+     * @returns response_data - JSON containing status, sub-topic list, and/or error message
+     * @author Keith
+     */
     getAllSubTopic = async (req: Request, res: Response): Promise<void> => {
         const post_service = new SubTopicModel();
 
@@ -45,7 +55,18 @@ class PostSubTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting sub-topics', });
         }
     }
-
+    
+    /**
+     * DOCU: This function deletes a specific sub-topic. <br>
+     *       It validates the user ID, extracts the sub-topic ID from the request parameters,
+     *       calls the SubTopicModel service to delete the sub-topic, and returns the result as JSON. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param req - Express Request object containing validated user data and sub-topic ID in params
+     * @param res - Express Response object used to send the JSON response
+     * @returns response_data - JSON containing status of deletion and/or error message
+     * @throws Error - Throws "Unauthorized" if the user ID is not found in the request
+     * @author Keith
+     */
     deleteSubTopic = async (req: Request, res: Response): Promise<void> => {
         const sub_topic_service = new SubTopicModel();
         const user_id = req.validated_user_data?.id;

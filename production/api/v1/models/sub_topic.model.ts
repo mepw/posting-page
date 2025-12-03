@@ -7,10 +7,10 @@ import { NUMBERS } from "../../../configs/constants/number.constants";
 const USE_READ_REPLICA = false;
 class PostComment extends DatabaseModel {
     /**
-     * DOCU: This function inserts a new comment into the database. <br>
+     * DOCU: This function inserts a new comment into the database. 
      *       It formats the SQL insert statement with the provided comment data,
-     *       executes the query, and returns the inserted comment ID along with the user ID. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       executes the query, and returns the inserted comment ID along with the user ID. 
+     * Last updated at: Nov 20, 2025 
      * @param post_comments - Object containing user_id, post_id, and comment text
      * @returns Object containing user_id (optional) and comment_id of the newly inserted comment
      * @author Keith
@@ -28,7 +28,27 @@ class PostComment extends DatabaseModel {
 
         return { user_id: post_comment_result.rows[0]?.id, sub_topic_id: post_comment_result.rows[0]?.id };
     };
-
+    
+    /**
+     * DOCU: This function fetches records from the `user_stories.sub_topics` table.
+     *       It dynamically constructs the SQL SELECT query based on the provided parameters,
+     *       including optional joins, where clauses, grouping, ordering, limits, offsets, and CTEs. <br>
+     *       The query is executed against the database and the resulting rows are returned. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @template FetchFieldType - The type of the rows to fetch, extending QueryResultRow
+     * @param params - Optional object to customize the query:
+     *                 - fields_to_select: string of columns to select (default: "*")
+     *                 - join_statement: string for JOIN clauses
+     *                 - where_params: string representing WHERE conditions
+     *                 - where_values: array of values for WHERE clause placeholders
+     *                 - group_by: string for GROUP BY clause
+     *                 - order_by: string for ORDER BY clause
+     *                 - limit: number of rows to fetch
+     *                 - offset: number of rows to skip
+     *                 - cte: string for Common Table Expressions (WITH clause)
+     * @returns Object containing a `posts` array of the fetched rows
+     * @author Keith
+     */
     fetchModel = async <FetchFieldType extends QueryResultRow>(params: SelectQueryInterface = {}): Promise<{ posts: FetchFieldType[] }> => {
         const { fields_to_select, join_statement, where_params, where_values, group_by, order_by, limit, offset, cte } = params;
         let last_index = where_values?.length || NUMBERS.one;
@@ -63,7 +83,18 @@ class PostComment extends DatabaseModel {
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
         return { posts: result.rows };
     };
-
+    
+    /**
+     * DOCU: This function deletes records from the `user_stories.sub_topics` table
+     *       based on the specified WHERE conditions and their corresponding values. <br>
+     *       It executes a DELETE SQL query and returns a boolean indicating whether
+     *       any rows were deleted. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param where_params - String representing the WHERE clause conditions (e.g., "id = $1")
+     * @param where_values - Array of values to replace placeholders in the WHERE clause
+     * @returns Boolean indicating if any rows were deleted (true) or not (false) <br>
+     * @author Keith
+     */
     deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_post = await this.executeQuery(
             `DELETE FROM user_stories.sub_topics WHERE ${where_params}`,

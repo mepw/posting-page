@@ -51,6 +51,15 @@ class UserSubTopic{
         return response_data;
     };
 
+    /**
+     * DOCU: This function retrieves all sub-topic records from the database. <br>
+     *       It creates a SubTopic instance, fetches all fields of sub-topic records,
+     *       and returns them along with a status. If an error occurs, the response
+     *       contains the error message. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @returns response_data - JSON containing status, an array of sub-topic records, and/or error message
+     * @author Keith
+     */
     getAllSubTopic = async (): Promise<ResponseDataInterface<CreateSubTopic[]>> => {
         const response_data: ResponseDataInterface<CreateSubTopic[]> = { status: false, error: null, result: undefined };
 
@@ -72,6 +81,15 @@ class UserSubTopic{
         return response_data;
     };
     
+    /**
+     * DOCU: This function deletes a sub-topic record based on the provided ID. <br>
+     *       It validates the input, calls the SubTopic model to delete the record,
+     *       and returns a boolean result along with a status. If deletion fails or
+     *       an error occurs, the response contains the error message. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param params - Object containing the ID of the sub-topic to be deleted
+     * @returns response_data - JSON containing status, deletion result (true/false), and/or error message
+     */
     deleteSubTopic = async (params: DeleteSubTopicType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
         const sub_topic_model = new SubTopic();

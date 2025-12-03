@@ -43,7 +43,16 @@ class UserSubTopic{
 
         return response_data;
     };
-
+    
+    /**
+     * DOCU: This function fetches all topics from the database. <br>
+     *       It uses the PostTopic model to retrieve all topic records. If no topics are found,
+     *       an error is returned. The response includes the status, result (array of topics), 
+     *       and any error message. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @returns response_data - JSON containing status, array of topics (result), and/or error message
+     * @author Keith
+     */
     getAllTopic = async (): Promise<ResponseDataInterface<CreateTopic[]>> => {
         const response_data: ResponseDataInterface<CreateTopic[]> = { status: false, error: null, result: undefined };
 
@@ -66,7 +75,17 @@ class UserSubTopic{
 
         return response_data;
     };
-
+    
+    /**
+     * DOCU: This function deletes a specific topic from the database by ID. <br>
+     *       It uses the PostTopic model to perform the deletion. If deletion fails, an error 
+     *       is returned. The response includes the status, deletion result (true/false), 
+     *       and any error message. <br>
+     * Last updated at: Dec 3, 2025 <br>
+     * @param params - Object containing the `id` of the topic to be deleted
+     * @returns response_data - JSON containing status, deletion result, and/or error message
+     * @author Keith
+     */
     deleteTopic = async (params: DeleteTopicType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
         const topic_model = new PostTopic();
