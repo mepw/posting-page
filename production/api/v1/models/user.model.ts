@@ -4,7 +4,7 @@ import { CreateUserParamsTypes } from "../entities/types/user.type"
 import format from "pg-format";
 import DatabaseModel from "./database.model";
 
-class UserModel extends DatabaseModel{
+class UserModel extends DatabaseModel {
     /**
      * DOCU: This function fetches users from the database. 
      *       It constructs a SELECT query based on optional fields and WHERE conditions,
@@ -33,15 +33,15 @@ class UserModel extends DatabaseModel{
      * @returns Object containing the newly created user ID as user_id
      * @author Keith
      */
-    createNewUserRecord = async(
+    createNewUserRecord = async (
         user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
-        const user_values = [[ 
-            user_details.first_name, 
-            user_details.last_name, 
-            user_details.email, 
-            user_details.password, 
-            user_details.user_level_id, 
-            JSON.stringify(user_details.hobbies)] 
+        const user_values = [[
+            user_details.first_name,
+            user_details.last_name,
+            user_details.email,
+            user_details.password,
+            user_details.user_level_id,
+            JSON.stringify(user_details.hobbies)]
         ];
 
         const insert_user_details = format(`
@@ -51,11 +51,38 @@ class UserModel extends DatabaseModel{
             `, user_values
         );
 
-        const result = await this.executeQuery<{ id: number}>(insert_user_details);
-        return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id};
+        const result = await this.executeQuery<{ id: number }>(insert_user_details);
+        return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id };
     };
 
-    
+
+    updateUserDetails = async <T>({ update_params, where_params, update_values, where_values = []}: {
+        update_params: string,
+        where_params: string,
+        update_values: (string | number | boolean | Date | object)[],
+        where_values?: (string | number | boolean | Date)[] }): Promise<{ user_data: T[] }> => {
+
+        const formatted_values = update_values.map(value => {
+            if(value === undefined) {
+               throw new Error('Undefined value found in update values');
+            }
+            return typeof value === 'object' ? JSON.stringify(value) : value;
+        });
+
+        const query = `
+            UPDATE user_stories.users
+            SET ${update_params}
+            WHERE ${where_params}
+            RETURNING *;
+        `;
+
+        const result = await this.executeQuery(query, [...formatted_values, ...where_values]);
+
+        return { user_data: result.rows as T[] };
+    };
+
+
+
 }
 
 export default UserModel;

@@ -29,9 +29,17 @@ export default function Dashboard() {
     const [modalOpenPost, setModalOpenPost] = useState(false);
     const [modalOpenTopic, setModalOpenTopic] = useState(false);
     const [modalOpenSubTopic, setModalOpenSubTopic] = useState(false);
+    const [modalOpenProfile, setModalOpenProfile] = useState(false);
 
     const [newComments, setNewComments] = useState({});
     const [postSort, setPostSort] = useState("date_desc");
+
+    // --- Profile edit states ---
+    const [editFirstName, setEditFirstName] = useState("");
+    const [editLastName, setEditLastName] = useState("");
+    const [editEmail, setEditEmail] = useState("");
+    const [editPassword, setEditPassword] = useState("");
+    const [editHobbies, setEditHobbies] = useState([]);
 
     // --- Fetch with token ---
     const fetchWithToken = async (url, options = {}) => {
@@ -204,12 +212,10 @@ export default function Dashboard() {
                 return;
             }
 
-            // Fetch updated subtopics **before closing modal**
             const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
             const subTopicsData = await subTopicsRes.json();
             setSubTopics(subTopicsData.result || []);
 
-            // Reset form AFTER updating state
             setNewSubTopicName("");
             setEditingSubTopicId(null);
             setSubTopicParent(null);
@@ -376,6 +382,58 @@ export default function Dashboard() {
     };
     const closeModalSubTopicHandler = () => setModalOpenSubTopic(false);
 
+    const openModalProfileHandler = () => {
+        setEditFirstName(user.first_name || "");
+        setEditLastName(user.last_name || "");
+        setEditEmail(user.email || "");
+        setEditPassword("");
+        setEditHobbies(user.hobbies || []);
+        setModalOpenProfile(true);
+    };
+    const closeModalProfileHandler = () => setModalOpenProfile(false);
+
+    const handleProfileSubmit = async (e) => {
+        e.preventDefault();
+        setErrors([]);
+
+        // Prepare hobbies as an array, remove empty strings
+        const hobbiesArray = editHobbies
+            .map((h) => h.trim())
+            .filter((h) => h !== "");
+
+        // Prepare payload
+        const payload = {
+            first_name: editFirstName.trim() || undefined,
+            last_name: editLastName.trim() || undefined,
+            email: editEmail.trim() || undefined,
+            hobbies: hobbiesArray.length > 0 ? hobbiesArray : undefined,
+        };
+
+        // Only send password if it's not empty
+        if (editPassword.trim()) {
+            payload.password = editPassword.trim();
+        }
+
+        try {
+            const res = await fetchWithToken(`/user/edit/${user.id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.status === false) {
+                setErrors([data.error || "Failed to update profile"]);
+                return;
+            }
+
+            setUser(data.result); // update local user state
+            closeModalProfileHandler();
+        } catch {
+            setErrors(["Failed to update profile"]);
+        }
+    };
+
+
     // --- Client-side sorting ---
     const sortedPosts = [...posts].sort((a, b) => {
         switch (postSort) {
@@ -394,9 +452,12 @@ export default function Dashboard() {
 
     return (
         <div style={{ maxWidth: "900px", margin: "20px auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h1>Welcome, {user.first_name}!</h1>
-                <button onClick={handleLogout}>Logout</button>
+                <div>
+                    <button onClick={openModalProfileHandler}>Edit Profile</button>
+                    <button onClick={handleLogout}>Logout</button>
+                </div>
             </div>
 
             {errors.length > 0 && (
@@ -455,8 +516,8 @@ export default function Dashboard() {
                             required
                         >
                             <option value="">Select Parent Topic</option>
-                            {topics.map((st) => (
-                                <option key={st.id} value={st.id}>{st.name}</option>
+                            {topics.map((t) => (
+                                <option key={t.id} value={t.id}>{t.name}</option>
                             ))}
                         </select>
                         <input
@@ -468,40 +529,20 @@ export default function Dashboard() {
                         <button type="submit">{editingSubTopicId ? "Edit SubTopic" : "Create SubTopic"}</button>
                         <button type="button" onClick={closeModalSubTopicHandler}>Cancel</button>
                     </form>
-
                     <h4>Existing SubTopics</h4>
-                    {subTopics.length === 0 && <p>No subtopics yet</p>}
-                    {subTopics.map((st) => {
-                        const parentTopic = topics.find(t => t.id === st.topic_id);
-                        return (
-                            <div key={st.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
-                                <span>{st.name} (Parent: {parentTopic ? parentTopic.name : "Unknown"})</span>
-                                <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
-                            </div>
-                        );
-                    })}
+                    {subTopics.map((st) => (
+                        <div key={st.id} style={{ display: "flex", justifyContent: "space-between", margin: "5px 0" }}>
+                            <span>{st.name} (Parent Topic: {topics.find(t => t.id === st.topic_id)?.name || "-"})</span>
+                            <button onClick={() => handleDeleteSubTopic(st.id)}>Delete</button>
+                        </div>
+                    ))}
                 </Modal>
             )}
-
 
             {modalOpenPost && (
                 <Modal>
                     <h3>{editingPostId ? "Edit Post" : "Create Post"}</h3>
                     <form onSubmit={handlePostSubmit}>
-                        <select value={selectedTopic ?? ""} onChange={handleTopicChange} required>
-                            <option value="">Select Topic</option>
-                            {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                        </select>
-                        <select
-                            value={selectedSubTopic ?? ""}
-                            onChange={handleSubTopicChange}
-                            disabled={!selectedTopic || subTopics.filter((st) => st.topic_id === selectedTopic).length === 0}
-                        >
-                            <option value="">Select SubTopic (Optional)</option>
-                            {subTopics
-                                .filter((st) => st.topic_id === selectedTopic)
-                                .map((st) => <option key={st.id} value={st.id}>{st.name}</option>)}
-                        </select>
                         <input
                             placeholder="Post Title"
                             value={postTitle}
@@ -514,40 +555,92 @@ export default function Dashboard() {
                             onChange={(e) => setPostDesc(e.target.value)}
                             required
                         />
+                        <select value={selectedTopic || ""} onChange={handleTopicChange} required>
+                            <option value="">Select Topic</option>
+                            {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </select>
+                        <select value={selectedSubTopic || ""} onChange={handleSubTopicChange}>
+                            <option value="">Select SubTopic (Optional)</option>
+                            {subTopics
+                                .filter((st) => st.topic_id === selectedTopic)
+                                .map((st) => <option key={st.id} value={st.id}>{st.name}</option>)}
+                        </select>
                         <button type="submit">{editingPostId ? "Edit Post" : "Create Post"}</button>
                         <button type="button" onClick={closeModalPostHandler}>Cancel</button>
                     </form>
                 </Modal>
             )}
 
-            {/* --- Posts List --- */}
+            {modalOpenProfile && (
+                <Modal>
+                    <h3>Edit Profile</h3>
+                    <form onSubmit={handleProfileSubmit}>
+                        <input
+                            placeholder="First Name"
+                            value={editFirstName}
+                            onChange={(e) => setEditFirstName(e.target.value)}
+                            required
+                        />
+                        <input
+                            placeholder="Last Name"
+                            value={editLastName}
+                            onChange={(e) => setEditLastName(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password (leave blank to keep current)"
+                            value={editPassword}
+                            onChange={(e) => setEditPassword(e.target.value)}
+                        />
+                        <input
+                            placeholder="Hobbies (comma separated)"
+                            value={editHobbies.join(", ")}
+                            onChange={(e) =>
+                                setEditHobbies(e.target.value.split(",").map((h) => h.trim()))
+                            }
+                        />
+                        <button type="submit">Update Profile</button>
+                        <button type="button" onClick={closeModalProfileHandler}>Cancel</button>
+                    </form>
+                </Modal>
+            )}
+
+            {/* --- Display Posts --- */}
             <div style={{ marginTop: "20px" }}>
-                {sortedPosts.length === 0 && <p>No posts yet</p>}
                 {sortedPosts.map((post) => (
-                    <div key={post.post_id} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
+                    <div key={post.post_id} style={{ border: "1px solid gray", padding: "10px", margin: "10px 0" }}>
                         <h3>{post.title}</h3>
                         <p>{post.description}</p>
-                        <p>
-                            Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "None"}
-                        </p>
+                        <p>Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "-"}</p>
                         <p>By: {post.post_user_first_name} {post.post_user_last_name}</p>
-                        <p>Created: {new Date(post.created_at).toLocaleString()}</p>
-                        <button onClick={() => {
-                            setEditingPostId(post.post_id);
-                            setPostTitle(post.title);
-                            setPostDesc(post.description);
-                            setSelectedTopic(post.topic_id);
-                            setSelectedSubTopic(post.subtopic_id);
-                            setModalOpenPost(true);
-                        }}>Edit Post</button>
-                        <button onClick={() => handleDeletePost(post.post_id)}>Delete Post</button>
+                        {user?.id === post.post_user_id && (
+                            <button onClick={() => {
+                                setEditingPostId(post.post_id);
+                                setPostTitle(post.title);
+                                setPostDesc(post.description);
+                                setSelectedTopic(post.topic_id);
+                                setSelectedSubTopic(post.subtopic_id);
+                                setModalOpenPost(true);
+                            }}>Edit Post</button>
+                        )}
+                        {user?.id === post.post_user_id && (
+                            <button onClick={() => handleDeletePost(post.post_id)}>Delete Post</button>
+                        )}
 
                         <div style={{ marginTop: "10px" }}>
                             <h4>Comments</h4>
                             {post.comments.map((c) => (
                                 <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <span>{c.comment_text} (by {c.comment_user_first_name})</span>
-                                    {c.comment_user_id === user.id && (
+                                    <span>{c.comment_text} - {c.comment_user_first_name}</span>
+                                    {user?.id === c.comment_user_id && (
                                         <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
                                     )}
                                 </div>
@@ -567,15 +660,18 @@ export default function Dashboard() {
 }
 
 // --- Simple Modal Component ---
-function Modal({ children }) {
-    return (
-        <div style={{
-            position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-            <div style={{ background: "#fff", padding: "20px", borderRadius: "5px", minWidth: "300px" }}>
-                {children}
-            </div>
+const Modal = ({ children }) => (
+    <div style={{
+        position: "fixed",
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000
+    }}>
+        <div style={{ background: "white", padding: "20px", borderRadius: "5px", width: "400px", maxHeight: "90vh", overflowY: "auto" }}>
+            {children}
         </div>
-    );
-}
+    </div>
+);

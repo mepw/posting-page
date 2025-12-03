@@ -123,12 +123,12 @@ class UserService extends DatabaseModel {
      * @returns response_data - JSON containing status, user data (or null), and/or error message
      * @author Keith
      */
-    getUserById = async (params: GetUserById): Promise<ResponseDataInterface<GetUserById>> => {
-        const response_data: ResponseDataInterface<GetUserById> = { status: false, error: null, result: undefined };
+    getUserById = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try{
             const user_model = new UserModel();
-            const { user_data } = await user_model.fetchUser<GetUserById>({
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [params.id],
             });
@@ -196,12 +196,12 @@ class UserService extends DatabaseModel {
     * @returns response_data - JSON containing status, logout confirmation, and/or error message
     * @author Keith
     */
-    userLogOut = async (params: GetUserById): Promise<ResponseDataInterface<GetUserById>> => {
-        const response_data: ResponseDataInterface<GetUserById> = { status: false, error: null, result: undefined };
+    userLogOut = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try{
             const user_model = new UserModel();
-            const { user_data } = await user_model.fetchUser<GetUserById>({
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [params.id],
             });
@@ -215,11 +215,77 @@ class UserService extends DatabaseModel {
             }
         }
         catch(error){
-            response_data.error = (error as Error).message || 'error in service getuserbyid';
+            response_data.error = (error as Error).message || 'error in service logout';
         }
 
         return response_data;
     };
+    
+    /**
+     * DOCU: This function fetches a user by ID and returns the user data. 
+     *       If the user exists, it sets the status to true and returns the user information.
+     *       If the user does not exist, it throws an error and includes the error message in the response.
+     * Last updated at: Dec 3, 2025
+     * @param params - Object containing the user ID
+     * @returns response_data - JSON containing status, user data (if found), and/or error message
+     * @author Keith
+     */
+    editUser = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
+
+        try{
+            const user_model = new UserModel();
+
+        
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
+                where_params: "id = $1",
+                where_values: [params.id],
+            });
+
+            if(!user_data.length){
+                throw new Error("User not found.");
+            }
+
+            const existing_user_data = user_data[0];
+
+            const update_user_data: CreateUserParamsTypes = {
+                first_name: params.first_name ?? existing_user_data.first_name,
+                last_name: params.last_name ?? existing_user_data.last_name,
+                email: params.email ?? existing_user_data.email,
+                password: params.password ?? existing_user_data.password,
+                user_level_id: params.user_level_id ?? existing_user_data.user_level_id,
+                hobbies: params.hobbies ?? existing_user_data.hobbies,
+                id: params.id, 
+            };
+
+            const { user_data: updated_user_data } = await user_model.updateUserDetails<CreateUserParamsTypes>({
+                    update_params: `first_name = $1, last_name = $2, email = $3, password = $4, user_level_id = $5, hobbies = $6::jsonb`,
+                    update_values: [
+                            update_user_data.first_name,
+                            update_user_data.last_name,
+                            update_user_data.email,
+                            update_user_data.password,
+                            update_user_data.user_level_id,
+                            update_user_data.hobbies,
+                        ],
+                    where_params: `id = $7`,
+                    where_values: [update_user_data.id],
+                });
+                console.log(update_user_data);
+                if(!updated_user_data.length){
+                    throw new Error("User not found during update.");
+                }
+            
+                response_data.status = true;
+                response_data.result = updated_user_data[0];
+            } 
+            catch(error){
+                response_data.error = (error as Error).message || 'Error in service editUser';
+            }
+        
+            return response_data;
+        };
+
 
 
 }

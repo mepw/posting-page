@@ -1,10 +1,9 @@
 import { Request, Response } from "express-serve-static-core";
 import UserService from "../services/user.service";
-import { CreateUserParamsTypes, GetUserById} from "../entities/types/user.type";
+import { CreateUserParamsTypes,} from "../entities/types/user.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { LoginResponseType } from "../entities/types/session.type";
-
 
 class User extends UserService {
 
@@ -68,7 +67,7 @@ class User extends UserService {
                 throw new Error("User ID not found");
             }
             const user_service = new UserService();
-            const response_data: ResponseDataInterface<GetUserById> = await user_service.getUserById({ id: req.validated_user_data.id } as GetUserById);
+            const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.getUserById({ id: req.validated_user_data.id } as CreateUserParamsTypes);
             res.json(response_data);
         }
         catch(error){
@@ -97,7 +96,7 @@ class User extends UserService {
             }
         
             const user_service = new UserService();
-            const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({ id: req.validated_user_data.id } as GetUserById);
+            const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.userLogOut({ id: req.validated_user_data.id } as CreateUserParamsTypes);
         
             res.json(response_data);
         } 
@@ -105,8 +104,36 @@ class User extends UserService {
             res.json({  ...RESPONSE_DATA_DEFAULT_VALUE,  error: (error as Error).message || 'error in logout',  });
         }
     };
-
-
+    
+    /**
+    * DOCU: Edit user details controller to process requests for updating user information.
+    *       This function extracts the authenticated user's ID from validated request data,
+    *       calls the user service to edit the user details, and returns the result as a JSON response.
+    * Method: Controller Function
+    * Used in: PUT /users/edit (or your specific route)
+    * Last updated: Dec 3, 2025
+    * @param req - Express request object containing validated user data
+    * @param res - Express response object used to send JSON response
+    * @returns void - Sends a JSON response containing edited user data and/or error message
+    * @author Keith
+    */
+    editUserDetails = async (req: Request, res: Response): Promise<void> => {
+        try{
+            
+            if(!req.validated_user_data?.id){
+                throw new Error("User ID not found");
+            }
+            
+            console.log(req.validated_user_data.id);
+            const user_service = new UserService();
+            const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.editUser({ id: req.validated_user_data.id } as CreateUserParamsTypes);
+            console.log(response_data);
+            res.json(response_data);
+        }
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
+        }
+    };
 
 }
 

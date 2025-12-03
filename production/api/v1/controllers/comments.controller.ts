@@ -21,12 +21,7 @@ class PostCommentController{
         const comment_service = new CommentService();
 
         try{
-            const comment_data: CreatePostComment = {
-                ...req.body,
-                post_id: req.body.post_id,
-                user_id
-            };
-
+            const comment_data: CreatePostComment = { ...req.body, post_id: req.body.post_id, user_id };
             const response_data: ResponseDataInterface<CreatePostComment> = await comment_service.createNewComment(comment_data);
             res.json(response_data);
         }

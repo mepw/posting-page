@@ -3,7 +3,6 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreatePostType, DeletePostType, UpdatePostType } from "../entities/types/post.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
 class PostController {
     /**
      * DOCU: This is function helper to send a request to other server/service. 
@@ -104,7 +103,7 @@ class PostController {
 
         try{
             const post_data: DeletePostType = { id: post_id, user_id };
-            const response_data: ResponseDataInterface<boolean | null> = await post_service.deleteUserPost(post_data);
+            const response_data: ResponseDataInterface<boolean> = await post_service.deleteUserPost(post_data);
             res.json(response_data);
         }
         catch(error){
