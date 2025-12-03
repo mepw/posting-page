@@ -11,7 +11,7 @@ export type CreateUserParamsTypes = {
 }
 
 export type GetUserById = {
-    user_id: number;
+    id: number;
 }
 
 export type VerifyLoginParamsTypes = {

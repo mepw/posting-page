@@ -31,7 +31,7 @@ class PostSubTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ status: false, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ status: false, error: (error as Error).message || 'error in creating sub-topic', });
         }
     };
 
@@ -43,7 +43,7 @@ class PostSubTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting sub-topics', });
         }
     }
 
@@ -63,7 +63,7 @@ class PostSubTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in deleting sub-topic', });
         }
     };
 

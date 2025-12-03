@@ -26,10 +26,10 @@ class PostTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in creating topic', });
         }
     };
-
+    
     getAllTopic = async (req: Request, res: Response): Promise<void> => {
         const post_service = new TopicService();
 
@@ -38,7 +38,7 @@ class PostTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: ERROR_CATCH_MESSAGE.error, });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting topics', });
         }
     }
 
@@ -58,7 +58,7 @@ class PostTopicController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in deleting topic' });
         }
     };
 }

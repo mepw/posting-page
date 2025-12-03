@@ -130,9 +130,9 @@ class UserService extends DatabaseModel {
             const user_model = new UserModel();
             const { user_data } = await user_model.fetchUser<GetUserById>({
                 where_params: "id = $1",
-                where_values: [params.user_id],
+                where_values: [params.id],
             });
-
+            
             if(user_data.length){
                 response_data.status = true;
                 response_data.result = user_data[0];
@@ -203,7 +203,7 @@ class UserService extends DatabaseModel {
             const user_model = new UserModel();
             const { user_data } = await user_model.fetchUser<GetUserById>({
                 where_params: "id = $1",
-                where_values: [params.user_id],
+                where_values: [params.id],
             });
 
             if(user_data.length){

@@ -31,7 +31,7 @@ class PostCommentController{
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:ERROR_CATCH_MESSAGE.error  });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in creating comment', });
         }
     };
 

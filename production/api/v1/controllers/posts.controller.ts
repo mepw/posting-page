@@ -31,7 +31,7 @@ class PostController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in service create post', });
         }
     };
 
@@ -55,7 +55,7 @@ class PostController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in service get all post', });
         }
     };
 
@@ -73,14 +73,12 @@ class PostController {
         const post_service = new postService();
 
         try{
-            const post_id = Number(req.params.id);
-            const post_data: UpdatePostType = { ...req.body, id: post_id };
-
+            const post_data: UpdatePostType = { ...req.body, id: req.params.id };
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in service update post', });
         }
     };
 
@@ -110,7 +108,7 @@ class PostController {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: ERROR_CATCH_MESSAGE.error });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in service delete post', });
         }
     };
 

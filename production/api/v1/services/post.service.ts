@@ -124,24 +124,11 @@ class UserPost extends PostModel {
         const response_data: ResponseDataInterface<UpdatePostType> = { status: false, error: null, result: undefined };
         const post_model = new PostModel();
 
-        const title = params.title ?? "";
-        const description = params.description ?? "";
-        const post_topic_id = params.post_topic_id ?? null;
-        const post_sub_topic_id = params.post_sub_topic_id ?? null;
-
-        const updated_post: UpdatePostType = {
-            id: params.id,
-            title,
-            description,
-            post_topic_id: params.post_topic_id ?? undefined,
-            post_sub_topic_id: params.post_sub_topic_id ?? undefined,
-        };
-
         try{
             const update_post_result = await post_model.updateUserPost(
                 `title = $1, description = $2, topic_id = $3, sub_topic_id = $4`,
                 `id = $5`, 
-                [title, description, post_topic_id, post_sub_topic_id], 
+                [params.title, params.description, params.post_topic_id, params.post_sub_topic_id], 
                 [params.id]
             );
 
@@ -150,7 +137,7 @@ class UserPost extends PostModel {
             }
 
             response_data.status = true;
-            response_data.result = updated_post;
+            response_data.result = params;
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service update post';

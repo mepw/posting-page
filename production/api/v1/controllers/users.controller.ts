@@ -62,16 +62,13 @@ class User extends UserService {
      * @returns response_data - JSON containing status, user data (or null), and/or error message
      * @author Keith
      */
-    getUser = async (req: Request, res: Response): Promise<void> => {
-        const user_id = req.validated_user_data?.id;
-        
-        if(!user_id){
-            throw new Error("User ID not found");
-        }
-
+    getUserId = async (req: Request, res: Response): Promise<void> => {
         try{
+            if(!req.validated_user_data?.id){
+                throw new Error("User ID not found");
+            }
             const user_service = new UserService();
-            const response_data: ResponseDataInterface<GetUserById> = await user_service.getUserById({user_id});
+            const response_data: ResponseDataInterface<GetUserById> = await user_service.getUserById({ id: req.validated_user_data.id } as GetUserById);
             res.json(response_data);
         }
         catch(error){
@@ -94,21 +91,22 @@ class User extends UserService {
      * @author Keith
      */
     logOutUser = async (req: Request, res: Response): Promise<void> => {
-        const user_id = req.validated_user_data?.id;
-        
-        if(!user_id){
+    try{
+        if(!req.validated_user_data?.id){
             throw new Error("User ID not found");
         }
 
-        try{
-            const user_service = new UserService();
-            const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({user_id});
-            res.json(response_data);
-        }
-        catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in get user', });
-        }
-    };
+        const user_service = new UserService();
+        const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({ id: req.validated_user_data.id } as GetUserById);
+
+        res.json(response_data);
+    } 
+    catch(error){
+        res.json({  ...RESPONSE_DATA_DEFAULT_VALUE,  error: 'Error in logging out user', });
+    }
+};
+
+
 
 }
 
