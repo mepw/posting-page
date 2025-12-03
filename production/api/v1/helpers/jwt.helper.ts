@@ -6,10 +6,7 @@ import { JWT } from "../../../configs/constants/env.constant";
 
 /* Import for entities */
 import { ResponseDataInterface } from "../entities/interfaces/request_response.interfaces";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 
-import UsersService from "../services/user.service";
-import { CreateUserParamsTypes } from "../entities/types/user.type";
 import { TokenCredentialsTypes } from "../../../configs/constants/entities.constant";
 
 /**

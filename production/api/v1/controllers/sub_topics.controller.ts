@@ -3,7 +3,6 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
 import { CreateSubTopic, DeleteSubTopicType } from "../entities/types/sub_topic.type";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
 class PostSubTopicController {
     /**
      * DOCU: This function creates a new comment for a post. <br>
