@@ -17,14 +17,8 @@ import { TokenCredentialsTypes } from "../../../configs/constants/entities.const
  * Last updated at: May 5, 2025
  * @author Jones
  */
-export const verifyJWTAuthToken = async <T>(
-    signed_jwt: string,
-    is_access_token?: boolean
-): Promise<ResponseDataInterface<{ token?: T; new_access_token?: string }>> => {
-    const response: ResponseDataInterface<{ token?: T; new_access_token?: string }> = {
-        status: false,
-        error: null,
-    };
+export const verifyJWTAuthToken = async <T>(signed_jwt: string,is_access_token?: boolean ): Promise<ResponseDataInterface<{ token?: T; new_access_token?: string }>> => {
+    const response: ResponseDataInterface<{ token?: T; new_access_token?: string }> = {status: false,error: null,result: undefined};
 
     try{
         const secret_key = is_access_token ? JWT.access.secret_key : JWT.refresh.secret_key;
@@ -35,7 +29,7 @@ export const verifyJWTAuthToken = async <T>(
         response.result = { token: decoded };
     } 
     catch(error){
-        response.error = ERROR_CATCH_MESSAGE.error;
+        response.error = (error as Error).message || 'invalid token';
     }
 
     return response;
