@@ -3,7 +3,6 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreateTopic, DeleteTopicType} from "../entities/types/topic.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant";
 
 class PostTopicController {
     /**

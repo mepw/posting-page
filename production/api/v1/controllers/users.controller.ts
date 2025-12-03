@@ -26,7 +26,7 @@ class User extends UserService {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in sign up', });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in signup', });
         }
     };
 
@@ -48,7 +48,7 @@ class User extends UserService {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in login', });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in login', });
         }
     };
 
@@ -72,7 +72,7 @@ class User extends UserService {
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in get user', });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
         }
     };
 
@@ -91,20 +91,20 @@ class User extends UserService {
      * @author Keith
      */
     logOutUser = async (req: Request, res: Response): Promise<void> => {
-    try{
-        if(!req.validated_user_data?.id){
-            throw new Error("User ID not found");
+        try{
+            if(!req.validated_user_data?.id){
+                throw new Error("User ID not found");
+            }
+        
+            const user_service = new UserService();
+            const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({ id: req.validated_user_data.id } as GetUserById);
+        
+            res.json(response_data);
+        } 
+        catch(error){
+            res.json({  ...RESPONSE_DATA_DEFAULT_VALUE,  error: (error as Error).message || 'error in logout',  });
         }
-
-        const user_service = new UserService();
-        const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({ id: req.validated_user_data.id } as GetUserById);
-
-        res.json(response_data);
-    } 
-    catch(error){
-        res.json({  ...RESPONSE_DATA_DEFAULT_VALUE,  error: 'Error in logging out user', });
-    }
-};
+    };
 
 
 
