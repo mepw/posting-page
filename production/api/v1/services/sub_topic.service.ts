@@ -5,10 +5,10 @@ import SubTopic from "../models/sub_topic.model";
 
 class UserSubTopic{
     /**
-     * DOCU: This function handles creating a new comment record in the database. <br>
+     * DOCU: This function handles creating a new comment record in the database. 
      *       It validates the input, calls the CommentModel to insert the comment, and
-     *       returns the result along with a status. If an error occurs, the response contains the error message. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       returns the result along with a status. If an error occurs, the response contains the error message. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing comment data and user_id
      * @returns response_data - JSON containing status, created comment result, and/or error message
      * @author Keith
@@ -52,11 +52,11 @@ class UserSubTopic{
     };
 
     /**
-     * DOCU: This function retrieves all sub-topic records from the database. <br>
+     * DOCU: This function retrieves all sub-topic records from the database. 
      *       It creates a SubTopic instance, fetches all fields of sub-topic records,
      *       and returns them along with a status. If an error occurs, the response
-     *       contains the error message. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       contains the error message. 
+     * Last updated at: Dec 3, 2025 
      * @returns response_data - JSON containing status, an array of sub-topic records, and/or error message
      * @author Keith
      */
@@ -82,11 +82,11 @@ class UserSubTopic{
     };
     
     /**
-     * DOCU: This function deletes a sub-topic record based on the provided ID. <br>
+     * DOCU: This function deletes a sub-topic record based on the provided ID. 
      *       It validates the input, calls the SubTopic model to delete the record,
      *       and returns a boolean result along with a status. If deletion fails or
-     *       an error occurs, the response contains the error message. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       an error occurs, the response contains the error message. 
+     * Last updated at: Dec 3, 2025 
      * @param params - Object containing the ID of the sub-topic to be deleted
      * @returns response_data - JSON containing status, deletion result (true/false), and/or error message
      */

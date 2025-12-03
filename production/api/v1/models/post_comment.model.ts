@@ -5,10 +5,10 @@ import { CreatePostComment } from "../entities/types/comment.type";
 
 class PostComment extends DatabaseModel {
     /**
-     * DOCU: This function inserts a new comment into the database. <br>
+     * DOCU: This function inserts a new comment into the database. 
      *       It formats the SQL insert statement with the provided comment data,
-     *       executes the query, and returns the inserted comment ID along with the user ID. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       executes the query, and returns the inserted comment ID along with the user ID. 
+     * Last updated at: Nov 20, 2025 
      * @param post_comments - Object containing user_id, post_id, and comment text
      * @returns Object containing user_id (optional) and comment_id of the newly inserted comment
      * @author Keith

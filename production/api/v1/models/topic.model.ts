@@ -8,10 +8,10 @@ const USE_READ_REPLICA = false;
 
 class PostComment extends DatabaseModel {
     /**
-     * DOCU: This function inserts a new comment into the database. <br>
+     * DOCU: This function inserts a new comment into the database. 
      *       It formats the SQL insert statement with the provided comment data,
-     *       executes the query, and returns the inserted comment ID along with the user ID. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       executes the query, and returns the inserted comment ID along with the user ID. 
+     * Last updated at: Nov 20, 2025 
      * @param post_comments - Object containing user_id, post_id, and comment text
      * @returns Object containing user_id (optional) and comment_id of the newly inserted comment
      * @author Keith
@@ -31,12 +31,12 @@ class PostComment extends DatabaseModel {
     };
     
     /**
-     * DOCU: This function fetches topics from the `user_stories.topics` table. <br>
+     * DOCU: This function fetches topics from the `user_stories.topics` table. 
      *       It dynamically constructs a SQL SELECT query based on the provided parameters,
      *       including optional joins, filtering, grouping, ordering, limiting, offsetting, 
-     *       and Common Table Expressions (CTEs). <br>
-     *       The query is executed using a read replica by default. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       and Common Table Expressions (CTEs). 
+     *       The query is executed using a read replica by default. 
+     * Last updated at: Dec 3, 2025 
      * @template FetchFieldType - Type of the returned query row, extending QueryResultRow
      * @param params - Object containing optional query parameters:
      *                 fields_to_select: string of columns to select (default "*")
@@ -85,12 +85,12 @@ class PostComment extends DatabaseModel {
         const result = await this.executeQuery<FetchFieldType>(query, values, USE_READ_REPLICA);
         return { new_topics: result.rows };
     };
-    
+
     /**
-     * DOCU: This function deletes topics from the `user_stories.topics` table. <br>
+     * DOCU: This function deletes topics from the `user_stories.topics` table. 
      *       It constructs a SQL DELETE statement using the provided WHERE clause and values,
-     *       executes the query, and returns a boolean indicating whether any rows were deleted. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       executes the query, and returns a boolean indicating whether any rows were deleted. 
+     * Last updated at: Dec 3, 2025 
      * @param where_params - SQL WHERE clause string to identify which topics to delete
      * @param where_values - Array of values for the WHERE clause placeholders
      * @returns Boolean indicating whether at least one row was deleted (true) or not (false)
@@ -103,7 +103,6 @@ class PostComment extends DatabaseModel {
 
         return !!delete_user_post.rowCount;
     };
-
 
 }
 

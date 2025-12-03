@@ -6,10 +6,10 @@ import DatabaseModel from "./database.model";
 
 class UserModel extends DatabaseModel{
     /**
-     * DOCU: This function fetches users from the database. <br>
+     * DOCU: This function fetches users from the database. 
      *       It constructs a SELECT query based on optional fields and WHERE conditions,
-     *       executes the query, and returns the resulting user rows. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       executes the query, and returns the resulting user rows. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Optional object containing select fields and where clauses
      * @returns Object containing an array of users matching the query
      * @author Keith
@@ -25,10 +25,10 @@ class UserModel extends DatabaseModel{
     };
 
     /**
-     * DOCU: This function inserts a new user record into the database. <br>
+     * DOCU: This function inserts a new user record into the database. 
      *       It formats the SQL insert statement with provided user details, executes the query,
-     *       and returns the newly inserted user ID. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       and returns the newly inserted user ID. 
+     * Last updated at: Nov 20, 2025 
      * @param user_details - Object containing first_name, last_name, email, and hashed password
      * @returns Object containing the newly created user ID as user_id
      * @author Keith

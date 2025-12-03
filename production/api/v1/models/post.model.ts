@@ -8,9 +8,9 @@ const USE_READ_REPLICA = false;
 
 class PostModel extends DatabaseModel {
     /**
-     * DOCU: This function fetches posts from the database with optional filtering, joining, grouping, ordering, and pagination. <br>
-     *       It constructs a dynamic SQL query based on provided parameters and returns the result rows. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     * DOCU: This function fetches posts from the database with optional filtering, joining, grouping, ordering, and pagination. 
+     *       It constructs a dynamic SQL query based on provided parameters and returns the result rows. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing select fields, join statements, where clauses, group/order clauses, limit, offset, and CTE
      * @returns Object containing an array of posts matching the query
      * @template FetchFieldType - Type of each post row returned from the query
@@ -52,10 +52,10 @@ class PostModel extends DatabaseModel {
     };
 
     /**
-     * DOCU: This function inserts a new post into the database. <br>
+     * DOCU: This function inserts a new post into the database. 
      *       It formats the SQL insert statement with the provided post details,
-     *       executes the query, and returns the inserted post ID. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       executes the query, and returns the inserted post ID. 
+     * Last updated at: Nov 20, 2025 
      * @param post_details - Object containing user_id, title, and description
      * @returns Object containing the newly inserted post ID as title_id
      * @author Keith
@@ -75,9 +75,9 @@ class PostModel extends DatabaseModel {
     };
 
     /**
-     * DOCU: This function updates an existing post. <br>
-     *       It executes an update query with the provided set and where clauses and values, and returns a boolean indicating success. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     * DOCU: This function updates an existing post. 
+     *       It executes an update query with the provided set and where clauses and values, and returns a boolean indicating success. 
+     * Last updated at: Nov 20, 2025 
      * @param set_fields - SQL SET clause string
      * @param where_params - SQL WHERE clause string
      * @param set_values - Array of values corresponding to the SET clause
@@ -96,9 +96,9 @@ class PostModel extends DatabaseModel {
     };
 
     /**
-     * DOCU: This function deletes posts matching the provided WHERE clause. <br>
-     *       It executes a DELETE query and returns a boolean indicating whether any rows were deleted. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     * DOCU: This function deletes posts matching the provided WHERE clause. 
+     *       It executes a DELETE query and returns a boolean indicating whether any rows were deleted. 
+     * Last updated at: Nov 20, 2025 
      * @param where_params - SQL WHERE clause string
      * @param where_values - Array of values corresponding to the WHERE clause
      * @returns boolean - True if deletion affected rows, false otherwise

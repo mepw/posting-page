@@ -44,8 +44,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Creates PostgreSQL connection pool <br>
-     * Triggered: When DatabaseModel is instantiated <br>
+     * DOCU: Creates PostgreSQL connection pool 
+     * Triggered: When DatabaseModel is instantiated 
      * Last Updated Date: << INSERT_DATE >>
      * @param use_replica - Whether to create read replica pool
      * @author << INSERT_NAME >>
@@ -64,8 +64,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Get PostgreSQL connection from pool <br>
-     * Triggered: When query will be executed <br>
+     * DOCU: Get PostgreSQL connection from pool 
+     * Triggered: When query will be executed 
      * Last Updated Date: << INSERT_DATE >>
      * @param use_replica - Whether to use read replica
      * @returns PostgreSQL connection
@@ -99,8 +99,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Executes query with parameterized values <br>
-     * Triggered: By all models <br>
+     * DOCU: Executes query with parameterized values 
+     * Triggered: By all models 
      * Last Updated Date: << INSERT_DATE >>
      * @param query - SQL query with $1, $2 placeholders
      * @param values - Array of values for parameters
@@ -160,8 +160,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Start database transaction <br>
-     * Triggered: By models with multiple queries <br>
+     * DOCU: Start database transaction 
+     * Triggered: By models with multiple queries 
      * Last Updated Date: << INSERT_DATE >>
      * @param use_replica - Use read replica if available
      * @returns Transaction connection
@@ -182,8 +182,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Commit transaction <br>
-     * Triggered: After successful queries <br>
+     * DOCU: Commit transaction 
+     * Triggered: After successful queries 
      * Last Updated Date: << INSERT_DATE >>
      * @param connection - Transaction connection
      * @param force_commit - Force commit in test environment
@@ -212,8 +212,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Rollback transaction <br>
-     * Triggered: On query error <br>
+     * DOCU: Rollback transaction 
+     * Triggered: On query error 
      * Last Updated Date: << INSERT_DATE >>
      * @param error_message - Error description
      * @param connection - Transaction connection
@@ -251,8 +251,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Setup connection listeners <br>
-     * Triggered: On connection established <br>
+     * DOCU: Setup connection listeners 
+     * Triggered: On connection established 
      * Last Updated Date: << INSERT_DATE >>
      * @param pool - PostgreSQL connection pool
      * @author << INSERT_NAME >>
@@ -266,8 +266,8 @@ class DatabaseModel {
     }
 
     /**
-     * DOCU: Handle connection error <br>
-     * Triggered: On connection error <br>
+     * DOCU: Handle connection error 
+     * Triggered: On connection error 
      * Last Updated Date: << INSERT_DATE >>
      * @param error - Error object
      * @author << INSERT_NAME >>

@@ -4,10 +4,10 @@ import PostTopic from "../models/topic.model";
 
 class UserSubTopic{
     /**
-     * DOCU: This function handles creating a new comment record in the database. <br>
+     * DOCU: This function handles creating a new comment record in the database. 
      *       It validates the input, calls the CommentModel to insert the comment, and
-     *       returns the result along with a status. If an error occurs, the response contains the error message. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       returns the result along with a status. If an error occurs, the response contains the error message. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing comment data and user_id
      * @returns response_data - JSON containing status, created comment result, and/or error message
      * @author Keith
@@ -45,11 +45,11 @@ class UserSubTopic{
     };
     
     /**
-     * DOCU: This function fetches all topics from the database. <br>
+     * DOCU: This function fetches all topics from the database. 
      *       It uses the PostTopic model to retrieve all topic records. If no topics are found,
      *       an error is returned. The response includes the status, result (array of topics), 
-     *       and any error message. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       and any error message. 
+     * Last updated at: Dec 3, 2025 
      * @returns response_data - JSON containing status, array of topics (result), and/or error message
      * @author Keith
      */
@@ -77,11 +77,11 @@ class UserSubTopic{
     };
     
     /**
-     * DOCU: This function deletes a specific topic from the database by ID. <br>
+     * DOCU: This function deletes a specific topic from the database by ID. 
      *       It uses the PostTopic model to perform the deletion. If deletion fails, an error 
      *       is returned. The response includes the status, deletion result (true/false), 
-     *       and any error message. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       and any error message. 
+     * Last updated at: Dec 3, 2025 
      * @param params - Object containing the `id` of the topic to be deleted
      * @returns response_data - JSON containing status, deletion result, and/or error message
      * @author Keith

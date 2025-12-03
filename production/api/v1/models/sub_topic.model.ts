@@ -32,9 +32,9 @@ class PostComment extends DatabaseModel {
     /**
      * DOCU: This function fetches records from the `user_stories.sub_topics` table.
      *       It dynamically constructs the SQL SELECT query based on the provided parameters,
-     *       including optional joins, where clauses, grouping, ordering, limits, offsets, and CTEs. <br>
-     *       The query is executed against the database and the resulting rows are returned. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       including optional joins, where clauses, grouping, ordering, limits, offsets, and CTEs. 
+     *       The query is executed against the database and the resulting rows are returned. 
+     * Last updated at: Dec 3, 2025 
      * @template FetchFieldType - The type of the rows to fetch, extending QueryResultRow
      * @param params - Optional object to customize the query:
      *                 - fields_to_select: string of columns to select (default: "*")
@@ -86,13 +86,13 @@ class PostComment extends DatabaseModel {
     
     /**
      * DOCU: This function deletes records from the `user_stories.sub_topics` table
-     *       based on the specified WHERE conditions and their corresponding values. <br>
+     *       based on the specified WHERE conditions and their corresponding values. 
      *       It executes a DELETE SQL query and returns a boolean indicating whether
-     *       any rows were deleted. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       any rows were deleted. 
+     * Last updated at: Dec 3, 2025 
      * @param where_params - String representing the WHERE clause conditions (e.g., "id = $1")
      * @param where_values - Array of values to replace placeholders in the WHERE clause
-     * @returns Boolean indicating if any rows were deleted (true) or not (false) <br>
+     * @returns Boolean indicating if any rows were deleted (true) or not (false) 
      * @author Keith
      */
     deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {

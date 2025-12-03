@@ -10,10 +10,10 @@ import { JWTUserPayload } from "../entities/types/user.type"
 
 class UserService extends DatabaseModel {
     /**
-     * DOCU: This function handles user sign-up. <br>
+     * DOCU: This function handles user sign-up. 
      *       It validates the password, hashes it, checks for existing users,
-     *       creates a new user record via UserModel, and returns the created user along with status. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       creates a new user record via UserModel, and returns the created user along with status. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing user sign-up data (first_name, last_name, email, password, etc.)
      * @returns response_data - JSON containing status, created user result, and/or error message
      * @author Keith
@@ -59,10 +59,10 @@ class UserService extends DatabaseModel {
     }
 
     /**
-     * DOCU: This function handles user login. <br>
+     * DOCU: This function handles user login. 
      *       It fetches the user by email, validates the password, generates access and refresh JWT tokens,
-     *       and returns them along with status. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       and returns them along with status. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing login credentials (email, password)
      * @returns response_data - JSON containing status, login result (access_token, refresh_token), and/or error message
      * @author Keith
@@ -116,9 +116,9 @@ class UserService extends DatabaseModel {
     };
 
     /**
-     * DOCU: This function retrieves user details by user ID. <br>
-     *       It calls the UserModel to fetch the user and returns the user data along with status. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     * DOCU: This function retrieves user details by user ID. 
+     *       It calls the UserModel to fetch the user and returns the user data along with status. 
+     * Last updated at: Nov 20, 2025 
      * @param user_id - ID of the user to retrieve
      * @returns response_data - JSON containing status, user data (or null), and/or error message
      * @author Keith
@@ -149,9 +149,9 @@ class UserService extends DatabaseModel {
     };
 
     /**
-     * DOCU: This function refreshes JWT tokens for a user. <br>
-     *       It fetches the user by ID, generates new access and refresh tokens, and returns them along with status. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     * DOCU: This function refreshes JWT tokens for a user. 
+     *       It fetches the user by ID, generates new access and refresh tokens, and returns them along with status. 
+     * Last updated at: Nov 20, 2025 
      * @param params - Object containing user ID
      * @returns response_data - JSON containing status, refreshed login tokens, and/or error message
      * @author Keith
@@ -189,9 +189,9 @@ class UserService extends DatabaseModel {
     }
 
     /**
-    * DOCU: This function handles user logout. <br>
-    *       It invalidates or clears the user’s active session/token and returns a logout status response. <br>
-    * Last updated at: Nov 20, 2025 <br>
+    * DOCU: This function handles user logout. 
+    *       It invalidates or clears the user’s active session/token and returns a logout status response. 
+    * Last updated at: Nov 20, 2025 
     * @param params - Object containing user ID
     * @returns response_data - JSON containing status, logout confirmation, and/or error message
     * @author Keith

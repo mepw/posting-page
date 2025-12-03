@@ -6,10 +6,10 @@ import { Request, Response } from "express-serve-static-core";
 
 class PostTopicController {
     /**
-     * DOCU: This function creates a new comment for a post. <br>
+     * DOCU: This function creates a new comment for a post. 
      *       It merges the validated user ID with the request body, sends it to the comment service,
-     *       and returns the response as JSON. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       and returns the response as JSON. 
+     * Last updated at: Nov 20, 2025 
      * @param req - Express Request object containing validated user data and comment body
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status, created comment result, and/or error message
@@ -30,9 +30,9 @@ class PostTopicController {
     };
     
     /**
-     * DOCU: This function retrieves all topics from the TopicService. <br>
-     *       It calls the service method `getAllTopic` and returns the response as JSON. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     * DOCU: This function retrieves all topics from the TopicService. 
+     *       It calls the service method `getAllTopic` and returns the response as JSON. 
+     * Last updated at: Dec 3, 2025 
      * @param req - Express Request object
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status, topics list, and/or error message
@@ -51,10 +51,10 @@ class PostTopicController {
     }
     
     /**
-     * DOCU: This function deletes a specific topic. <br>
+     * DOCU: This function deletes a specific topic. 
      *       It retrieves the user ID from validated user data and topic ID from request parameters, 
-     *       calls the TopicService's `deleteTopic` method, and returns the response as JSON. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       calls the TopicService's `deleteTopic` method, and returns the response as JSON. 
+     * Last updated at: Dec 3, 2025 
      * @param req - Express Request object containing validated user data and topic ID in params
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status of deletion and/or error message

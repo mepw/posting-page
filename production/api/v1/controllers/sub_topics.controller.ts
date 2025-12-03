@@ -5,10 +5,10 @@ import { Request, Response } from "express-serve-static-core";
 import { CreateSubTopic, DeleteSubTopicType } from "../entities/types/sub_topic.type";
 class PostSubTopicController {
     /**
-     * DOCU: This function creates a new comment for a post. <br>
+     * DOCU: This function creates a new comment for a post. 
      *       It merges the validated user ID with the request body, sends it to the comment service,
-     *       and returns the response as JSON. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       and returns the response as JSON. 
+     * Last updated at: Nov 20, 2025 
      * @param req - Express Request object containing validated user data and comment body
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status, created comment result, and/or error message
@@ -35,10 +35,10 @@ class PostSubTopicController {
     };
 
     /**
-     * DOCU: This function retrieves all sub-topics. <br>
+     * DOCU: This function retrieves all sub-topics. 
      *       It calls the SubTopicModel service to fetch all sub-topic records
-     *       and returns the result as JSON. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       and returns the result as JSON. 
+     * Last updated at: Dec 3, 2025 
      * @param req - Express Request object
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status, sub-topic list, and/or error message
@@ -57,10 +57,10 @@ class PostSubTopicController {
     }
     
     /**
-     * DOCU: This function deletes a specific sub-topic. <br>
+     * DOCU: This function deletes a specific sub-topic. 
      *       It validates the user ID, extracts the sub-topic ID from the request parameters,
-     *       calls the SubTopicModel service to delete the sub-topic, and returns the result as JSON. <br>
-     * Last updated at: Dec 3, 2025 <br>
+     *       calls the SubTopicModel service to delete the sub-topic, and returns the result as JSON. 
+     * Last updated at: Dec 3, 2025 
      * @param req - Express Request object containing validated user data and sub-topic ID in params
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status of deletion and/or error message

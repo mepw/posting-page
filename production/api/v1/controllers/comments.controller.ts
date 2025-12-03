@@ -3,14 +3,14 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreatePostComment } from "../entities/types/comment.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant";
+
 
 class PostCommentController{
     /**
-     * DOCU: This function creates a new comment for a post. <br>
+     * DOCU: This function creates a new comment for a post. 
      *       It merges the validated user ID with the request body, sends it to the comment service,
-     *       and returns the response as JSON. <br>
-     * Last updated at: Nov 20, 2025 <br>
+     *       and returns the response as JSON. 
+     * Last updated at: Nov 20, 2025 
      * @param req - Express Request object containing validated user data and comment body
      * @param res - Express Response object used to send the JSON response
      * @returns response_data - JSON containing status, created comment result, and/or error message
