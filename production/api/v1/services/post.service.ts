@@ -1,7 +1,6 @@
 import PostModel from "../models/post.model";
 import { CreatePostType, UpdatePostType, DeletePostType } from "../entities/types/post.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
-import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
 class UserPost extends PostModel {
     /**
      * DOCU: This function creates a new post record. <br>
@@ -25,16 +24,20 @@ class UserPost extends PostModel {
             });
 
             if(new_user_post.length){
-                response_data.error = "Title already exists.";
-                return response_data;
+                throw new Error("Post with this title already exists.");
             }
 
             const create_new_post = await post_model.createNewPost(params);
+
+            if(!create_new_post){
+               throw new Error("Failed to create post.");
+            }
+
             response_data.status = true;
             response_data.result = create_new_post;
         }
         catch(error){
-            response_data.error = 'error in service posts';
+            response_data.error = (error as Error).message || 'error in service create post';
         }
 
         return response_data;
@@ -94,16 +97,19 @@ class UserPost extends PostModel {
                 order_by: order_by,
             });
 
+            if(!post_result.new_user_post.length){
+                throw new Error("No posts found.");
+            }
+
             response_data.status = true;
             response_data.result = post_result.new_user_post;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service get all posts';
         }
 
         return response_data;
     };
-
 
     /**
      * DOCU: This function updates an existing post. <br>
@@ -131,7 +137,7 @@ class UserPost extends PostModel {
             post_sub_topic_id: params.post_sub_topic_id ?? undefined,
         };
 
-        try {
+        try{
             const update_post_result = await post_model.updateUserPost(
                 `title = $1, description = $2, topic_id = $3, sub_topic_id = $4`,
                 `id = $5`, 
@@ -147,7 +153,7 @@ class UserPost extends PostModel {
             response_data.result = updated_post;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service update post';
         }
 
         return response_data;
@@ -171,12 +177,16 @@ class UserPost extends PostModel {
                 `id = $1`,
                 [post_id]
             );
+            
+            if(!delete_result){
+                throw new Error("Failed to delete post.");
+            }
 
             response_data.status = true;
             response_data.result = delete_result;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service delete post';
         }
 
         return response_data;

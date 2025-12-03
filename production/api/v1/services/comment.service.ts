@@ -1,7 +1,7 @@
 import { CreatePostComment } from "../entities/types/comment.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import CommentModel from "../models/post_comment.model";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+
 
 class UserComment {
     /**
@@ -19,17 +19,16 @@ class UserComment {
         try {
             const post_comment = new CommentModel();
             const { id, post_id } = await post_comment.createNewComment(params);
+            
+            if(!id || !post_id){
+                throw new Error("Failed to create comment.");
+            }
 
             response_data.status = true;
-            response_data.result = {
-                id,
-                user_id: params.user_id,
-                post_id,     
-                comment: params.comment
-            };
+            response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment };
         } 
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service create comment';
         }
 
         return response_data;

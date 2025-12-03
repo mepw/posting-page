@@ -4,6 +4,6 @@ import UserController from "../controllers/users.controller"
 
 const AuthRoute: Router = Router();
 AuthRoute.get("/user", exec(UserController.getUser));
-AuthRoute.post("/logout", exec(UserController.userLogout));
+AuthRoute.post("/logout", exec(UserController.logOutUser));
 
 export default AuthRoute;

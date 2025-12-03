@@ -26,22 +26,20 @@ class UserSubTopic{
             });
 
             if(new_topics.length){
-                response_data.error = "Title already exists.";
-                return response_data;
+                throw new Error("Topic with this name already exists.");
             }
 
             const { topic_id } = await post_topic_model.createNewTopic(new_user_topic);
 
             if(!topic_id){
-                response_data.error = "Failed to create user record.";
-                return response_data;
+                throw new Error("Failed to create topic.");
             }
 
             response_data.status = true;
             response_data.result = { ...new_user_topic, id: topic_id };
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service create topic';
         }
 
         return response_data;
@@ -56,11 +54,15 @@ class UserSubTopic{
                 fields_to_select: `*`,
             });
 
+            if(!topic_result.new_topics.length){
+                throw new Error("No topics found.");
+            }
+
             response_data.status = true;
             response_data.result = topic_result.new_topics;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service get all topic';
         }
 
         return response_data;
@@ -76,12 +78,16 @@ class UserSubTopic{
                 `id = $1`,
                 [id]
             );
+            
+            if(!delete_topic_result){
+                throw new Error("Failed to delete topic.");
+            }
 
             response_data.status = true;
             response_data.result = delete_topic_result;
         } 
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service delete topic';
         }
 
         return response_data;

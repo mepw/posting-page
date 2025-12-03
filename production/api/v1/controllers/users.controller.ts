@@ -1,6 +1,6 @@
 import { Request, Response } from "express-serve-static-core";
 import UserService from "../services/user.service";
-import { CreateUserParamsTypes } from "../entities/types/user.type";
+import { CreateUserParamsTypes, GetUserById} from "../entities/types/user.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { LoginResponseType } from "../entities/types/session.type";
@@ -21,12 +21,11 @@ class User extends UserService {
     userSignUp = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
 
-        try {
+        try{
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
-            console.log(response_data);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in sign up', });
         }
     };
@@ -44,11 +43,11 @@ class User extends UserService {
     userLogIn = async (req: Request, res: Response): Promise<void> => {
         const user_service = new UserService();
 
-        try {
+        try{
             const response_data: ResponseDataInterface<LoginResponseType> = await user_service.userLogin(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in login', });
         }
     };
@@ -65,17 +64,17 @@ class User extends UserService {
      */
     getUser = async (req: Request, res: Response): Promise<void> => {
         const user_id = req.validated_user_data?.id;
-
-        if (!user_id) {
-            throw new Error("user not found");
+        
+        if(!user_id){
+            throw new Error("User ID not found");
         }
 
-        try {
+        try{
             const user_service = new UserService();
-            const response_data: ResponseDataInterface<CreateUserParamsTypes | null> = await user_service.getUserById(user_id);
+            const response_data: ResponseDataInterface<GetUserById> = await user_service.getUserById({user_id});
             res.json(response_data);
         }
-        catch (error) {
+        catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in get user', });
         }
     };
@@ -94,18 +93,23 @@ class User extends UserService {
      * @returns void - Sends a JSON response containing logout status and/or error message
      * @author Keith
      */
-    userLogout = async (params: { id: number; }): Promise<ResponseDataInterface> => {
-        const user_service = new UserService();
+    logOutUser = async (req: Request, res: Response): Promise<void> => {
+        const user_id = req.validated_user_data?.id;
+        
+        if(!user_id){
+            throw new Error("User ID not found");
+        }
 
         try{
-            const user_id = params.id;
-            const response_data = await user_service.userLogout({ id: user_id });
-            return response_data;
+            const user_service = new UserService();
+            const response_data: ResponseDataInterface<GetUserById> = await user_service.userLogOut({user_id});
+            res.json(response_data);
         }
         catch(error){
-            throw new Error('Error in the logout controller');
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: 'error in get user', });
         }
-    }
+    };
+
 }
 
 export default new User();

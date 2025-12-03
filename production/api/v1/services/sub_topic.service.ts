@@ -1,7 +1,7 @@
 import { CreateSubTopic, DeleteSubTopicType} from "../entities/types/sub_topic.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import SubTopic from "../models/sub_topic.model";
-import {ERROR_CATCH_MESSAGE} from "../../../configs/constants/user_validation.constant"
+
 
 class UserSubTopic{
     /**
@@ -18,10 +18,9 @@ class UserSubTopic{
 
         try{
             const new_sub_topic = { ...params };
-            console.log(params);
+
             if(!new_sub_topic.name){
                 response_data.error = "Sub-Topic Name is required.";
-                return response_data;
             }
 
             const post_topic_model = new SubTopic();
@@ -32,24 +31,21 @@ class UserSubTopic{
             });
 
             if(posts.length){
-                response_data.error = "Title already exists.";
-                return response_data;
+               throw new Error("Sub-Topic with this name already exists.");
             }
 
             const post_sub_topic = new SubTopic();
             const { sub_topic_id } = await post_sub_topic.createNewSubTopic(new_sub_topic);
-            console.log(sub_topic_id);
+            
             if(!sub_topic_id){
-                response_data.error = "Failed to create Sub-Topic record.";
-                return response_data;
+                throw new Error("Failed to create sub-topic.");
             }
 
             response_data.status = true;
             response_data.result = { ...new_sub_topic, id: sub_topic_id };
         }
         catch(error){
-            console.log('check the error ', error);
-            response_data.error = 'error in service sub topic';
+            response_data.error = (error as Error).message || 'error in service sub-topic';
         }
 
         return response_data;
@@ -70,7 +66,7 @@ class UserSubTopic{
             response_data.result = post_result.posts;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+            response_data.error = (error as Error).message || 'error in service get all sub-topic';
         }
 
         return response_data;
@@ -87,12 +83,15 @@ class UserSubTopic{
                 [id]
             );
 
+            if(!delete_result){
+                throw new Error("Failed to delete sub-topic.");
+            }
+
             response_data.status = true;
             response_data.result = delete_result;
         }
         catch(error){
-            response_data.error = ERROR_CATCH_MESSAGE.error;
-
+            response_data.error = (error as Error).message || 'error in service delete sub-topic';
         }
 
         return response_data;

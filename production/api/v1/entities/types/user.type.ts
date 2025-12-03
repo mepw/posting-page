@@ -1,3 +1,5 @@
+
+
 export type CreateUserParamsTypes = {
     id: number;
     first_name: string;
@@ -7,6 +9,10 @@ export type CreateUserParamsTypes = {
     user_level_id: number;
 }
 
+export type GetUserById = {
+    user_id: number;
+}
+
 export type VerifyLoginParamsTypes = {
     email: string,
     password: string,
@@ -14,5 +20,9 @@ export type VerifyLoginParamsTypes = {
 }
 
 export type JWTUserPayload = {
+    id: number;
+};
+
+export type LogoutParamsType = {
     id: number;
 };

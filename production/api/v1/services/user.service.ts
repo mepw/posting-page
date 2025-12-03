@@ -1,13 +1,12 @@
 import bcrypt from "bcryptjs";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
-import { CreateUserParamsTypes, VerifyLoginParamsTypes } from "../entities/types/user.type";
+import { CreateUserParamsTypes, VerifyLoginParamsTypes, LogoutParamsType, GetUserById} from "../entities/types/user.type";
 import UserModel from "../models/user.model";
 import DatabaseModel from "../models/database.model";
 import { LoginResponseType } from "../entities/types/session.type";
-import { BCRYPT, JWT } from "../../../configs/constants/env.constant";
+import {  JWT } from "../../../configs/constants/env.constant";
 import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
-import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
 
 class UserService extends DatabaseModel {
     /**
@@ -21,12 +20,12 @@ class UserService extends DatabaseModel {
      */
     signUpUser = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
-        try {
+        
+        try{
             const create_new_user = { ...params, user_level_id: 2 };
 
-            if (!create_new_user.password) {
-                response_data.error = "Password is required.";
-                return response_data;
+            if(!create_new_user.password) {
+                throw new Error("Password is required.");
             }
 
             create_new_user.password = await bcrypt.hash(create_new_user.password, 10);
@@ -37,23 +36,22 @@ class UserService extends DatabaseModel {
                 where_values: [create_new_user.email]
             });
 
-            if (user_data.length) {
-                response_data.error = "User already exists.";
-                return response_data;
+            if(user_data.length){
+                throw new Error("User with this email already exists.");
             }
 
             const { user_id } = await user_model.createNewUserRecord(create_new_user);
 
-            if (!user_id) {
-                response_data.error = "Failed to create user record.";
-                return response_data;
+            if(user_id){
+                response_data.status = true;
+                response_data.result = { ...create_new_user, id: user_id };
+            } 
+            else{
+                throw new Error("Failed to create user.");
             }
-
-            response_data.status = true;
-            response_data.result = { ...create_new_user, id: user_id };
         }
-        catch (error) {
-            response_data.error = 'error in service users';
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service signupuser';
         }
 
         return response_data;
@@ -71,7 +69,7 @@ class UserService extends DatabaseModel {
     userLogin = async (params: VerifyLoginParamsTypes): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const userModel = new UserModel();
 
             const { user_data: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
@@ -80,19 +78,17 @@ class UserService extends DatabaseModel {
                 where_values: [params.email]
             });
 
-            if (!user) {
-                response_data.error = "No user credentials Found";
-                return response_data;
+            if(!user){
+                throw new Error("User not found");
             }
 
             const password_match = await bcrypt.compare(params.password, user.password!);
 
-            if (!password_match) {
-                response_data.error = "Password not match to user email";
-                return response_data;
+            if(!password_match){
+                throw new Error("Password mismatch");
             }
 
-            if (!JWT || !JWT.access || !JWT.refresh) {
+            if(!JWT || !JWT.access || !JWT.refresh){
                 throw new Error("JWT missing");
             }
 
@@ -111,8 +107,8 @@ class UserService extends DatabaseModel {
                 refresh_token: generateJWTAuthToken({ id: user.id } as JWTUserPayload, refresh)
             };
         }
-        catch (error) {
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service userlogin';
         }
 
         return response_data;
@@ -126,26 +122,26 @@ class UserService extends DatabaseModel {
      * @returns response_data - JSON containing status, user data (or null), and/or error message
      * @author Keith
      */
-    getUserById = async (user_id: number): Promise<ResponseDataInterface<CreateUserParamsTypes>> => {
-        const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
+    getUserById = async (params: GetUserById): Promise<ResponseDataInterface<GetUserById>> => {
+        const response_data: ResponseDataInterface<GetUserById> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const user_model = new UserModel();
-            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
+            const { user_data } = await user_model.fetchUser<GetUserById>({
                 where_params: "id = $1",
-                where_values: [user_id],
+                where_values: [params.user_id],
             });
 
-            if (user_data.length) {
+            if(user_data.length){
                 response_data.status = true;
                 response_data.result = user_data[0];
             }
-            else {
-                response_data.error = "User not found";
+            else{
+                throw new Error("User not found.");
             }
         }
-        catch (error) {
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service getuserbyid';
         }
 
         return response_data;
@@ -159,10 +155,10 @@ class UserService extends DatabaseModel {
      * @returns response_data - JSON containing status, refreshed login tokens, and/or error message
      * @author Keith
      */
-    refreshToken = async (params: { id: number }): Promise<ResponseDataInterface<LoginResponseType>> => {
+    refreshToken = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<LoginResponseType>> => {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const user_model = new UserModel();
             const { user_data: [user] } = await user_model.fetchUser<CreateUserParamsTypes>({
                 fields_to_select: "id, first_name, last_name, email",
@@ -170,7 +166,7 @@ class UserService extends DatabaseModel {
                 where_values: [params.id]
             });
 
-            if (user?.id) {
+            if(user.id){
                 const { access, refresh } = JWT;
 
                 response_data.status = true;
@@ -180,12 +176,12 @@ class UserService extends DatabaseModel {
                     refresh_token: generateJWTAuthToken({ id: user.id }, refresh),
                 }
             }
-            else {
-                response_data.error = "User not found.";
+            else{
+                throw new Error("User not found.");
             }
         }
-        catch (error) {
-            response_data.error = ERROR_CATCH_MESSAGE.error;
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service refreshtoken';
         }
 
         return response_data;
@@ -199,30 +195,32 @@ class UserService extends DatabaseModel {
     * @returns response_data - JSON containing status, logout confirmation, and/or error message
     * @author Keith
     */
-    userLogout = async (params: { id: number }): Promise<ResponseDataInterface> => {
-        const response_data: ResponseDataInterface = { status: false, error: null, result: undefined };
-        
+    userLogOut = async (params: GetUserById): Promise<ResponseDataInterface<GetUserById>> => {
+        const response_data: ResponseDataInterface<GetUserById> = { status: false, error: null, result: undefined };
+
         try{
             const user_model = new UserModel();
-            const { user_data: [user] } = await user_model.fetchUser({
-                fields_to_select: `id, first_name, last_name, email`,
-                where_params: `id = $1`,
-                where_values: [params.id]
+            const { user_data } = await user_model.fetchUser<GetUserById>({
+                where_params: "id = $1",
+                where_values: [params.user_id],
             });
 
-            if(!user.id){
-                response_data.error = "User not found.";
-                return response_data;
+            if(user_data.length){
+                response_data.status = true;
+                response_data.result = user_data[0];
             }
-
-            response_data.status = true;
-            return response_data;
-        } 
-        catch(error){
-            response_data.error = (error as Error).message || 'error in service userlogout';
-            return response_data;
+            else{   
+                throw new Error("User not found.");
+            }
         }
-    }
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service getuserbyid';
+        }
+
+        return response_data;
+    };
+
+
 }
 
 export default UserService;
