@@ -8,7 +8,8 @@ export const validateSignUpUser = (req: Request, res: Response, next: NextFuncti
         first_name: z.string().regex(REGEX.name_format, { message: "First name must not contain special characters." }),
         last_name: z.string().regex(REGEX.name_format, { message: "Last name must not contain special characters." }),
         email: z.string().email({ message: "Invalid email address." }),
-        password: z.string().min(6, { message: "Password must be at least 6 characters long." })
+        password: z.string().min(6, { message: "Password must be at least 6 characters long." }),
+        hobbies: z.array(z.string()),
     });
 
     const validation_result = sign_up_user_schema.safeParse(req.body);

@@ -1,10 +1,10 @@
 import { SelectQueryInterface } from "../entities/interfaces/model.interface"
-import { Pool, QueryResultRow } from 'pg';
+import { QueryResultRow } from 'pg';
 import { CreateUserParamsTypes } from "../entities/types/user.type"
 import format from "pg-format";
 import DatabaseModel from "./database.model";
 
-class UserModel extends DatabaseModel {
+class UserModel extends DatabaseModel{
     /**
      * DOCU: This function fetches users from the database. <br>
      *       It constructs a SELECT query based on optional fields and WHERE conditions,
@@ -35,10 +35,17 @@ class UserModel extends DatabaseModel {
      */
     createNewUserRecord = async(
         user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
-        const user_values = [[ user_details.first_name, user_details.last_name, user_details.email, user_details.password, user_details.user_level_id ] ];
+        const user_values = [[ 
+            user_details.first_name, 
+            user_details.last_name, 
+            user_details.email, 
+            user_details.password, 
+            user_details.user_level_id, 
+            JSON.stringify(user_details.hobbies)] 
+        ];
 
         const insert_user_details = format(`
-            INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id)
+            INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id, hobbies)
             VALUES %L
             RETURNING *;
             `, user_values

@@ -30,6 +30,7 @@ class UserService extends DatabaseModel {
 
             create_new_user.password = await bcrypt.hash(create_new_user.password, 10);
             const user_model = new UserModel();
+
             const { user_data } = await user_model.fetchUser<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `email = $1`,

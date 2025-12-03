@@ -1,6 +1,77 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// HobbiesInput component
+function HobbiesInput({ hobbies, setHobbies }) {
+    const [inputValue, setInputValue] = useState("");
+
+    const handleAddHobby = (e) => {
+        e.preventDefault();
+        const value = inputValue.trim();
+        if (value && typeof value === "string" && !hobbies.includes(value)) {
+            setHobbies([...hobbies, value]);
+        }
+        setInputValue("");
+    };
+
+    const handleRemoveHobby = (hobbyToRemove) => {
+        setHobbies(hobbies.filter((hobby) => hobby !== hobbyToRemove));
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handleAddHobby(e);
+        }
+    };
+
+    return (
+        <div style={{ marginBottom: "10px" }}>
+            <label>Hobbies:</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", margin: "5px 0" }}>
+                {hobbies.map((hobby, idx) => (
+                    <div
+                        key={idx}
+                        style={{
+                            background: "#e0e0e0",
+                            padding: "5px 10px",
+                            borderRadius: "15px",
+                            display: "flex",
+                            alignItems: "center",
+                        }}
+                    >
+                        <span>{hobby}</span>
+                        <button
+                            type="button"
+                            onClick={() => handleRemoveHobby(hobby)}
+                            style={{
+                                marginLeft: "5px",
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
+                ))}
+            </div>
+            <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type a hobby and press Enter"
+                style={{ width: "100%", padding: "5px" }}
+            />
+            <button type="button" onClick={handleAddHobby} style={{ marginTop: "5px" }}>
+                Add Hobby
+            </button>
+        </div>
+    );
+}
+
+// Main Register component
 export default function Register() {
     const navigate = useNavigate();
 
@@ -8,6 +79,7 @@ export default function Register() {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [hobbies, setHobbies] = useState([]); // array of strings
     const [errors, setErrors] = useState([]);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
@@ -19,8 +91,12 @@ export default function Register() {
         setMessage("");
         setLoading(true);
 
-
         try {
+            // Validate hobbies: ensure only strings and remove empty
+            const validHobbies = hobbies
+                .map((h) => h.trim())
+                .filter((h) => h.length > 0);
+
             const res = await fetch("/api/v1/unauth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -29,7 +105,8 @@ export default function Register() {
                     last_name: lastName,
                     email,
                     password,
-                    user_level_id: 2, 
+                    user_level_id: 2,
+                    hobbies 
                 }),
             });
 
@@ -47,10 +124,8 @@ export default function Register() {
                 return;
             }
 
-            // Success message from backend
             setMessage(data.message || "Registration successful! Redirecting to login...");
 
-            // Redirect after 2 sec
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
@@ -85,6 +160,7 @@ export default function Register() {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
+                        required
                     />
                 </div>
 
@@ -94,6 +170,7 @@ export default function Register() {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                        required
                     />
                 </div>
 
@@ -103,6 +180,7 @@ export default function Register() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        required
                     />
                 </div>
 
@@ -112,8 +190,12 @@ export default function Register() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
                     />
                 </div>
+
+                {/* Dynamic Hobbies Input */}
+                <HobbiesInput hobbies={hobbies} setHobbies={setHobbies} />
 
                 <button type="submit" disabled={loading}>
                     {loading ? "Registering..." : "Register"}

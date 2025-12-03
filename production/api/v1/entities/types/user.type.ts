@@ -7,6 +7,7 @@ export type CreateUserParamsTypes = {
     email: string;
     password: string;
     user_level_id: number;
+    hobbies: string[];
 }
 
 export type GetUserById = {

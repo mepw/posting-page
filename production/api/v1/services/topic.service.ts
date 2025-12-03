@@ -1,7 +1,6 @@
 import { CreateTopic, DeleteTopicType } from "../entities/types/topic.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import PostTopic from "../models/topic.model";
-import { ERROR_CATCH_MESSAGE } from "../../../configs/constants/user_validation.constant"
 
 class UserSubTopic{
     /**
@@ -78,7 +77,7 @@ class UserSubTopic{
                 `id = $1`,
                 [id]
             );
-            
+
             if(!delete_topic_result){
                 throw new Error("Failed to delete topic.");
             }
