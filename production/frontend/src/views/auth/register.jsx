@@ -1,15 +1,35 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// HobbiesInput component
+// HobbiesInput component with preset suggestions
 function HobbiesInput({ hobbies, setHobbies }) {
     const [inputValue, setInputValue] = useState("");
+
+    // Suggested hobbies
+    const suggestedHobbies = [
+        "Playing basketball",
+        "Playing chess",
+        "Eating",
+        "Reading books",
+        "Traveling",
+        "Watching movies",
+        "Cooking",
+        "Gaming",
+        "Drawing",
+        "Swimming"
+    ];
+
+    const addHobby = (hobby) => {
+        if (hobby && !hobbies.includes(hobby)) {
+            setHobbies([...hobbies, hobby]);
+        }
+    };
 
     const handleAddHobby = (e) => {
         e.preventDefault();
         const value = inputValue.trim();
         if (value && typeof value === "string" && !hobbies.includes(value)) {
-            setHobbies([...hobbies, value]);
+            addHobby(value);
         }
         setInputValue("");
     };
@@ -27,6 +47,8 @@ function HobbiesInput({ hobbies, setHobbies }) {
     return (
         <div style={{ marginBottom: "10px" }}>
             <label>Hobbies:</label>
+
+            {/* Selected hobbies */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", margin: "5px 0" }}>
                 {hobbies.map((hobby, idx) => (
                     <div
@@ -56,17 +78,29 @@ function HobbiesInput({ hobbies, setHobbies }) {
                     </div>
                 ))}
             </div>
-            <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type a hobby and press Enter"
-                style={{ width: "100%", padding: "5px" }}
-            />
-            <button type="button" onClick={handleAddHobby} style={{ marginTop: "5px" }}>
-                Add Hobby
-            </button>
+
+            {/* Suggested hobbies */}
+            <div style={{ marginBottom: "10px" }}>
+                <p style={{ margin: 0 }}>Suggested hobbies:</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginTop: "5px" }}>
+                    {suggestedHobbies.map((hobby, idx) => (
+                        <button
+                            key={idx}
+                            type="button"
+                            onClick={() => addHobby(hobby)}
+                            style={{
+                                background: "#f5f5f5",
+                                border: "1px solid #ccc",
+                                padding: "5px 10px",
+                                borderRadius: "12px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {hobby}
+                        </button>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }
@@ -92,10 +126,7 @@ export default function Register() {
         setLoading(true);
 
         try {
-            // Validate hobbies: ensure only strings and remove empty
-            const validHobbies = hobbies
-                .map((h) => h.trim())
-                .filter((h) => h.length > 0);
+            const validHobbies = hobbies.map((h) => h.trim()).filter((h) => h.length > 0);
 
             const res = await fetch("/api/v1/unauth/signup", {
                 method: "POST",
@@ -106,7 +137,7 @@ export default function Register() {
                     email,
                     password,
                     user_level_id: 2,
-                    hobbies 
+                    hobbies: validHobbies,
                 }),
             });
 

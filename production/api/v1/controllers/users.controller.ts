@@ -79,6 +79,17 @@ class User extends UserService {
 
     };
 
+    getAllUser = async (req: Request, res: Response): Promise<void> => {
+        try{
+            const user_service = new UserService();
+            const response_data: ResponseDataInterface<CreateUserParamsTypes[]> = await user_service.getAllUsers({} as CreateUserParamsTypes);
+            res.json(response_data);
+        }
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:(error as Error).message || 'error in getting users', });
+        }
+    };
+
     /**
      * DOCU: Logout controller to process user logout requests. 
      *       This function extracts the authenticated user's ID from
@@ -147,7 +158,7 @@ class User extends UserService {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
         }
     };
-
+    
 }
 
 export default new User();

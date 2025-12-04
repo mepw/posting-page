@@ -149,6 +149,29 @@ class UserService extends DatabaseModel {
         return response_data;
     };
 
+    getAllUsers = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes[]>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes[]> = { status: false, error: null, result: undefined };
+
+        try{
+            const user_model = new UserModel();
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
+                fields_to_select: "*",
+            });
+            
+            if(user_data.length){
+                response_data.status = true;
+                response_data.result = user_data;
+            }
+            else{
+                throw new Error("User not found.");
+            }
+        }
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service getuserbyid';
+        }
+
+        return response_data;
+    };
     /**
      * DOCU: This function refreshes JWT tokens for a user. 
      *       It fetches the user by ID, generates new access and refresh tokens, and returns them along with status. 

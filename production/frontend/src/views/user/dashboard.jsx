@@ -40,6 +40,38 @@ export default function Dashboard() {
     const [editEmail, setEditEmail] = useState("");
     const [editPassword, setEditPassword] = useState("");
     const [editHobbies, setEditHobbies] = useState([]);
+    // --- New states for All Users ---
+    const [allUsers, setAllUsers] = useState([]);
+    const [userFilter, setUserFilter] = useState("");
+
+    // --- Fetch all users on init ---
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const res = await fetchWithToken("/user/all");
+                const data = await res.json();
+                if (res.ok && Array.isArray(data.result)) {
+                    setAllUsers(data.result);
+                }
+            } catch {
+                setErrors(prev => [...prev, "Failed to fetch all users"]);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    // --- Filtered users ---
+    const filteredUsers = allUsers.filter((u) => {
+        const search = userFilter.toLowerCase();
+        const nameMatch =
+            (u.first_name && u.first_name.toLowerCase().includes(search)) ||
+            (u.last_name && u.last_name.toLowerCase().includes(search));
+        const emailMatch = u.email && u.email.toLowerCase().includes(search);
+        const hobbiesMatch =
+            Array.isArray(u.hobbies) &&
+            u.hobbies.some((h) => h.toLowerCase().includes(search));
+        return nameMatch || emailMatch || hobbiesMatch;
+    });
 
     // --- Fetch with token ---
     const fetchWithToken = async (url, options = {}) => {
@@ -481,6 +513,26 @@ export default function Dashboard() {
                     <option value="title_desc">Title DESCENDING</option>
                 </select>
             </div>
+            {/* --- All Users Section --- */}
+            <div style={{ marginTop: "40px" }}>
+                <h2>All Users</h2>
+                <input
+                    type="text"
+                    placeholder="Search by name, email, or hobbies..."
+                    value={userFilter}
+                    onChange={(e) => setUserFilter(e.target.value)}
+                    style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+                />
+                <ul>
+                    {filteredUsers.map((u) => (
+                        <li key={u.id} style={{ marginBottom: "5px" }}>
+                            {u.first_name} {u.last_name} — {u.email}{" "}
+                            {u.hobbies ? `| Hobbies: ${u.hobbies.join(", ")}` : ""}
+                        </li>
+                    ))}
+                    {filteredUsers.length === 0 && <p>No users match your search.</p>}
+                </ul>
+            </div>
 
             {/* --- Modals --- */}
             {modalOpenTopic && (
@@ -614,82 +666,82 @@ export default function Dashboard() {
             )}
 
             {/* --- Display Posts --- */}
-<div style={{ marginTop: "20px" }}>
-    {sortedPosts.map((post) => (
-        <div
-            key={post.post_id}
-            style={{
-                border: "1px solid gray",
-                padding: "10px",
-                margin: "10px 0"
-            }}
-        >
-            <h3>{post.title}</h3>
-            <p>{post.description}</p>
-            <p>
-                Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "-"}
-            </p>
-
-            {/* --- ALWAYS VISIBLE EDIT BUTTON --- */}
-            <button
-                onClick={() => {
-                    setEditingPostId(post.post_id);
-                    setPostTitle(post.title);
-                    setPostDesc(post.description);
-                    setSelectedTopic(post.topic_id);
-                    setSelectedSubTopic(post.subtopic_id);
-                    setModalOpenPost(true);
-                }}
-            >
-                Edit Post
-            </button>
-
-            {/* --- ALWAYS VISIBLE DELETE BUTTON --- */}
-            <button onClick={() => handleDeletePost(post.post_id)}>
-                Delete Post
-            </button>
-
-            <div style={{ marginTop: "10px" }}>
-                <h4>Comments</h4>
-
-                {post.comments.map((c) => (
+            <div style={{ marginTop: "20px" }}>
+                {sortedPosts.map((post) => (
                     <div
-                        key={c.comment_id}
+                        key={post.post_id}
                         style={{
-                            display: "flex",
-                            justifyContent: "space-between"
+                            border: "1px solid gray",
+                            padding: "10px",
+                            margin: "10px 0"
                         }}
                     >
-                        <span>
-                            {c.comment_text} - {c.comment_user_first_name}
-                        </span>
+                        <h3>{post.title}</h3>
+                        <p>{post.description}</p>
+                        <p>
+                            Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "-"}
+                        </p>
 
-                        {user?.id === c.comment_user_id && (
-                            <button
-                                onClick={() =>
-                                    handleDeleteComment(c.comment_id)
+                        {/* --- ALWAYS VISIBLE EDIT BUTTON --- */}
+                        <button
+                            onClick={() => {
+                                setEditingPostId(post.post_id);
+                                setPostTitle(post.title);
+                                setPostDesc(post.description);
+                                setSelectedTopic(post.topic_id);
+                                setSelectedSubTopic(post.subtopic_id);
+                                setModalOpenPost(true);
+                            }}
+                        >
+                            Edit Post
+                        </button>
+
+                        {/* --- ALWAYS VISIBLE DELETE BUTTON --- */}
+                        <button onClick={() => handleDeletePost(post.post_id)}>
+                            Delete Post
+                        </button>
+
+                        <div style={{ marginTop: "10px" }}>
+                            <h4>Comments</h4>
+
+                            {post.comments.map((c) => (
+                                <div
+                                    key={c.comment_id}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between"
+                                    }}
+                                >
+                                    <span>
+                                        {c.comment_text} - {c.comment_user_first_name}
+                                    </span>
+
+                                    {user?.id === c.comment_user_id && (
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteComment(c.comment_id)
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+
+                            <input
+                                placeholder="Add comment"
+                                value={newComments[post.post_id] || ""}
+                                onChange={(e) =>
+                                    handleCommentChange(post.post_id, e.target.value)
                                 }
-                            >
-                                Delete
+                            />
+                            <button onClick={() => handleCommentSubmit(post.post_id)}>
+                                Add Comment
                             </button>
-                        )}
+                        </div>
                     </div>
                 ))}
-
-                <input
-                    placeholder="Add comment"
-                    value={newComments[post.post_id] || ""}
-                    onChange={(e) =>
-                        handleCommentChange(post.post_id, e.target.value)
-                    }
-                />
-                <button onClick={() => handleCommentSubmit(post.post_id)}>
-                    Add Comment
-                </button>
             </div>
-        </div>
-    ))}
-</div>
 
         </div>
     );
