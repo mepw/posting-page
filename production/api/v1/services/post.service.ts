@@ -100,9 +100,10 @@ class UserPost extends PostModel {
             if(!post_result.new_user_post.length){
                 throw new Error("No posts found.");
             }
-
-            response_data.status = true;
-            response_data.result = post_result.new_user_post;
+            else{
+                response_data.status = true;
+                response_data.result = post_result.new_user_post;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service get all posts';
@@ -122,9 +123,9 @@ class UserPost extends PostModel {
      */
     updatePost = async (params: UpdatePostType): Promise<ResponseDataInterface<UpdatePostType>> => {
         const response_data: ResponseDataInterface<UpdatePostType> = { status: false, error: null, result: undefined };
-        const post_model = new PostModel();
 
         try{
+            const post_model = new PostModel();
             const update_post_result = await post_model.updateUserPost(
                 `title = $1, description = $2, topic_id = $3, sub_topic_id = $4`,
                 `id = $5`, 
@@ -135,9 +136,10 @@ class UserPost extends PostModel {
             if(!update_post_result){
                 throw new Error("update not successful");
             }
-
-            response_data.status = true;
-            response_data.result = params;
+            else{
+                response_data.status = true;
+                response_data.result = params;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service update post';
@@ -156,13 +158,12 @@ class UserPost extends PostModel {
      */
     deleteUserPost = async (params: DeletePostType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
-        const post_model = new PostModel();
-        const post_id = params.id;
 
         try{
+            const post_model = new PostModel();
             const delete_result = await post_model.deletePost(
                 `id = $1`,
-                [post_id]
+                [params.id]
             );
             
             if(!delete_result){

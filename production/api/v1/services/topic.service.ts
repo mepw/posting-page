@@ -92,10 +92,9 @@ class UserSubTopic{
         
         try{
             const topic_model = new PostTopic();
-            const id = params.topic_id;
             const delete_topic_result = await topic_model.deleteTopic(
                 `id = $1`,
-                [id]
+                [params.topic_id]
             );
 
             if(!delete_topic_result){

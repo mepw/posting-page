@@ -17,17 +17,11 @@ class UserSubTopic{
         const response_data: ResponseDataInterface<CreateSubTopic> = { status: false, error: null, result: undefined };
 
         try{
-            const new_sub_topic = { ...params };
-
-            if(!new_sub_topic.name){
-                response_data.error = "Sub-Topic Name is required.";
-            }
-
             const post_topic_model = new SubTopic();
             const { posts } = await post_topic_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `name = $1`,
-                where_values: [new_sub_topic.name]
+                where_values: [params.name]
             });
 
             if(posts.length){
@@ -35,14 +29,14 @@ class UserSubTopic{
             }
 
             const post_sub_topic = new SubTopic();
-            const { sub_topic_id } = await post_sub_topic.createNewSubTopic(new_sub_topic);
+            const { sub_topic_id } = await post_sub_topic.createNewSubTopic(params);
             
             if(!sub_topic_id){
                 throw new Error("Failed to create sub-topic.");
             }
             else{
                 response_data.status = true;
-                response_data.result = { ...new_sub_topic, id: sub_topic_id };
+                response_data.result = { ...params, id: sub_topic_id };
             }
         }
         catch(error){
@@ -98,13 +92,12 @@ class UserSubTopic{
      */
     deleteSubTopic = async (params: DeleteSubTopicType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
-        const sub_topic_model = new SubTopic();
-        const id = params.id;
 
         try{
+            const sub_topic_model = new SubTopic();
             const delete_result = await sub_topic_model.deleteSubTopic(
                 `id = $1`,
-                [id]
+                [params.id]
             );
 
             if(!delete_result){

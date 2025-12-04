@@ -68,17 +68,9 @@ class PostSubTopicController {
      * @author Keith
      */
     deleteSubTopic = async (req: Request, res: Response): Promise<void> => {
-        const sub_topic_service = new SubTopicModel();
-        const user_id = req.validated_user_data?.id;
-
-        if(!user_id){
-            throw new Error("Unauthorized")
-        }
-
-        const id = Number(req.params.id);
-
         try{
-            const sub_topic_data: DeleteSubTopicType = { id: id, user_id };
+            const sub_topic_service = new SubTopicModel();
+            const sub_topic_data: DeleteSubTopicType = { id: Number(req.params.id), user_id: Number(req.validated_user_data?.id) };
             const response_data: ResponseDataInterface<boolean | null> = await sub_topic_service.deleteSubTopic(sub_topic_data);
             res.json(response_data);
         }
@@ -86,7 +78,6 @@ class PostSubTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in deleting sub-topic', });
         }
     };
-
 }
 
 export default new PostSubTopicController();

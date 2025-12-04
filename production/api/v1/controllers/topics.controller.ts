@@ -17,18 +17,15 @@ class PostTopicController {
      * @author Keith
      */
     createPostTopic = async (req: Request, res: Response): Promise<void> => {
-
         try{
-            const user_id = req.validated_user_data?.id;
             const post_topic_service = new TopicService();
-            const post_topics: CreateTopic = { ...req.body, user_id, };
+            const post_topics: CreateTopic = { ...req.body, user_id: req.validated_user_data?.id, };
             const response_data: ResponseDataInterface<CreateTopic | null> = await post_topic_service.createNewTopics(post_topics);
             res.json(response_data);
         }
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in creating topic', });
         }
-        
     };
     
     /**
@@ -41,7 +38,6 @@ class PostTopicController {
      * @author Keith
      */
     getAllTopic = async (req: Request, res: Response): Promise<void> => {
-        
         try{
             const post_service = new TopicService();
             const response_data: ResponseDataInterface<CreateTopic[] | null> = await post_service.getAllTopic();
@@ -50,7 +46,6 @@ class PostTopicController {
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting topics', });
         }
-
     }
     
     /**
@@ -65,7 +60,6 @@ class PostTopicController {
      * @author Keith
      */
     deleteTopic = async (req: Request, res: Response): Promise<void> => {
-        
         try{
             const topic_service = new TopicService();
 
@@ -81,7 +75,6 @@ class PostTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in deleting topic' });
         }
     };
-    
 }
 
 export default new PostTopicController();

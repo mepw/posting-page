@@ -16,7 +16,7 @@ class UserComment {
     createNewComment = async ( params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
         const response_data: ResponseDataInterface<CreatePostComment> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const post_comment = new CommentModel();
             const { id, post_id } = await post_comment.createNewComment(params);
             
