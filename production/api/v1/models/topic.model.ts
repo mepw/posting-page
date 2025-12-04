@@ -20,9 +20,9 @@ class PostComment extends DatabaseModel {
         const user_post = [ [creat_post_topic.user_id, creat_post_topic.name]];
 
         const insert_creat_post_topic = format(`
-            INSERT INTO user_stories.topics (user_id, name)
-            VALUES %L
-            RETURNING *;
+                INSERT INTO user_stories.topics (user_id, name)
+                VALUES %L
+                RETURNING *;
             `, user_post
         );
 
@@ -98,8 +98,11 @@ class PostComment extends DatabaseModel {
      */
     deleteTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_post = await this.executeQuery(`
-            DELETE FROM user_stories.topics WHERE ${where_params}
-        `, where_values);
+                DELETE 
+                FROM user_stories.topics 
+                WHERE ${where_params}
+            `, where_values
+        );
 
         return !!delete_user_post.rowCount;
     };

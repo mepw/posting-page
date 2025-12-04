@@ -16,16 +16,16 @@ class PostComment extends DatabaseModel {
      * @author Keith
      */
     createNewSubTopic = async (post_sub_topic: CreateSubTopic): Promise<{ user_id?: number, sub_topic_id: number }> => {
-        const post_sub_topics = [ [post_sub_topic.user_id, post_sub_topic.topic_id, post_sub_topic.name]];
+        const post_sub_topics = [[post_sub_topic.user_id, post_sub_topic.topic_id, post_sub_topic.name]];
 
         const insert_post_comments = format(`
-            INSERT INTO user_stories.sub_topics(user_id, topic_id, name)
-            VALUES %L
-            RETURNING id;
-        `, post_sub_topics);
+                INSERT INTO user_stories.sub_topics(user_id, topic_id, name)
+                VALUES %L
+                RETURNING id;
+            `, post_sub_topics
+        );
 
         const post_comment_result = await this.executeQuery<{ id: number }>(insert_post_comments);
-
         return { user_id: post_comment_result.rows[0]?.id, sub_topic_id: post_comment_result.rows[0]?.id };
     };
     
@@ -96,9 +96,11 @@ class PostComment extends DatabaseModel {
      * @author Keith
      */
     deleteSubTopic = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
-        const delete_user_post = await this.executeQuery(
-            `DELETE FROM user_stories.sub_topics WHERE ${where_params}`,
-            where_values
+        const delete_user_post = await this.executeQuery(`
+                DELETE 
+                FROM user_stories.sub_topics 
+                WHERE ${where_params}
+            `, where_values
         );
 
         return !!delete_user_post.rowCount;

@@ -64,10 +64,11 @@ class PostModel extends DatabaseModel {
         const user_post = [[ post_details.user_id, post_details.title, post_details.description, post_details.post_topic_id, post_details.post_sub_topic_id, ] ];
         
         const insert_post_details = format(`
-            INSERT INTO user_stories.posts (user_id, title, description, topic_id, sub_topic_id)
-            VALUES %L
-            RETURNING *;
-        `, user_post);
+                INSERT INTO user_stories.posts (user_id, title, description, topic_id, sub_topic_id)
+                VALUES %L
+                RETURNING *;
+            `, user_post
+        );
 
         const result = await this.executeQuery<{ id: number; user_id: number; title: string; description: string; post_topic_id: number; post_sub_topic_id: number | null; post_details: string | null }>(insert_post_details);
         const row = result.rows[0];
@@ -106,7 +107,9 @@ class PostModel extends DatabaseModel {
      */
     deletePost = async (where_params: string, where_values: (string | number | boolean | Date)[] = []): Promise<boolean> => {
         const delete_user_post = await this.executeQuery(`
-                DELETE FROM user_stories.posts WHERE ${where_params}
+                DELETE 
+                FROM user_stories.posts 
+                WHERE ${where_params}
             `, where_values
         );
 

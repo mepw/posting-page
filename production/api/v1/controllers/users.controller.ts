@@ -118,16 +118,25 @@ class User extends UserService {
     * @author Keith
     */
     editUserDetails = async (req: Request, res: Response): Promise<void> => {
+
         try{
             
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
             }
             
-            console.log(req.validated_user_data.id);
+            console.log(req.validated_user_data.id, "this is req user id");
             const user_service = new UserService();
-            const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.editUser({ id: req.validated_user_data.id } as CreateUserParamsTypes);
-            console.log(response_data);
+            const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.editUser({  
+                id: req.validated_user_data.id,
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                email: req.body.email,
+                password: req.body.password,
+                user_level_id: req.body.user_level_id,
+                hobbies: req.body.hobbies } as CreateUserParamsTypes
+            );
+            console.log(response_data, "this is response data");
             res.json(response_data);
         }
         catch(error){

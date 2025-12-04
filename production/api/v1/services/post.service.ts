@@ -168,9 +168,10 @@ class UserPost extends PostModel {
             if(!delete_result){
                 throw new Error("Failed to delete post.");
             }
-
-            response_data.status = true;
-            response_data.result = delete_result;
+            else{
+                response_data.status = true;
+                response_data.result = delete_result;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service delete post';

@@ -33,8 +33,7 @@ class UserModel extends DatabaseModel {
      * @returns Object containing the newly created user ID as user_id
      * @author Keith
      */
-    createNewUserRecord = async (
-        user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
+    createNewUserRecord = async (user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
         const user_values = [[
             user_details.first_name,
             user_details.last_name,
@@ -45,9 +44,9 @@ class UserModel extends DatabaseModel {
         ];
 
         const insert_user_details = format(`
-            INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id, hobbies)
-            VALUES %L
-            RETURNING *;
+                INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id, hobbies)
+                VALUES %L
+                RETURNING *;
             `, user_values
         );
 
@@ -55,34 +54,31 @@ class UserModel extends DatabaseModel {
         return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id };
     };
 
-
     updateUserDetails = async <T>({ update_params, where_params, update_values, where_values = []}: {
         update_params: string,
         where_params: string,
         update_values: (string | number | boolean | Date | object)[],
         where_values?: (string | number | boolean | Date)[] }): Promise<{ user_data: T[] }> => {
-
-        const formatted_values = update_values.map(value => {
-            if(value === undefined) {
+            
+        const formatted_values = update_values.map(value => {  
+            if(value === undefined){
                throw new Error('Undefined value found in update values');
             }
+
             return typeof value === 'object' ? JSON.stringify(value) : value;
         });
-
+        console.log(formatted_values, "this is formatted values");
         const query = `
             UPDATE user_stories.users
             SET ${update_params}
             WHERE ${where_params}
             RETURNING *;
         `;
-
+        console.log(query, "this is query");
         const result = await this.executeQuery(query, [...formatted_values, ...where_values]);
-
+        console.log(result, "this is result");
         return { user_data: result.rows as T[] };
     };
-
-
-
 }
 
 export default UserModel;

@@ -40,9 +40,10 @@ class UserSubTopic{
             if(!sub_topic_id){
                 throw new Error("Failed to create sub-topic.");
             }
-
-            response_data.status = true;
-            response_data.result = { ...new_sub_topic, id: sub_topic_id };
+            else{
+                response_data.status = true;
+                response_data.result = { ...new_sub_topic, id: sub_topic_id };
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service sub-topic';
@@ -71,8 +72,13 @@ class UserSubTopic{
                 `,
             });
 
-            response_data.status = true;
-            response_data.result = post_result.posts;
+            if(!post_result.posts.length){
+                throw new Error("No sub-topics found.");
+            }
+            else{
+                response_data.status = true;
+                response_data.result = post_result.posts;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service get all sub-topic';
@@ -104,9 +110,10 @@ class UserSubTopic{
             if(!delete_result){
                 throw new Error("Failed to delete sub-topic.");
             }
-
-            response_data.status = true;
-            response_data.result = delete_result;
+            else{
+                response_data.status = true;
+                response_data.result = delete_result;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service delete sub-topic';

@@ -234,20 +234,19 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try{
+            console.log(params, "this is params");
             const user_model = new UserModel();
-
-        
             const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [params.id],
             });
-
+            console.log(user_data, "this is user data");
             if(!user_data.length){
                 throw new Error("User not found.");
             }
 
             const existing_user_data = user_data[0];
-
+            console.log(existing_user_data, "this is existing user data");
             const update_user_data: CreateUserParamsTypes = {
                 first_name: params.first_name ?? existing_user_data.first_name,
                 last_name: params.last_name ?? existing_user_data.last_name,
@@ -259,34 +258,33 @@ class UserService extends DatabaseModel {
             };
 
             const { user_data: updated_user_data } = await user_model.updateUserDetails<CreateUserParamsTypes>({
-                    update_params: `first_name = $1, last_name = $2, email = $3, password = $4, user_level_id = $5, hobbies = $6::jsonb`,
-                    update_values: [
-                            update_user_data.first_name,
-                            update_user_data.last_name,
-                            update_user_data.email,
-                            update_user_data.password,
-                            update_user_data.user_level_id,
-                            update_user_data.hobbies,
-                        ],
-                    where_params: `id = $7`,
-                    where_values: [update_user_data.id],
-                });
-                console.log(update_user_data);
-                if(!updated_user_data.length){
-                    throw new Error("User not found during update.");
-                }
-            
+                update_params: `first_name = $1, last_name = $2, email = $3, password = $4, user_level_id = $5, hobbies = $6`,
+                update_values: [
+                        update_user_data.first_name,
+                        update_user_data.last_name,
+                        update_user_data.email,
+                        update_user_data.password,
+                        update_user_data.user_level_id,
+                        update_user_data.hobbies,
+                    ],
+                where_params: `id = $7`,
+                where_values: [update_user_data.id],
+            });
+            console.log(update_user_data, "this is update user data");
+            if(!updated_user_data.length){
+                throw new Error("User not found during update.");
+            }
+            else{
                 response_data.status = true;
                 response_data.result = updated_user_data[0];
-            } 
-            catch(error){
-                response_data.error = (error as Error).message || 'Error in service editUser';
             }
+        } 
+        catch(error){
+            response_data.error = (error as Error).message || 'Error in service editUser';
+        }
         
-            return response_data;
-        };
-
-
+        return response_data;
+    };
 
 }
 

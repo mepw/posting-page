@@ -23,9 +23,10 @@ class UserComment {
             if(!id || !post_id){
                 throw new Error("Failed to create comment.");
             }
-
-            response_data.status = true;
-            response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment };
+            else{
+                response_data.status = true;
+                response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment };
+            }
         } 
         catch(error){
             response_data.error = (error as Error).message || 'error in service create comment';
