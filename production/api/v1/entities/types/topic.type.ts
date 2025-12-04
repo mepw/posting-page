@@ -6,6 +6,6 @@ export type CreateTopic = {
 
 
 export type DeleteTopicType = {
-    id: number;
+    topic_id: number | string;
     user_id: number;
 };

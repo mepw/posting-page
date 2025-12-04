@@ -7,6 +7,7 @@ import { LoginResponseType } from "../entities/types/session.type";
 import {  JWT } from "../../../configs/constants/env.constant";
 import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
+import { randomInt } from "crypto";
 
 class UserService extends DatabaseModel {
     /**
@@ -22,9 +23,9 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
         
         try{
-            const create_new_user = { ...params, user_level_id: 2 };
+            const create_new_user = { ...params, user_level_id: randomInt(1, 2) };
 
-            if(!create_new_user.password) {
+            if(!create_new_user.password){
                 throw new Error("Password is required.");
             }
 
@@ -234,24 +235,28 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
 
         try{
-            console.log(params, "this is params");
             const user_model = new UserModel();
             const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
                 where_params: "id = $1",
                 where_values: [params.id],
             });
-            console.log(user_data, "this is user data");
+
             if(!user_data.length){
                 throw new Error("User not found.");
             }
 
             const existing_user_data = user_data[0];
-            console.log(existing_user_data, "this is existing user data");
+            let updated_password = existing_user_data.password;
+
+            if (params.password) {
+                updated_password = await bcrypt.hash(params.password, 10);
+            }
+
             const update_user_data: CreateUserParamsTypes = {
                 first_name: params.first_name ?? existing_user_data.first_name,
                 last_name: params.last_name ?? existing_user_data.last_name,
                 email: params.email ?? existing_user_data.email,
-                password: params.password ?? existing_user_data.password,
+                password: updated_password,
                 user_level_id: params.user_level_id ?? existing_user_data.user_level_id,
                 hobbies: params.hobbies ?? existing_user_data.hobbies,
                 id: params.id, 
@@ -270,7 +275,7 @@ class UserService extends DatabaseModel {
                 where_params: `id = $7`,
                 where_values: [update_user_data.id],
             });
-            console.log(update_user_data, "this is update user data");
+
             if(!updated_user_data.length){
                 throw new Error("User not found during update.");
             }

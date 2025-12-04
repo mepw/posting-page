@@ -60,23 +60,18 @@ class UserModel extends DatabaseModel {
         update_values: (string | number | boolean | Date | object)[],
         where_values?: (string | number | boolean | Date)[] }): Promise<{ user_data: T[] }> => {
             
-        const formatted_values = update_values.map(value => {  
-            if(value === undefined){
-               throw new Error('Undefined value found in update values');
-            }
-
+        const formatted_values = update_values.map(value => {
             return typeof value === 'object' ? JSON.stringify(value) : value;
         });
-        console.log(formatted_values, "this is formatted values");
+
         const query = `
             UPDATE user_stories.users
             SET ${update_params}
             WHERE ${where_params}
             RETURNING *;
         `;
-        console.log(query, "this is query");
+     
         const result = await this.executeQuery(query, [...formatted_values, ...where_values]);
-        console.log(result, "this is result");
         return { user_data: result.rows as T[] };
     };
 }

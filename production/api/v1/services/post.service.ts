@@ -69,7 +69,7 @@ class UserPost extends PostModel {
             else if(sort_option === "date_desc"){
                 order_by = "posts.id DESC";
             }
-
+            
             const post_result = await post_model.fetchModel<CreatePostType>({
                 fields_to_select: `
                     posts.id AS post_id,
@@ -133,7 +133,7 @@ class UserPost extends PostModel {
             );
 
             if(!update_post_result){
-                throw new Error("update not successfully");
+                throw new Error("update not successful");
             }
 
             response_data.status = true;

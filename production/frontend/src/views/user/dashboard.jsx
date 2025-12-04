@@ -614,47 +614,83 @@ export default function Dashboard() {
             )}
 
             {/* --- Display Posts --- */}
-            <div style={{ marginTop: "20px" }}>
-                {sortedPosts.map((post) => (
-                    <div key={post.post_id} style={{ border: "1px solid gray", padding: "10px", margin: "10px 0" }}>
-                        <h3>{post.title}</h3>
-                        <p>{post.description}</p>
-                        <p>Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "-"}</p>
-                        <p>By: {post.post_user_first_name} {post.post_user_last_name}</p>
-                        {user?.id === post.post_user_id && (
-                            <button onClick={() => {
-                                setEditingPostId(post.post_id);
-                                setPostTitle(post.title);
-                                setPostDesc(post.description);
-                                setSelectedTopic(post.topic_id);
-                                setSelectedSubTopic(post.subtopic_id);
-                                setModalOpenPost(true);
-                            }}>Edit Post</button>
-                        )}
-                        {user?.id === post.post_user_id && (
-                            <button onClick={() => handleDeletePost(post.post_id)}>Delete Post</button>
-                        )}
+<div style={{ marginTop: "20px" }}>
+    {sortedPosts.map((post) => (
+        <div
+            key={post.post_id}
+            style={{
+                border: "1px solid gray",
+                padding: "10px",
+                margin: "10px 0"
+            }}
+        >
+            <h3>{post.title}</h3>
+            <p>{post.description}</p>
+            <p>
+                Topic: {post.topic_name} | SubTopic: {post.subtopic_name || "-"}
+            </p>
 
-                        <div style={{ marginTop: "10px" }}>
-                            <h4>Comments</h4>
-                            {post.comments.map((c) => (
-                                <div key={c.comment_id} style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <span>{c.comment_text} - {c.comment_user_first_name}</span>
-                                    {user?.id === c.comment_user_id && (
-                                        <button onClick={() => handleDeleteComment(c.comment_id)}>Delete</button>
-                                    )}
-                                </div>
-                            ))}
-                            <input
-                                placeholder="Add comment"
-                                value={newComments[post.post_id] || ""}
-                                onChange={(e) => handleCommentChange(post.post_id, e.target.value)}
-                            />
-                            <button onClick={() => handleCommentSubmit(post.post_id)}>Add Comment</button>
-                        </div>
+            {/* --- ALWAYS VISIBLE EDIT BUTTON --- */}
+            <button
+                onClick={() => {
+                    setEditingPostId(post.post_id);
+                    setPostTitle(post.title);
+                    setPostDesc(post.description);
+                    setSelectedTopic(post.topic_id);
+                    setSelectedSubTopic(post.subtopic_id);
+                    setModalOpenPost(true);
+                }}
+            >
+                Edit Post
+            </button>
+
+            {/* --- ALWAYS VISIBLE DELETE BUTTON --- */}
+            <button onClick={() => handleDeletePost(post.post_id)}>
+                Delete Post
+            </button>
+
+            <div style={{ marginTop: "10px" }}>
+                <h4>Comments</h4>
+
+                {post.comments.map((c) => (
+                    <div
+                        key={c.comment_id}
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between"
+                        }}
+                    >
+                        <span>
+                            {c.comment_text} - {c.comment_user_first_name}
+                        </span>
+
+                        {user?.id === c.comment_user_id && (
+                            <button
+                                onClick={() =>
+                                    handleDeleteComment(c.comment_id)
+                                }
+                            >
+                                Delete
+                            </button>
+                        )}
                     </div>
                 ))}
+
+                <input
+                    placeholder="Add comment"
+                    value={newComments[post.post_id] || ""}
+                    onChange={(e) =>
+                        handleCommentChange(post.post_id, e.target.value)
+                    }
+                />
+                <button onClick={() => handleCommentSubmit(post.post_id)}>
+                    Add Comment
+                </button>
             </div>
+        </div>
+    ))}
+</div>
+
         </div>
     );
 }

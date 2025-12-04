@@ -18,15 +18,15 @@ class User extends UserService {
      * @author Keith
      */
     userSignUp = async (req: Request, res: Response): Promise<void> => {
-        const user_service = new UserService();
-
         try{
+            const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.signUpUser(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in signup', });
         }
+        
     };
 
     /**
@@ -40,15 +40,16 @@ class User extends UserService {
      * @author Keith
      */
     userLogIn = async (req: Request, res: Response): Promise<void> => {
-        const user_service = new UserService();
 
         try{
+            const user_service = new UserService();
             const response_data: ResponseDataInterface<LoginResponseType> = await user_service.userLogin(req.body as CreateUserParamsTypes);
             res.json(response_data);
         }
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in login', });
         }
+
     };
 
     /**
@@ -62,17 +63,20 @@ class User extends UserService {
      * @author Keith
      */
     getUserId = async (req: Request, res: Response): Promise<void> => {
+        
         try{
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
             }
+            
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.getUserById({ id: req.validated_user_data.id } as CreateUserParamsTypes);
             res.json(response_data);
         }
         catch(error){
-            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:(error as Error).message || 'error in getting user', });
         }
+
     };
 
     /**
@@ -90,6 +94,7 @@ class User extends UserService {
      * @author Keith
      */
     logOutUser = async (req: Request, res: Response): Promise<void> => {
+        
         try{
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
@@ -97,12 +102,12 @@ class User extends UserService {
         
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.userLogOut({ id: req.validated_user_data.id } as CreateUserParamsTypes);
-        
             res.json(response_data);
         } 
         catch(error){
-            res.json({  ...RESPONSE_DATA_DEFAULT_VALUE,  error: (error as Error).message || 'error in logout',  });
+            res.json({...RESPONSE_DATA_DEFAULT_VALUE,  error:(error as Error).message || 'error in logout',  });
         }
+
     };
     
     /**
@@ -118,14 +123,13 @@ class User extends UserService {
     * @author Keith
     */
     editUserDetails = async (req: Request, res: Response): Promise<void> => {
-
+        
         try{
             
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
             }
             
-            console.log(req.validated_user_data.id, "this is req user id");
             const user_service = new UserService();
             const response_data: ResponseDataInterface<CreateUserParamsTypes> = await user_service.editUser({  
                 id: req.validated_user_data.id,
@@ -136,7 +140,7 @@ class User extends UserService {
                 user_level_id: req.body.user_level_id,
                 hobbies: req.body.hobbies } as CreateUserParamsTypes
             );
-            console.log(response_data, "this is response data");
+
             res.json(response_data);
         }
         catch(error){

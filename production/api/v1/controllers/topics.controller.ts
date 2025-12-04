@@ -3,6 +3,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { CreateTopic, DeleteTopicType} from "../entities/types/topic.type";
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
+import { NUMBERS } from "../../../configs/constants/number.constants";
 
 class PostTopicController {
     /**
@@ -16,10 +17,10 @@ class PostTopicController {
      * @author Keith
      */
     createPostTopic = async (req: Request, res: Response): Promise<void> => {
-        const user_id = req.validated_user_data?.id;
-        const post_topic_service = new TopicService();
 
         try{
+            const user_id = req.validated_user_data?.id;
+            const post_topic_service = new TopicService();
             const post_topics: CreateTopic = { ...req.body, user_id, };
             const response_data: ResponseDataInterface<CreateTopic | null> = await post_topic_service.createNewTopics(post_topics);
             res.json(response_data);
@@ -27,6 +28,7 @@ class PostTopicController {
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in creating topic', });
         }
+        
     };
     
     /**
@@ -39,15 +41,16 @@ class PostTopicController {
      * @author Keith
      */
     getAllTopic = async (req: Request, res: Response): Promise<void> => {
-        const post_service = new TopicService();
-
+        
         try{
+            const post_service = new TopicService();
             const response_data: ResponseDataInterface<CreateTopic[] | null> = await post_service.getAllTopic();
             res.json(response_data);
         }
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, status: false, error: (error as Error).message || 'error in getting topics', });
         }
+
     }
     
     /**
@@ -62,17 +65,15 @@ class PostTopicController {
      * @author Keith
      */
     deleteTopic = async (req: Request, res: Response): Promise<void> => {
-        const topic_service = new TopicService();
-        const user_id = req.validated_user_data?.id;
-
-        if(!user_id){
-            throw new Error("Unauthorized")
-        }
-
-        const id = Number(req.params.id);
-
+        
         try{
-            const topic_data: DeleteTopicType = { id: id, user_id };
+            const topic_service = new TopicService();
+
+            if(!req.validated_user_data?.id || !req.params.id){
+                throw new Error("Unauthorized or missing topic id");
+            }
+            
+            const topic_data: DeleteTopicType = { topic_id: Number(req.params.id), user_id:req.validated_user_data?.id };
             const response_data: ResponseDataInterface<boolean | null> = await topic_service.deleteTopic(topic_data);
             res.json(response_data);
         }
@@ -80,6 +81,7 @@ class PostTopicController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in deleting topic' });
         }
     };
+    
 }
 
 export default new PostTopicController();

@@ -16,26 +16,25 @@ class UserSubTopic{
         const response_data: ResponseDataInterface<CreateTopic> = { status: false, error: null, result: undefined };
 
         try{
-            const new_user_topic = params;
             const post_topic_model = new PostTopic();
             const { new_topics } = await post_topic_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `name = $1`,
-                where_values: [new_user_topic.name]
+                where_values: [params.name]
             });
 
             if(new_topics.length){
                 throw new Error("Topic with this name already exists.");
             }
 
-            const { topic_id } = await post_topic_model.createNewTopic(new_user_topic);
+            const { topic_id } = await post_topic_model.createNewTopic(params);
 
             if(!topic_id){
                 throw new Error("Failed to create topic.");
             }
             else{
                 response_data.status = true;
-                response_data.result = { ...new_user_topic, id: topic_id };
+                response_data.result = { ...params, id: topic_id };
             }
         }
         catch(error){
@@ -90,10 +89,10 @@ class UserSubTopic{
      */
     deleteTopic = async (params: DeleteTopicType): Promise<ResponseDataInterface<boolean>> => {
         const response_data: ResponseDataInterface<boolean> = { status: false, error: null, result: undefined };
-        const topic_model = new PostTopic();
-        const id = params.id;
-
+        
         try{
+            const topic_model = new PostTopic();
+            const id = params.topic_id;
             const delete_topic_result = await topic_model.deleteTopic(
                 `id = $1`,
                 [id]

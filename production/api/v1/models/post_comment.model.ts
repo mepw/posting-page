@@ -3,7 +3,7 @@ import DatabaseModel from "./database.model";
 import format from "pg-format"
 import { CreatePostComment } from "../entities/types/comment.type";
 
-class PostComment extends DatabaseModel {
+class PostComment extends DatabaseModel{
     /**
      * DOCU: This function inserts a new comment into the database. 
      *       It formats the SQL insert statement with the provided comment data,
