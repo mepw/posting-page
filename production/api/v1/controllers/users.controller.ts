@@ -26,7 +26,6 @@ class User extends UserService {
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in signup', });
         }
-        
     };
 
     /**
@@ -40,7 +39,6 @@ class User extends UserService {
      * @author Keith
      */
     userLogIn = async (req: Request, res: Response): Promise<void> => {
-
         try{
             const user_service = new UserService();
             const response_data: ResponseDataInterface<LoginResponseType> = await user_service.userLogin(req.body as CreateUserParamsTypes);
@@ -49,7 +47,6 @@ class User extends UserService {
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in login', });
         }
-
     };
 
     /**
@@ -105,7 +102,6 @@ class User extends UserService {
      * @author Keith
      */
     logOutUser = async (req: Request, res: Response): Promise<void> => {
-        
         try{
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
@@ -118,7 +114,6 @@ class User extends UserService {
         catch(error){
             res.json({...RESPONSE_DATA_DEFAULT_VALUE,  error:(error as Error).message || 'error in logout',  });
         }
-
     };
     
     /**
@@ -134,7 +129,6 @@ class User extends UserService {
     * @author Keith
     */
     editUserDetails = async (req: Request, res: Response): Promise<void> => {
-        
         try{
             
             if(!req.validated_user_data?.id){
@@ -158,7 +152,6 @@ class User extends UserService {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
         }
     };
-    
 }
 
 export default new User();

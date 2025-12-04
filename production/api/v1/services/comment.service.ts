@@ -13,7 +13,7 @@ class UserComment {
      * @returns response_data - JSON containing status, created comment result, and/or error message
      * @author Keith
      */
-    createNewComment = async ( params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
+    createNewComment = async( params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
         const response_data: ResponseDataInterface<CreatePostComment> = { status: false, error: null, result: undefined };
 
         try{
@@ -34,7 +34,6 @@ class UserComment {
 
         return response_data;
     };
-
 }
 
 export default UserComment;

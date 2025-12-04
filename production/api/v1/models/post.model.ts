@@ -115,7 +115,6 @@ class PostModel extends DatabaseModel {
 
         return !!delete_user_post.rowCount;
     };
-
 }
 
 export default PostModel;

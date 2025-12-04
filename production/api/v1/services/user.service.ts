@@ -7,7 +7,6 @@ import { LoginResponseType } from "../entities/types/session.type";
 import {  JWT } from "../../../configs/constants/env.constant";
 import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
-import { randomInt } from "crypto";
 
 class UserService extends DatabaseModel {
     /**
@@ -23,33 +22,28 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
         
         try{
-            const create_new_user = { ...params, user_level_id: randomInt(1, 2) };
-
-            if(!create_new_user.password){
-                throw new Error("Password is required.");
-            }
-
-            create_new_user.password = await bcrypt.hash(create_new_user.password, 10);
+            params.password = await bcrypt.hash(params.password, 10);
             const user_model = new UserModel();
 
             const { user_data } = await user_model.fetchUser<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `email = $1`,
-                where_values: [create_new_user.email]
+                where_values: [params.email]
             });
 
             if(user_data.length){
                 throw new Error("User with this email already exists.");
             }
 
-            const { user_id } = await user_model.createNewUserRecord(create_new_user);
+            const { user_id } = await user_model.createNewUserRecord(params);
 
-            if(user_id){
-                response_data.status = true;
-                response_data.result = { ...create_new_user, id: user_id };
+            if(!user_id){
+                throw new Error("Failed to create user.");
             } 
             else{
-                throw new Error("Failed to create user.");
+                response_data.status = true;
+                response_data.result = { ...params, id: user_id };
+                
             }
         }
         catch(error){
@@ -134,12 +128,13 @@ class UserService extends DatabaseModel {
                 where_values: [params.id],
             });
             
-            if(user_data.length){
-                response_data.status = true;
-                response_data.result = user_data[0];
+            if(!user_data.length){
+                throw new Error("User not found.");
             }
             else{
-                throw new Error("User not found.");
+                response_data.status = true;
+                response_data.result = user_data[0];
+               
             }
         }
         catch(error){
@@ -158,12 +153,12 @@ class UserService extends DatabaseModel {
                 fields_to_select: "*",
             });
             
-            if(user_data.length){
-                response_data.status = true;
-                response_data.result = user_data;
+            if(!user_data.length){
+                throw new Error("User not found.");
             }
             else{
-                throw new Error("User not found.");
+                response_data.status = true;
+                response_data.result = user_data;
             }
         }
         catch(error){
@@ -230,12 +225,12 @@ class UserService extends DatabaseModel {
                 where_values: [params.id],
             });
 
-            if(user_data.length){
-                response_data.status = true;
-                response_data.result = user_data[0];
+            if(!user_data.length){
+                throw new Error("User not found.");
             }
             else{   
-                throw new Error("User not found.");
+                response_data.status = true;
+                response_data.result = user_data[0];
             }
         }
         catch(error){

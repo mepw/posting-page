@@ -29,28 +29,28 @@ class UserModel extends DatabaseModel {
      *       It formats the SQL insert statement with provided user details, executes the query,
      *       and returns the newly inserted user ID. 
      * Last updated at: Nov 20, 2025 
-     * @param user_details - Object containing first_name, last_name, email, and hashed password
+     * @param params - Object containing first_name, last_name, email, and hashed password
      * @returns Object containing the newly created user ID as user_id
      * @author Keith
      */
-    createNewUserRecord = async (user_details: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
+    createNewUserRecord = async (params: CreateUserParamsTypes): Promise<{ user_id?: number, user_level_id: number }> => {
         const user_values = [[
-            user_details.first_name,
-            user_details.last_name,
-            user_details.email,
-            user_details.password,
-            user_details.user_level_id,
-            JSON.stringify(user_details.hobbies)]
+            params.first_name,
+            params.last_name,
+            params.email,
+            params.password,
+            params.user_level_id,
+            JSON.stringify(params.hobbies)]
         ];
 
-        const insert_user_details = format(`
+        const insert_params = format(`
                 INSERT INTO user_stories.users (first_name, last_name, email, password, user_level_id, hobbies)
                 VALUES %L
                 RETURNING *;
             `, user_values
         );
 
-        const result = await this.executeQuery<{ id: number }>(insert_user_details);
+        const result = await this.executeQuery<{ id: number }>(insert_params);
         return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id };
     };
 
@@ -70,7 +70,7 @@ class UserModel extends DatabaseModel {
             WHERE ${where_params}
             RETURNING *;
         `;
-     
+    
         const result = await this.executeQuery(query, [...formatted_values, ...where_values]);
         return { user_data: result.rows as T[] };
     };

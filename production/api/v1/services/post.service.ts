@@ -32,9 +32,10 @@ class UserPost extends PostModel {
             if(!create_new_post){
                throw new Error("Failed to create post.");
             }
-
-            response_data.status = true;
-            response_data.result = create_new_post;
+            else{
+                response_data.status = true;
+                response_data.result = create_new_post;
+            }
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service create post';
