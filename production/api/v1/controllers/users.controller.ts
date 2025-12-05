@@ -60,7 +60,6 @@ class User extends UserService {
      * @author Keith
      */
     getUserId = async (req: Request, res: Response): Promise<void> => {
-        
         try{
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
@@ -73,7 +72,6 @@ class User extends UserService {
         catch(error){
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:(error as Error).message || 'error in getting user', });
         }
-
     };
 
     getAllUser = async (req: Request, res: Response): Promise<void> => {
@@ -130,7 +128,6 @@ class User extends UserService {
     */
     editUserDetails = async (req: Request, res: Response): Promise<void> => {
         try{
-            
             if(!req.validated_user_data?.id){
                 throw new Error("User ID not found");
             }

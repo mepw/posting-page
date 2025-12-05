@@ -3,7 +3,7 @@ import { ResponseDataInterface } from "../entities/interfaces/global.interface"
 import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.constant";
 import { Request, Response } from "express-serve-static-core";
 import { CreateSubTopic, DeleteSubTopicType } from "../entities/types/sub_topic.type";
-class PostSubTopicController {
+class PostSubTopicController{
     /**
      * DOCU: This function creates a new comment for a post. 
      *       It merges the validated user ID with the request body, sends it to the comment service,
@@ -15,11 +15,9 @@ class PostSubTopicController {
      * @author Keith
      */
     CreateSubTopic = async (req: Request, res: Response): Promise<void> => {
-        const user_id = req.validated_user_data?.id;
-        const subTopicService = new SubTopicModel();
-
-        try {
-            const new_sub_topics: CreateSubTopic = { ...req.body, user_id };
+        try{
+            const subTopicService = new SubTopicModel();
+            const new_sub_topics: CreateSubTopic = { ...req.body, user_id: req.validated_user_data?.id };
 
             if(!new_sub_topics.name){
                 res.json({ status: false, error: "Sub-Topic Name is required." });
@@ -45,9 +43,8 @@ class PostSubTopicController {
      * @author Keith
      */
     getAllSubTopic = async (req: Request, res: Response): Promise<void> => {
-        const post_service = new SubTopicModel();
-
         try{
+            const post_service = new SubTopicModel();
             const response_data: ResponseDataInterface<CreateSubTopic[]> = await post_service.getAllSubTopic();
             res.json(response_data);
         }

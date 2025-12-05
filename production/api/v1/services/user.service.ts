@@ -144,6 +144,14 @@ class UserService extends DatabaseModel {
         return response_data;
     };
 
+    /** 
+     * DOCU: This function retrieves all users.
+     *       It calls the UserModel to fetch all user records and returns them along with status.
+     * last updated at: Dec 3, 2025.
+     * @param params - Object containing filter parameters (if any).
+     * @returns response_data - JSON containing status, an array of user records, and/or error message.
+     * @author Keith 
+    */
     getAllUsers = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes[]>> => {
         const response_data: ResponseDataInterface<CreateUserParamsTypes[]> = { status: false, error: null, result: undefined };
 
@@ -266,32 +274,22 @@ class UserService extends DatabaseModel {
             const existing_user_data = user_data[0];
             let updated_password = existing_user_data.password;
 
-            if (params.password) {
+            if(params.password){
                 updated_password = await bcrypt.hash(params.password, 10);
             }
-
-            const update_user_data: CreateUserParamsTypes = {
-                first_name: params.first_name ?? existing_user_data.first_name,
-                last_name: params.last_name ?? existing_user_data.last_name,
-                email: params.email ?? existing_user_data.email,
-                password: updated_password,
-                user_level_id: params.user_level_id ?? existing_user_data.user_level_id,
-                hobbies: params.hobbies ?? existing_user_data.hobbies,
-                id: params.id, 
-            };
 
             const { user_data: updated_user_data } = await user_model.updateUserDetails<CreateUserParamsTypes>({
                 update_params: `first_name = $1, last_name = $2, email = $3, password = $4, user_level_id = $5, hobbies = $6`,
                 update_values: [
-                        update_user_data.first_name,
-                        update_user_data.last_name,
-                        update_user_data.email,
-                        update_user_data.password,
-                        update_user_data.user_level_id,
-                        update_user_data.hobbies,
+                        params.first_name,
+                        params.last_name,
+                        params.email,
+                        params.password,
+                        params.user_level_id,
+                        params.hobbies,
                     ],
                 where_params: `id = $7`,
-                where_values: [update_user_data.id],
+                where_values: [params.id],
             });
 
             if(!updated_user_data.length){
