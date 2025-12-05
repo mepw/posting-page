@@ -70,9 +70,9 @@ class PostModel extends DatabaseModel {
             `, user_post
         );
 
-        const result = await this.executeQuery<{ id: number; user_id: number; title: string; description: string; post_topic_id: number; post_sub_topic_id: number | null; post_details: string | null }>(insert_post_details);
+        const result = await this.executeQuery<{ id: number }>(insert_post_details);
         const row = result.rows[0];
-        return{ post_id: row.id, user_id: row.user_id, title: row.title, description: row.description, post_topic_id: row.post_topic_id, post_sub_topic_id: row.post_sub_topic_id, };
+        return{ ...post_details, post_id: row.id };
     };
 
     /**
