@@ -366,7 +366,6 @@ export default function Dashboard() {
         }
     };
 
-    // --- Logout ---
     const handleLogout = async () => {
         const confirmLogout = window.confirm("Are you sure you want to log out?");
         if (!confirmLogout) return;
@@ -388,7 +387,6 @@ export default function Dashboard() {
 
     if (!user) return <p>Loading user...</p>;
 
-    // --- Modal handlers with reset ---
     const openModalPostHandler = () => {
         setEditingPostId(null);
         setPostTitle("");
@@ -428,12 +426,10 @@ export default function Dashboard() {
         e.preventDefault();
         setErrors([]);
 
-        // Prepare hobbies as an array, remove empty strings
         const hobbiesArray = editHobbies
             .map((h) => h.trim())
             .filter((h) => h !== "");
 
-        // Prepare payload
         const payload = {
             first_name: editFirstName.trim() || undefined,
             last_name: editLastName.trim() || undefined,
@@ -441,7 +437,6 @@ export default function Dashboard() {
             hobbies: hobbiesArray.length > 0 ? hobbiesArray : undefined,
         };
 
-        // Only send password if it's not empty
         if (editPassword.trim()) {
             payload.password = editPassword.trim();
         }
@@ -458,15 +453,13 @@ export default function Dashboard() {
                 return;
             }
 
-            setUser(data.result); // update local user state
+            setUser(data.result); 
             closeModalProfileHandler();
         } catch {
             setErrors(["Failed to update profile"]);
         }
     };
 
-
-    // --- Client-side sorting ---
     const sortedPosts = [...posts].sort((a, b) => {
         switch (postSort) {
             case "date_asc":

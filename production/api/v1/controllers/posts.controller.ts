@@ -15,18 +15,9 @@ class PostController {
      * @author Keith
      */
     createPost = async (req: Request, res: Response): Promise<void> => {
-        const user_id = req.validated_user_data?.id;
-        const post_service = new postService();
-
         try{
-            const post_data: CreatePostType = {
-                ...req.body,
-                user_id,
-                post_topic_id: req.body.post_topic_id,
-                post_sub_topic_id: req.body.post_sub_topic_id,
-            };
-
-            const response_data = await post_service.createPost(post_data);
+            const post_service = new postService();
+            const response_data = await post_service.createPost(req.body as CreatePostType);
             res.json(response_data);
         }
         catch(error){
@@ -34,7 +25,7 @@ class PostController {
         }
     };
 
-    /**
+    /**     
      * DOCU: This function retrieves all posts by calling the post service. 
      *       Returns the response data as JSON. If an error occurs, returns a default
      *       error response with the error message. 
@@ -46,9 +37,8 @@ class PostController {
      * @updated_at November 20
      */
     getAllPost = async (req: Request, res: Response): Promise<void> => {
-        const post_service = new postService();
-
         try{
+            const post_service = new postService();
             const { sorting_data } = req.query;
             const response_data = await post_service.getAllPost(sorting_data as string);
             res.json(response_data);
@@ -69,9 +59,8 @@ class PostController {
      * @author Keith
      */
     updatePost = async (req: Request, res: Response): Promise<void> => {
-        const post_service = new postService();
-
         try{
+            const post_service = new postService();
             const post_data: UpdatePostType = { ...req.body, id: req.params.id };
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
@@ -92,17 +81,9 @@ class PostController {
      * @author Keith
      */
     deletePost = async (req: Request, res: Response): Promise<void> => {
-        const post_service = new postService();
-        const user_id = req.validated_user_data?.id;
-
-        if(!user_id){
-            throw new Error("Unauthorized")
-        }
-
-        const post_id = Number(req.params.id);
-
         try{
-            const post_data: DeletePostType = { id: post_id, user_id };
+            const post_service = new postService(); 
+            const post_data: DeletePostType = {...req.body, id: req.params.id, user_id: req.validated_user_data?.id! };
             const response_data: ResponseDataInterface<boolean> = await post_service.deleteUserPost(post_data);
             res.json(response_data);
         }
@@ -110,7 +91,6 @@ class PostController {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in service delete post', });
         }
     };
-
 }
 
 export default new PostController();

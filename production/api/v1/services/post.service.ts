@@ -16,7 +16,6 @@ class UserPost extends PostModel {
 
         try{
             const post_model = new PostModel();
-
             const { new_user_post } = await post_model.fetchModel<{ id: number }>({
                 fields_to_select: `id`,
                 where_params: `title = $1`,
