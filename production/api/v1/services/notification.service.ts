@@ -35,6 +35,7 @@ class notificationService extends DatabaseModel {
 
         return response_data;
     };
+
     /**
      * DOCU:
      * This function retrieves a single notification by calling the Notification model.
@@ -106,7 +107,5 @@ class notificationService extends DatabaseModel {
         return response_data;
     };
 }
-
-
 
 export default notificationService;
