@@ -7,6 +7,7 @@ const NotificationRoute: Router = Router();
 
 NotificationRoute.get("/notifications", exec(notificiations.getAllNotifications));
 NotificationRoute.get("/notifications", exec(NotificationsValidation), exec(notificiations.getNotificationByUserId));
+NotificationRoute.put("/notifications", exec(NotificationsValidation), exec(notificiations.updateNotification));
 
 export default NotificationRoute;
 
