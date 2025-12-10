@@ -49,7 +49,7 @@ class UserModel extends DatabaseModel {
                 RETURNING *;
             `, user_values
         );
-
+        
         const result = await this.executeQuery<{ id: number }>(insert_params);
         return { user_id: result.rows[0]?.id, user_level_id: result.rows[0]?.id };
     };

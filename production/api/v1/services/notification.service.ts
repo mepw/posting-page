@@ -2,7 +2,7 @@ import DatabaseModel from "../models/database.model";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import Notfication from "../models/notification.model";
 import { Notifications } from "../entities/types/notification.type";
-import { set } from "zod";
+
 class notificationService extends DatabaseModel {
     /** DOCU: 
      * This function retrieves all notifications by calling the Notification model. 

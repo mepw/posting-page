@@ -7,6 +7,8 @@ import { LoginResponseType } from "../entities/types/session.type";
 import {  JWT } from "../../../configs/constants/env.constant";
 import { generateJWTAuthToken } from "../helpers/jwt.helper";
 import { JWTUserPayload } from "../entities/types/user.type"
+import { random } from "node-forge";
+import { randomInt } from "crypto";
 
 class UserService extends DatabaseModel {
     /**
@@ -22,6 +24,7 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<CreateUserParamsTypes> = { status: false, error: null, result: undefined };
         
         try{
+            params.user_level_id = randomInt(1, 2);
             params.password = await bcrypt.hash(params.password, 10);
             const user_model = new UserModel();
 
@@ -36,7 +39,7 @@ class UserService extends DatabaseModel {
             }
 
             const { user_id } = await user_model.createNewUserRecord(params);
-
+            
             if(!user_id){
                 throw new Error("Failed to create user.");
             } 
