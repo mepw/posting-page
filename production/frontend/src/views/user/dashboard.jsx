@@ -43,7 +43,27 @@ export default function Dashboard() {
     // --- New states for All Users ---
     const [allUsers, setAllUsers] = useState([]);
     const [userFilter, setUserFilter] = useState("");
+const fetchWithToken = async (url, options = {}) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) navigate("/login");
 
+    const res = await fetch(`${API_BASE}${url}`, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...(options.headers || {}),
+        },
+    });
+
+    if (res.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        navigate("/login");
+    }
+
+    return res;
+};
     // --- Fetch all users on init ---
     useEffect(() => {
         const fetchUsers = async () => {
@@ -74,53 +94,13 @@ export default function Dashboard() {
     });
 
     // --- Fetch with token ---
-    const fetchWithToken = async (url, options = {}) => {
-        const token = localStorage.getItem("access_token");
-        if (!token) navigate("/login");
+// --- Fetch with token ---
+// --- Fetch with token ---
 
-        const res = await fetch(`${API_BASE}${url}`, {
-            ...options,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-                ...(options.headers || {}),
-            },
-        });
 
-        if (res.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            navigate("/login");
-        }
 
-        return res;
-    };
 
-    // --- Initial data fetch ---
-    useEffect(() => {
-        const init = async () => {
-            try {
-                const userRes = await fetchWithToken("/user/user");
-                const userData = await userRes.json();
-                setUser(userData.result);
-
-                const topicsRes = await fetchWithToken("/topic/topic");
-                const topicsData = await topicsRes.json();
-                setTopics(topicsData.result || []);
-
-                const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
-                const subTopicsData = await subTopicsRes.json();
-                setSubTopics(subTopicsData.result || []);
-
-                await refreshPosts();
-            } catch {
-                setErrors(["Failed to fetch data from database"]);
-            }
-        };
-        init();
-    }, []);
-
-    // --- Refresh posts ---
+// --- Fetch all users on init ---
     const refreshPosts = async () => {
         try {
             const postRes = await fetchWithToken("/post/post");
@@ -165,6 +145,32 @@ export default function Dashboard() {
             setErrors(["Failed to fetch posts from database"]);
         }
     };
+    // --- Initial data fetch ---
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const userRes = await fetchWithToken("/user/user");
+                const userData = await userRes.json();
+                setUser(userData.result);
+
+                const topicsRes = await fetchWithToken("/topic/topic");
+                const topicsData = await topicsRes.json();
+                setTopics(topicsData.result || []);
+
+                const subTopicsRes = await fetchWithToken("/subtopic/subtopic");
+                const subTopicsData = await subTopicsRes.json();
+                setSubTopics(subTopicsData.result || []);
+
+                await refreshPosts();
+            } catch {
+                setErrors(["Failed to fetch data from database"]);
+            }
+        };
+        init();
+    }, []);
+
+    // --- Refresh posts ---
+
 
     // --- Handlers ---
     const handleTopicChange = (e) => {

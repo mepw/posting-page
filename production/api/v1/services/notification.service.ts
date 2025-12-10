@@ -93,7 +93,7 @@ class notificationService extends DatabaseModel {
             );
 
             if(!update_notification_result){
-                throw new Error("Failed to update notification.");
+                throw new Error("Failed to update notification.");  
             }
             else{
                 response_data.status = true;
