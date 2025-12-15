@@ -2,8 +2,6 @@
 import Fs from "fs";
 import Yaml from "js-yaml";
 
-
-
 /* Interfaces/Types */
 import {
     AuthInterface,

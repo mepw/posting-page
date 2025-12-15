@@ -67,33 +67,27 @@ class UserService extends DatabaseModel {
         const response_data: ResponseDataInterface<LoginResponseType> = { status: false, error: null, result: undefined };
 
         try{
-            console.log("Starting userLogin with params:", params);
-
             const userModel = new UserModel();
-            console.log("UserModel instance created");
 
             const { user_data: [user] } = await userModel.fetchUser<CreateUserParamsTypes>({
                 fields_to_select: `*`,
                 where_params: `email = $1`,
                 where_values: [params.email]
             });
-            console.log("Fetched user:", user);
 
             if(!user){
                 throw new Error("User not found");
             }
 
             const password_match = await bcrypt.compare(params.password, user.password!);
-            console.log("Password match result:", password_match);
 
             if(!password_match){
                 throw new Error("Password mismatch");
             }
 
-            if(!JWT || !JWT.access || !JWT.refresh){
+            if(! JWT || ! JWT.access || ! JWT.refresh){
                 throw new Error("JWT missing");
             }
-            console.log("JWT tokens are available");
 
             const { access, refresh } = JWT;
 
@@ -103,18 +97,15 @@ class UserService extends DatabaseModel {
                 last_name: user.last_name,
                 email: user.email
             };
-            console.log("JWT payload prepared:", payload);
 
             response_data.status = true;
             response_data.result = {
                 access_token: generateJWTAuthToken(payload, access),
                 refresh_token: generateJWTAuthToken({ id: user.id } as JWTUserPayload, refresh)
             };
-            console.log("Generated tokens:", response_data.result);
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service userlogin';
-            console.log("Error in userLogin:", response_data.error);
         }
     
         return response_data;

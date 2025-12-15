@@ -61,7 +61,7 @@ class PostController {
     updatePost = async (req: Request, res: Response): Promise<void> => {
         try{
             const post_service = new postService();
-            const post_data: UpdatePostType = { ...req.body, id: req.params.id };
+            const post_data: UpdatePostType = { ...req.body, id: Number(req.params.id), user_id: req.validated_user_data?.id!  };
             const response_data = await post_service.updatePost(post_data);
             res.json(response_data);
         }

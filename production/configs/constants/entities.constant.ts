@@ -7,9 +7,9 @@ export interface FileContentInterface {
 export interface DatabaseInterface {
     host: string;
     user: string;
-    password: string
-    database: string
-    port: number
+    password: string;
+    database: string;
+    port: number;
 }
 
 export interface AuthAPIInterface {
@@ -27,19 +27,17 @@ export interface JWTInterface {
     options: SignOptions;
     access: TokenCredentialsTypes;
     refresh: TokenCredentialsTypes;
-    
 }
 
 export type TokenCredentialsTypes = {
-  secret_key: string;  
-  expires_in: string;
+    secret_key: string;
+    expires_in: string;
 };
 
 export type BcryptType = {
     SECRET_KEY: string;
     SALT_ROUNDS: number;
-}
-
+};
 
 export interface SentryInterface {
     dsn: string;

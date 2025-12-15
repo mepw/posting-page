@@ -7,7 +7,7 @@ const PostRoute: Router = Router();
 
 PostRoute.post("/newpost",exec(postValidation), exec(PostController.createPost));
 PostRoute.get("/post", exec(PostController.getAllPost));
-PostRoute.put("/edit/:id", exec(PostController.updatePost));
+PostRoute.put("/edit/:id", exec(postValidation),exec(PostController.updatePost));
 PostRoute.delete("/delete/:id", exec(PostController.deletePost));
 
 export default PostRoute;

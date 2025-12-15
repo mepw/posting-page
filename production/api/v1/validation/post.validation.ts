@@ -9,6 +9,7 @@ export const postValidation = (req: Request, res: Response, next: NextFunction) 
         description: z.string().regex(REGEX.name_format, { message: "Description must be text" }),
         post_topic_id: z.number().nullable(),    
         post_sub_topic_id: z.number().nullable(),
+        user_id: z.number(),
     });
 
     const validation_result = post_validation.safeParse(req.body);

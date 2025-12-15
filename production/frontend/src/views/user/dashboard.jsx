@@ -43,27 +43,27 @@ export default function Dashboard() {
     // --- New states for All Users ---
     const [allUsers, setAllUsers] = useState([]);
     const [userFilter, setUserFilter] = useState("");
-const fetchWithToken = async (url, options = {}) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) navigate("/login");
+    const fetchWithToken = async (url, options = {}) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) navigate("/login");
 
-    const res = await fetch(`${API_BASE}${url}`, {
-        ...options,
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            ...(options.headers || {}),
-        },
-    });
+        const res = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                ...(options.headers || {}),
+            },
+        });
 
-    if (res.status === 401) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
-    }
+        if (res.status === 401) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            navigate("/login");
+        }
 
-    return res;
-};
+        return res;
+    };
     // --- Fetch all users on init ---
     useEffect(() => {
         const fetchUsers = async () => {
@@ -94,13 +94,13 @@ const fetchWithToken = async (url, options = {}) => {
     });
 
     // --- Fetch with token ---
-// --- Fetch with token ---
-// --- Fetch with token ---
+    // --- Fetch with token ---
+    // --- Fetch with token ---
 
 
 
 
-// --- Fetch all users on init ---
+    // --- Fetch all users on init ---
     const refreshPosts = async () => {
         try {
             const postRes = await fetchWithToken("/post/post");
@@ -281,41 +281,51 @@ const fetchWithToken = async (url, options = {}) => {
     };
 
     // --- Posts ---
-    const handlePostSubmit = async (e) => {
-        e.preventDefault();
-        if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
-            setErrors(["Please fill all required fields"]);
+const handlePostSubmit = async (e) => {
+    // ... existing code ...
+
+    if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
+        setErrors(["Please fill all required fields"]);
+        return;
+    }
+
+    try {
+        const url = editingPostId ? `/post/edit/${editingPostId}` : "/post/newpost";
+        const method = editingPostId ? "PUT" : "POST";
+        const res = await fetchWithToken(url, {
+            method,
+            body: JSON.stringify({
+                title: postTitle.trim(),
+                description: postDesc.trim(),
+                post_topic_id: selectedTopic,
+                post_sub_topic_id: selectedSubTopic || null,
+                user_id: user?.id,
+            }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.status === false) {
+            setErrors([data.error || "Failed to save post"]);
             return;
         }
-        try {
-            const url = editingPostId ? `/post/edit/${editingPostId}` : "/post/newpost";
-            const method = editingPostId ? "PUT" : "POST";
-            const res = await fetchWithToken(url, {
-                method,
-                body: JSON.stringify({
-                    title: postTitle.trim(),
-                    description: postDesc.trim(),
-                    post_topic_id: selectedTopic,
-                    post_sub_topic_id: selectedSubTopic || null,
-                    user_id: user?.id,
-                }),
-            });
-            const data = await res.json();
-            if (!res.ok || data.status === false) {
-                setErrors([data.error || "Failed to save post"]);
-                return;
-            }
-            await refreshPosts();
-            setPostTitle("");
-            setPostDesc("");
-            setSelectedTopic(null);
-            setSelectedSubTopic(null);
-            setEditingPostId(null);
-            closeModalPostHandler();
-        } catch {
-            setErrors(["Failed to save post"]);
+
+        // Check if the user_id in the payload matches the user_id of the currently logged-in user
+        if (editingPostId && user?.id !== post_data?.user_id) {
+            setErrors(["You are not authorized to edit this post"]);
+            return;
         }
-    };
+
+        await refreshPosts();
+        setPostTitle("");
+        setPostDesc("");
+        setSelectedTopic(null);
+        setSelectedSubTopic(null);
+        setEditingPostId(null);
+        closeModalPostHandler();
+    } catch {
+        setErrors(["Failed to save post"]);
+    }
+};
+
 
     const handleDeletePost = async (id) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -459,7 +469,7 @@ const fetchWithToken = async (url, options = {}) => {
                 return;
             }
 
-            setUser(data.result); 
+            setUser(data.result);
             closeModalProfileHandler();
         } catch {
             setErrors(["Failed to update profile"]);
@@ -610,12 +620,23 @@ const fetchWithToken = async (url, options = {}) => {
                             <option value="">Select Topic</option>
                             {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                         </select>
-                        <select value={selectedSubTopic || ""} onChange={handleSubTopicChange}>
-                            <option value="">Select SubTopic (Optional)</option>
-                            {subTopics
-                                .filter((st) => st.topic_id === selectedTopic)
-                                .map((st) => <option key={st.id} value={st.id}>{st.name}</option>)}
-                        </select>
+<select value={selectedSubTopic ?? ""} onChange={handleSubTopicChange}>
+  <option value="">Select SubTopic (Optional)</option>
+  {selectedTopic !== null &&
+    (() => {
+      const filtered = subTopics.filter(
+        st => Number(st.topic_id) === Number(selectedTopic)
+      );
+      console.log("Filtered Subtopics:", filtered); // <--- Here
+      return filtered.map(st => (
+        <option key={st.id} value={st.id}>
+          {st.name}
+        </option>
+      ));
+    })()}
+</select>
+
+
                         <button type="submit">{editingPostId ? "Edit Post" : "Create Post"}</button>
                         <button type="button" onClick={closeModalPostHandler}>Cancel</button>
                     </form>
