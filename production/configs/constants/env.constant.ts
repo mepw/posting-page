@@ -27,6 +27,9 @@ export const SHOW_ERROR_DETAILS = CONSTANTS.SHOW_ERROR_DETAILS;
 export const DATABASE = CONSTANTS.DATABASE as DatabaseInterface;
 export const BCRYPT = CONSTANTS.BCRYPT as BcryptType;
 export const READ_REPLICA_DATABASE = CONSTANTS.READ_REPLICA_DATABASE as DatabaseInterface;
+export const SMTP_USER = ENV.SMTP_USER as string;
+export const SMTP_PASS = ENV.SMTP_PASS as string;
+export const SMTP_FROM = ENV.SMTP_FROM as string;
 
 /* Sentry */
 export const SENTRY = CONSTANTS.SENTRY as SentryInterface;

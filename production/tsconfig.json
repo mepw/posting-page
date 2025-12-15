@@ -11,8 +11,13 @@
     "lib": ["ES2015", "DOM", "DOM.Iterable"],
     "moduleResolution": "node16",
     "resolveJsonModule": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+   "types": ["node", "jest", "@types/nodemailer"]
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "production/api/v1/helpers/nodemailer.d.ts"
+  ],
   "exclude": ["node_modules/**/*"]
 }
