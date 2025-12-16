@@ -149,6 +149,26 @@ class User extends UserService {
             res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error: (error as Error).message || 'error in getting user', });
         }
     };
+
+    /** DOCU: Get user email controller to process requests for retrieving user emails.
+     *       This function calls the user service to fetch user emails and returns the result as a JSON response.
+     * @returns void - Sends a JSON response containing user emails and/or error message
+     * @param req - Express request object containing validated user data
+     * @param res - Express response object used to send JSON response
+     * @author Keith
+     * last updated at: Dec 16, 2025
+    */
+    getUserEmail = async (req: Request, res: Response): Promise<void> => {
+        try{
+            const user_service = new UserService();
+            const response_data: ResponseDataInterface<CreateUserParamsTypes[]> = await user_service.getUserEmails({} as CreateUserParamsTypes);
+            res.json(response_data);
+        }
+        catch(error){
+            res.json({ ...RESPONSE_DATA_DEFAULT_VALUE, error:(error as Error).message || 'error in getting users', });
+        }
+    };
+
 }
 
 export default new User();

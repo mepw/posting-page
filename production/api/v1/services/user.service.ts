@@ -309,6 +309,38 @@ class UserService extends DatabaseModel {
         return response_data;
     };
 
+    /**
+     * DOCU: This function fetches a user by email and returns the user data.
+     * @param params - Object containing the user email
+     * @returns response_data - JSON containing status, user data (if found), and/or error message
+     * @author Keith
+     * Last updated at: Dec 16, 2025
+     */
+    getUserEmails = async (params: CreateUserParamsTypes): Promise<ResponseDataInterface<CreateUserParamsTypes[]>> => {
+        const response_data: ResponseDataInterface<CreateUserParamsTypes[]> = { status: false, error: null, result: undefined };
+
+        try{
+            const user_model = new UserModel();
+            const { user_data } = await user_model.fetchUser<CreateUserParamsTypes>({
+                fields_to_select: "email = $1",
+                where_values: [params.email],
+            });
+            
+            if(!user_data.length){
+                throw new Error("User not found.");
+            }
+            else{
+                response_data.status = true;
+                response_data.result = user_data;
+            }
+        }
+        catch(error){
+            response_data.error = (error as Error).message || 'error in service getuserbyid';
+        }
+
+        return response_data;
+    };
+    
 }
 
 export default UserService;

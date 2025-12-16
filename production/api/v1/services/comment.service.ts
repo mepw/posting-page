@@ -2,7 +2,7 @@ import { CreatePostComment } from "../entities/types/comment.type";
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import CommentModel from "../models/post_comment.model";
 import PostModel from "../models/post.model";
-import { sendEmail } from "../helpers/email.helper";
+import { sendNewCommentEmail } from "../helpers/email.helper";
 
 
 class UserComment {
@@ -18,40 +18,46 @@ class UserComment {
     createNewComment = async (params: CreatePostComment): Promise<ResponseDataInterface<CreatePostComment>> => {
         const response_data: ResponseDataInterface<CreatePostComment> = { status: false, error: null, result: undefined };
 
-        try {
+        try{
             const post_comment = new CommentModel();
             const { id, post_id } = await post_comment.createNewComment(params);
 
-            if(!id || !post_id){
-                throw new Error("Failed to create comment.");
-            }
-
             const post_model = new PostModel();
-            const post_owner = await post_model.fetchModel<{ user_id: number; email: string }>({
-                fields_to_select: 'posts.user_id, users.email',
+            const post_owner = await post_model.fetchModel<{ user_id: number; email: string; first_name: string; last_name: string; title: string }>({
+                fields_to_select: 'posts.title,posts.user_id, users.email, users.first_name, users.last_name',
                 join_statement: 'INNER JOIN user_stories.users users ON posts.user_id = users.id',
                 where_params: 'posts.id = $1 LIMIT 1', 
-                where_values: [post_id]               
+                where_values: [post_id,]               
             });
 
             const owner_email = post_owner.new_user_post[0]?.email;
+            const owner_first_name = post_owner.new_user_post[0]?.first_name;
+            const owner_last_name = post_owner.new_user_post[0]?.last_name;
+            const title =  post_owner.new_user_post[0]?.title;
 
-            if(owner_email){await sendEmail({
-                    to: owner_email,
-                    subject: 'New comment on your post',
-                    text: `User ${params.user_id} commented: "${params.comment}"`
+            const commenter_first_name = params.first_name;
+            const commenter_last_name = params.last_name;
+
+            if(owner_email){
+                await sendNewCommentEmail(owner_email, {
+                    ...params,
+                    owner_first_name,
+                    owner_last_name,
+                    commenter_first_name,
+                    commenter_last_name,
+                    title,
                 });
             }
 
             response_data.status = true;
-            response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment };
+            response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment, last_name: params.last_name, first_name: params.first_name, title: params.title };
         }
         catch(error){
             response_data.error = (error as Error).message || 'error in service create comment';
         }
 
         return response_data;
-    };
+    }
 
 
 }

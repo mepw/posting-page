@@ -19,7 +19,14 @@ class PostCommentController{
     createComment = async (req: Request, res: Response): Promise<void> => {
         try{
             const comment_service = new CommentService();
-            const comment_data: CreatePostComment = { ...req.body, post_id: req.body.post_id, user_id: req.validated_user_data?.id };
+            const comment_data: CreatePostComment = { 
+                ...req.body, 
+                post_id: req.body.post_id, 
+                user_id: req.validated_user_data?.id, 
+                first_name: req.validated_user_data?.first_name, 
+                last_name: req.validated_user_data?.last_name 
+            };
+            
             const response_data: ResponseDataInterface<CreatePostComment> = await comment_service.createNewComment(comment_data);
             res.json(response_data);
         }

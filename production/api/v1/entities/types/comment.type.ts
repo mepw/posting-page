@@ -3,6 +3,9 @@ export type CreatePostComment = {
     user_id: number;
     post_id: number;
     comment: string;
+    last_name: string;
+    first_name: string;
+    title: string;
 }
 
 export type InsertedComment = {
