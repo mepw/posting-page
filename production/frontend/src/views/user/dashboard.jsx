@@ -281,7 +281,7 @@ export default function Dashboard() {
     };
 
     // --- Posts ---
-const handlePostSubmit = async (e) => {
+const handlePostSubmit = async () => {
     // ... existing code ...
 
     if (!postTitle.trim() || !postDesc.trim() || selectedTopic === null) {
@@ -305,12 +305,6 @@ const handlePostSubmit = async (e) => {
         const data = await res.json();
         if (!res.ok || data.status === false) {
             setErrors([data.error || "Failed to save post"]);
-            return;
-        }
-
-        // Check if the user_id in the payload matches the user_id of the currently logged-in user
-        if (editingPostId && user?.id !== post_data?.user_id) {
-            setErrors(["You are not authorized to edit this post"]);
             return;
         }
 

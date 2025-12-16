@@ -34,7 +34,6 @@ class UserComment {
                 where_values: [post_id]               
             });
 
-
             const owner_email = post_owner.new_user_post[0]?.email;
 
             if(owner_email){await sendEmail({
@@ -47,7 +46,7 @@ class UserComment {
             response_data.status = true;
             response_data.result = { id, user_id: params.user_id, post_id, comment: params.comment };
         }
-        catch (error) {
+        catch(error){
             response_data.error = (error as Error).message || 'error in service create comment';
         }
 

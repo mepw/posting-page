@@ -43,6 +43,12 @@ export interface SentryInterface {
     dsn: string;
 }
 
+export interface GmailSmtpTypes {
+    APP_EMAIL_ADDRESS: string;
+    APP_PASSWORD: string;
+    APP_BCC_EMAIL_ADDRESS: string;
+}
+
 export interface ConstantsInterface {
     [key: string]: 
         | string
@@ -53,5 +59,6 @@ export interface ConstantsInterface {
         | JWTInterface
         | SentryInterface
         | BcryptType
-        | TokenCredentialsTypes;
+        | TokenCredentialsTypes
+        | GmailSmtpTypes;
 }
