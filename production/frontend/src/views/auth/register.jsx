@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// HobbiesInput component with preset suggestions
+// HobbiesInput component with only preset suggestions
 function HobbiesInput({ hobbies, setHobbies }) {
-    const [inputValue, setInputValue] = useState("");
-
     // Suggested hobbies
     const suggestedHobbies = [
         "Playing basketball",
@@ -25,23 +23,8 @@ function HobbiesInput({ hobbies, setHobbies }) {
         }
     };
 
-    const handleAddHobby = (e) => {
-        e.preventDefault();
-        const value = inputValue.trim();
-        if (value && typeof value === "string" && !hobbies.includes(value)) {
-            addHobby(value);
-        }
-        setInputValue("");
-    };
-
     const handleRemoveHobby = (hobbyToRemove) => {
         setHobbies(hobbies.filter((hobby) => hobby !== hobbyToRemove));
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            handleAddHobby(e);
-        }
     };
 
     return (
@@ -126,7 +109,14 @@ export default function Register() {
         setLoading(true);
 
         try {
+            // Only send selected hobbies
             const validHobbies = hobbies.map((h) => h.trim()).filter((h) => h.length > 0);
+
+            if (validHobbies.length === 0) {
+                setErrors(["Please select at least one hobby."]);
+                setLoading(false);
+                return;
+            }
 
             const res = await fetch("/api/v1/unauth/signup", {
                 method: "POST",
@@ -144,13 +134,29 @@ export default function Register() {
             const data = await res.json();
 
             if (!res.ok || data.status === false) {
+                const formattedErrors = [];
                 if (data.errors && Array.isArray(data.errors)) {
-                    setErrors(data.errors);
+                    data.errors.forEach((err) => {
+                        if (typeof err === "string") {
+                            formattedErrors.push(err);
+                        } else if (typeof err === "object" && err !== null) {
+                            if (err.issues && Array.isArray(err.issues)) {
+                                formattedErrors.push(err.issues.join(", "));
+                            } else if (err.message) {
+                                formattedErrors.push(err.message);
+                            } else {
+                                formattedErrors.push(JSON.stringify(err));
+                            }
+                        } else {
+                            formattedErrors.push(String(err));
+                        }
+                    });
                 } else if (data.error) {
-                    setErrors([data.error]);
+                    formattedErrors.push(data.error);
                 } else {
-                    setErrors(["Registration failed."]);
+                    formattedErrors.push("Registration failed.");
                 }
+                setErrors(formattedErrors);
                 setLoading(false);
                 return;
             }
@@ -162,6 +168,7 @@ export default function Register() {
             }, 2000);
 
         } catch (err) {
+            console.error(err);
             setErrors(["Something went wrong. Try again."]);
         } finally {
             setLoading(false);
@@ -175,7 +182,7 @@ export default function Register() {
             {errors.length > 0 && (
                 <ul style={{ color: "red" }}>
                     {errors.map((err, idx) => (
-                        <li key={idx}>{err}</li>
+                        <li key={idx}>{typeof err === "string" ? err : JSON.stringify(err)}</li>
                     ))}
                 </ul>
             )}

@@ -5,7 +5,7 @@ import { RESPONSE_DATA_DEFAULT_VALUE } from "../../../configs/constants/app.cons
 import { ResponseDataInterface } from "../entities/interfaces/global.interface";
 import { LoginResponseType } from "../entities/types/session.type";
 
-class User extends UserService {
+class User{
 
     /**
      * DOCU: This function handles user sign-up. 

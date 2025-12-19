@@ -1,19 +1,17 @@
 import { string, z } from 'zod'
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { REGEX } from "../../../configs/constants/user_validation.constant";
 import { checkFieldHandler } from "../helpers/user_helper";
 
 export const validateSignUpUser = (req: Request, res: Response, next: NextFunction) => {
     const sign_up_user_schema = z.object({
-        first_name: z.string().regex(REGEX.name_format, { message: "First name must not contain special characters." }),
-        last_name: z.string().regex(REGEX.name_format, { message: "Last name must not contain special characters." }),
+        first_name: z.string().regex(/^[a-zA-Z\s]+$/, { message: "First name must only contain letters." }),
+        last_name: z.string().regex(/^[a-zA-Z\s]+$/, { message: "Last name must only contain letters." }),
         email: z.string().email({ message: "Invalid email address." }),
         password: z.string().min(6, { message: "Password must be at least 6 characters long." }),
         hobbies: z.array(z.string()),
     });
 
     const validation_result = sign_up_user_schema.safeParse(req.body);
-
     checkFieldHandler<z.infer<typeof sign_up_user_schema>>(validation_result, req, res, next);
 };
 
