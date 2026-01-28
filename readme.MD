@@ -1,4 +1,4 @@
-# TypeScript Express PostgreSQL Boilerplate
+# TypeScript Express PostgreSQL Boilerplate 
 
 A lightweight, production-ready Express.js boilerplate with JWT authentication, PostgreSQL database support, TypeScript, Zod validation, and Docker configuration.
 
