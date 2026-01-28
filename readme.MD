@@ -952,3 +952,5 @@ MIT
 For issues and questions, please open an issue on GitHub.
 
 **Last Updated:** November 12, 2025
+
+example
